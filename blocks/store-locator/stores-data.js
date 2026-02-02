@@ -1,0 +1,195 @@
+/**
+ * Static store data for Store Locator
+ * In production, this could be replaced with API calls or loaded from JSON
+ */
+
+export const storesData = {
+  stores: [
+    {
+      id: 'store-001',
+      name: 'Downtown Market',
+      address: {
+        street: '123 Main Street',
+        city: 'Portland',
+        state: 'OR',
+        zip: '97201',
+        coordinates: {
+          lat: 45.5231,
+          lng: -122.6765,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0100',
+        email: 'downtown@store.com',
+      },
+      hours: {
+        monday: { open: '07:00', close: '22:00' },
+        tuesday: { open: '07:00', close: '22:00' },
+        wednesday: { open: '07:00', close: '22:00' },
+        thursday: { open: '07:00', close: '22:00' },
+        friday: { open: '07:00', close: '23:00' },
+        saturday: { open: '07:00', close: '23:00' },
+        sunday: { open: '08:00', close: '21:00' },
+      },
+      services: ['pharmacy', 'deli', 'bakery', 'pickup', 'delivery'],
+      specialHours: [],
+      image: '/images/stores/downtown-market.jpg',
+      featured: true,
+    },
+    {
+      id: 'store-002',
+      name: 'Eastside Grocery',
+      address: {
+        street: '456 Oak Avenue',
+        city: 'Portland',
+        state: 'OR',
+        zip: '97214',
+        coordinates: {
+          lat: 45.5155,
+          lng: -122.6512,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0200',
+        email: 'eastside@store.com',
+      },
+      hours: {
+        monday: { open: '06:00', close: '23:00' },
+        tuesday: { open: '06:00', close: '23:00' },
+        wednesday: { open: '06:00', close: '23:00' },
+        thursday: { open: '06:00', close: '23:00' },
+        friday: { open: '06:00', close: '00:00' },
+        saturday: { open: '06:00', close: '00:00' },
+        sunday: { open: '07:00', close: '22:00' },
+      },
+      services: ['pharmacy', 'pickup', 'delivery', '24-hour'],
+      specialHours: [],
+      image: '/images/stores/eastside-grocery.jpg',
+      featured: false,
+    },
+    {
+      id: 'store-003',
+      name: 'Westside Fresh Foods',
+      address: {
+        street: '789 Elm Street',
+        city: 'Portland',
+        state: 'OR',
+        zip: '97205',
+        coordinates: {
+          lat: 45.5272,
+          lng: -122.6905,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0300',
+        email: 'westside@store.com',
+      },
+      hours: {
+        monday: { open: '08:00', close: '21:00' },
+        tuesday: { open: '08:00', close: '21:00' },
+        wednesday: { open: '08:00', close: '21:00' },
+        thursday: { open: '08:00', close: '21:00' },
+        friday: { open: '08:00', close: '22:00' },
+        saturday: { open: '08:00', close: '22:00' },
+        sunday: { open: '09:00', close: '20:00' },
+      },
+      services: ['deli', 'bakery', 'pickup', 'organic'],
+      specialHours: [],
+      image: '/images/stores/westside-fresh.jpg',
+      featured: false,
+    },
+    {
+      id: 'store-004',
+      name: 'North Portland Market',
+      address: {
+        street: '321 Pine Boulevard',
+        city: 'Portland',
+        state: 'OR',
+        zip: '97217',
+        coordinates: {
+          lat: 45.5788,
+          lng: -122.6765,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0400',
+        email: 'north@store.com',
+      },
+      hours: {
+        monday: { open: '07:00', close: '22:00' },
+        tuesday: { open: '07:00', close: '22:00' },
+        wednesday: { open: '07:00', close: '22:00' },
+        thursday: { open: '07:00', close: '22:00' },
+        friday: { open: '07:00', close: '23:00' },
+        saturday: { open: '07:00', close: '23:00' },
+        sunday: { open: '08:00', close: '21:00' },
+      },
+      services: ['pharmacy', 'deli', 'bakery', 'pickup', 'delivery', 'gas-station'],
+      specialHours: [],
+      image: '/images/stores/north-market.jpg',
+      featured: true,
+    },
+    {
+      id: 'store-005',
+      name: 'Southeast Express',
+      address: {
+        street: '654 Maple Drive',
+        city: 'Portland',
+        state: 'OR',
+        zip: '97202',
+        coordinates: {
+          lat: 45.4833,
+          lng: -122.6394,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0500',
+        email: 'southeast@store.com',
+      },
+      hours: {
+        monday: { open: '00:00', close: '23:59' },
+        tuesday: { open: '00:00', close: '23:59' },
+        wednesday: { open: '00:00', close: '23:59' },
+        thursday: { open: '00:00', close: '23:59' },
+        friday: { open: '00:00', close: '23:59' },
+        saturday: { open: '00:00', close: '23:59' },
+        sunday: { open: '00:00', close: '23:59' },
+      },
+      services: ['pharmacy', 'pickup', 'delivery', '24-hour', 'gas-station'],
+      specialHours: [],
+      image: '/images/stores/southeast-express.jpg',
+      featured: true,
+    },
+    {
+      id: 'store-006',
+      name: 'Beaverton Plaza',
+      address: {
+        street: '987 Cedar Lane',
+        city: 'Beaverton',
+        state: 'OR',
+        zip: '97005',
+        coordinates: {
+          lat: 45.4871,
+          lng: -122.8037,
+        },
+      },
+      contact: {
+        phone: '(503) 555-0600',
+        email: 'beaverton@store.com',
+      },
+      hours: {
+        monday: { open: '07:00', close: '22:00' },
+        tuesday: { open: '07:00', close: '22:00' },
+        wednesday: { open: '07:00', close: '22:00' },
+        thursday: { open: '07:00', close: '22:00' },
+        friday: { open: '07:00', close: '23:00' },
+        saturday: { open: '07:00', close: '23:00' },
+        sunday: { open: '08:00', close: '21:00' },
+      },
+      services: ['pharmacy', 'deli', 'bakery', 'pickup', 'delivery', 'organic'],
+      specialHours: [],
+      image: '/images/stores/beaverton-plaza.jpg',
+      featured: false,
+    },
+  ],
+};

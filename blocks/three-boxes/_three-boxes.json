@@ -1,0 +1,86 @@
+{
+  "definitions": [
+    {
+      "title": "Three Boxes",
+      "id": "three-boxes",
+      "plugins": {
+        "da": {
+          "name": "three-boxes",
+          "rows": 3,
+          "columns": 3,
+          "behaviour": "columns"
+        }
+      }
+    },
+    {
+      "title": "Three Boxes Row",
+      "id": "three-boxes-row",
+      "plugins": {
+        "da": {
+          "name": "three-boxes-row",
+          "behaviour": "columns-row"
+        }
+      }
+    },
+    {
+      "title": "Three Boxes Cell",
+      "id": "three-boxes-cell",
+      "plugins": {
+        "da": {
+          "unsafeHTML": "<div></div>",
+          "behaviour": "columns-cell"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "three-boxes",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "alignment",
+          "label": "Box Alignment",
+          "description": "Horizontal alignment of the three boxes",
+          "value": "center",
+          "required": false,
+          "options": [
+            {
+              "name": "Left",
+              "value": "left"
+            },
+            {
+              "name": "Center",
+              "value": "center"
+            },
+            {
+              "name": "Right",
+              "value": "right"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "three-boxes",
+      "components": [
+        "three-boxes-row"
+      ]
+    },
+    {
+      "id": "three-boxes-row",
+      "components": []
+    },
+    {
+      "id": "three-boxes-cell",
+      "components": [
+        "text",
+        "image",
+        "button"
+      ]
+    }
+  ]
+}

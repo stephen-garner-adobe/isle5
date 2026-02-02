@@ -229,6 +229,82 @@
     ]
   },
   {
+    "id": "circle-carousel",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "alignment",
+        "label": "Alignment",
+        "description": "Horizontal alignment of the carousel",
+        "value": "center",
+        "required": false,
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ]
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "autoplay",
+        "label": "Enable Autoplay",
+        "description": "Automatically cycle through items every 4 seconds",
+        "value": true,
+        "required": false
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "itemsMobile",
+        "label": "Items Per View (Mobile)",
+        "description": "Number of circles visible on mobile screens",
+        "value": 2,
+        "required": false,
+        "validation": {
+          "numberMin": 1,
+          "numberMax": 4
+        }
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "itemsTablet",
+        "label": "Items Per View (Tablet)",
+        "description": "Number of circles visible on tablet screens",
+        "value": 4,
+        "required": false,
+        "validation": {
+          "numberMin": 2,
+          "numberMax": 6
+        }
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "itemsDesktop",
+        "label": "Items Per View (Desktop)",
+        "description": "Number of circles visible on desktop screens",
+        "value": 6,
+        "required": false,
+        "validation": {
+          "numberMin": 3,
+          "numberMax": 8
+        }
+      }
+    ]
+  },
+  {
     "id": "columns",
     "fields": [
       {
@@ -303,6 +379,269 @@
     ]
   },
   {
+    "id": "search-bar",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "placeholder",
+        "value": "Search Products",
+        "label": "Placeholder Text",
+        "description": "The placeholder text shown in the search input",
+        "required": false
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "alignment",
+        "value": "center",
+        "label": "Alignment",
+        "description": "Horizontal alignment of the search bar",
+        "required": false,
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ]
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "resultCount",
+        "value": 8,
+        "label": "Results Count",
+        "description": "Number of products to show in search results",
+        "required": false,
+        "validation": {
+          "numberMin": 2,
+          "numberMax": 20
+        }
+      }
+    ]
+  },
+  {
+    "id": "slider-accordion",
+    "fields": [
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "slides",
+        "label": "Number of Slides",
+        "description": "Maximum number of slides to display (1-5)",
+        "value": 5,
+        "required": false,
+        "validation": {
+          "numberMin": 1,
+          "numberMax": 5
+        }
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "autoplay",
+        "label": "Enable Autoplay",
+        "description": "Automatically cycle through slides every 5 seconds",
+        "value": true,
+        "required": false
+      }
+    ]
+  },
+  {
+    "id": "store-locator",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "defaultView",
+        "label": "Default View",
+        "description": "Initial display layout for the store locator",
+        "value": "split",
+        "required": false,
+        "options": [
+          {
+            "name": "Split View (50/50)",
+            "value": "split"
+          },
+          {
+            "name": "Map Focused (Sidebar)",
+            "value": "map"
+          },
+          {
+            "name": "List Only (No Map)",
+            "value": "list"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "mapProvider",
+        "label": "Map Provider",
+        "description": "Which mapping service to use (requires API key)",
+        "value": "google",
+        "required": false,
+        "options": [
+          {
+            "name": "Google Maps",
+            "value": "google"
+          },
+          {
+            "name": "OpenStreetMap",
+            "value": "openstreetmap"
+          }
+        ]
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "searchRadius",
+        "label": "Search Radius (miles)",
+        "description": "Default search radius from user location",
+        "value": 25,
+        "required": false,
+        "validation": {
+          "numberMin": 5,
+          "numberMax": 100
+        }
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "maxResults",
+        "label": "Maximum Results",
+        "description": "Maximum number of stores to display",
+        "value": 10,
+        "required": false,
+        "validation": {
+          "numberMin": 5,
+          "numberMax": 50
+        }
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "autoDetect",
+        "label": "Auto-Detect Location",
+        "description": "Automatically use browser geolocation on page load",
+        "value": true,
+        "required": false
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "showDistance",
+        "label": "Show Distance",
+        "description": "Display distance from user to each store",
+        "value": true,
+        "required": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "defaultLocation",
+        "label": "Default Location",
+        "description": "Fallback location if geolocation is denied (e.g., 'Portland, OR')",
+        "value": "Portland, OR",
+        "required": false
+      },
+      {
+        "component": "multiselect",
+        "valueType": "string",
+        "name": "servicesFilter",
+        "label": "Available Service Filters",
+        "description": "Services that users can filter stores by",
+        "value": [
+          "pharmacy",
+          "pickup",
+          "delivery",
+          "24-hour",
+          "deli",
+          "bakery"
+        ],
+        "required": false,
+        "options": [
+          {
+            "name": "Pharmacy",
+            "value": "pharmacy"
+          },
+          {
+            "name": "Pickup",
+            "value": "pickup"
+          },
+          {
+            "name": "Delivery",
+            "value": "delivery"
+          },
+          {
+            "name": "24 Hour",
+            "value": "24-hour"
+          },
+          {
+            "name": "Deli",
+            "value": "deli"
+          },
+          {
+            "name": "Bakery",
+            "value": "bakery"
+          },
+          {
+            "name": "Organic",
+            "value": "organic"
+          },
+          {
+            "name": "Gas Station",
+            "value": "gas-station"
+          }
+        ]
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "zoomLevel",
+        "label": "Map Zoom Level",
+        "description": "Initial zoom level for the map (8-18, where 11 is city-wide)",
+        "value": 11,
+        "required": false,
+        "validation": {
+          "numberMin": 8,
+          "numberMax": 18
+        }
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "dataSource",
+        "label": "Store Data Source",
+        "description": "Where to load store data from",
+        "value": "block-content",
+        "required": false,
+        "options": [
+          {
+            "name": "Block Content (DA.live rows)",
+            "value": "block-content"
+          },
+          {
+            "name": "JSON File (/data/stores.json)",
+            "value": "json-file"
+          },
+          {
+            "name": "API Endpoint (/api/stores)",
+            "value": "api"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "targeted-block",
     "fields": [
       {
@@ -333,6 +672,34 @@
         "name": "div:nth-child(4)>div:nth-child(2)>p:nth-child(1)",
         "label": "Fragment",
         "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "three-boxes",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "alignment",
+        "label": "Box Alignment",
+        "description": "Horizontal alignment of the three boxes",
+        "value": "center",
+        "required": false,
+        "options": [
+          {
+            "name": "Left",
+            "value": "left"
+          },
+          {
+            "name": "Center",
+            "value": "center"
+          },
+          {
+            "name": "Right",
+            "value": "right"
+          }
+        ]
       }
     ]
   }

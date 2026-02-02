@@ -1,0 +1,144 @@
+/* Three Boxes Block - match slider-accordion pattern exactly */
+
+/* Note: Vertical spacing handled by sections, not blocks (Adobe Commerce Storefront best practice) */
+.three-boxes-container {
+  margin: 0 auto;
+}
+
+.three-boxes {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.three-boxes .three-boxes-container {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-medium);
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Alignment variants - configuration-driven via data attributes */
+.three-boxes .three-boxes-container[data-alignment="left"] {
+  justify-content: flex-start;
+}
+
+.three-boxes .three-boxes-container[data-alignment="center"] {
+  justify-content: center;
+}
+
+.three-boxes .three-boxes-container[data-alignment="right"] {
+  justify-content: flex-end;
+}
+
+.three-boxes .three-boxes-box {
+  background-color: var(--color-neutral-50);
+  border: var(--shape-border-width-1) solid var(--color-neutral-300);
+  border-radius: var(--shape-border-radius-2);
+  padding: var(--spacing-small);
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-small);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  min-height: 60px;
+}
+
+.three-boxes .three-boxes-box:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  border-color: var(--color-brand-500);
+}
+
+/* Icon - left side */
+.three-boxes .three-boxes-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.three-boxes .three-boxes-icon img,
+.three-boxes .three-boxes-icon svg {
+  width: 36px;
+  height: 36px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Text content wrapper - contains title and description stacked */
+.three-boxes .three-boxes-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+/* Title - top of text stack */
+.three-boxes .three-boxes-title {
+  width: 100%;
+  font-weight: 600;
+  font-size: var(--type-body-l-size);
+  line-height: 1.3;
+  color: var(--color-neutral-900);
+}
+
+.three-boxes .three-boxes-title h1,
+.three-boxes .three-boxes-title h2,
+.three-boxes .three-boxes-title h3,
+.three-boxes .three-boxes-title h4,
+.three-boxes .three-boxes-title h5,
+.three-boxes .three-boxes-title h6 {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.three-boxes .three-boxes-title p {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Description - below title */
+.three-boxes .three-boxes-description {
+  width: 100%;
+  color: var(--color-neutral-700);
+  font-size: var(--type-body-s-size);
+  line-height: 1.4;
+}
+
+.three-boxes .three-boxes-description p {
+  margin: 0;
+}
+
+.three-boxes .three-boxes-description a {
+  color: var(--color-brand-500);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.three-boxes .three-boxes-description a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile: Stack boxes vertically */
+@media (max-width: 767px) {
+  .three-boxes .three-boxes-container {
+    flex-direction: column;
+  }
+}
+
+/* Tablet and Desktop: Boxes side-by-side */
+@media (min-width: 768px) {
+  .three-boxes .three-boxes-container {
+    flex-direction: row;
+    gap: var(--spacing-big);
+  }
+}
+

@@ -1,0 +1,1474 @@
+/* Store Locator Block - Adobe Commerce Storefront Design Pattern */
+
+/* Note: Vertical spacing handled by sections, not blocks (Adobe best practice) */
+
+/* ============================================
+   Z-INDEX HIERARCHY (documented for maintainability)
+   ============================================
+   1. Base layer (z-index: 0 or auto) - Store cards, containers
+   10. Autocomplete wrapper (z-index: 1) - Creates stacking context
+   100. Loading spinner overlay (z-index: 100) - Covers list during loading
+   9999. Autocomplete dropdown (z-index: 9999) - Always on top
+   ============================================ */
+
+/* ============================================
+   DESIGN TOKENS - UNIFIED SYSTEM
+   ============================================ */
+.store-locator {
+  /* Heights */
+  --store-map-height: 600px;
+  --store-map-height-mobile: 400px;
+  --store-list-max-height: 600px; /* Match map height */
+  
+  /* Brand Colors */
+  --sl-primary: var(--color-brand-500);
+  --sl-primary-hover: var(--color-brand-600);
+  
+  /* Status Colors */
+  --sl-open: #10b981;
+  --sl-open-bg: rgb(16 185 129 / 10%);
+  --sl-closed: #ef4444;
+  --sl-closed-bg: rgb(239 68 68 / 10%);
+  --sl-warning: #f59e0b;
+  --sl-warning-bg: rgb(245 158 11 / 10%);
+  
+  /* Surface Colors */
+  --sl-surface-primary: #fff;
+  --sl-surface-secondary: #f8f9fa;
+  --sl-surface-tertiary: #f3f4f6;
+  
+  /* Text Hierarchy */
+  --sl-text-primary: #1a1a1a;
+  --sl-text-secondary: #4a4a4a;
+  --sl-text-tertiary: #6b7280;
+  
+  /* Interactive */
+  --sl-link: #06c;
+  --sl-link-hover: #0052a3;
+  
+  /* Border Colors */
+  --sl-border-light: #e5e7eb;
+  --sl-border-medium: #d1d5db;
+  --sl-border-dark: #9ca3af;
+  
+  /* Shadows */
+  --sl-shadow-xs: 0 1px 2px rgb(0 0 0 / 4%);
+  --sl-shadow-sm: 0 1px 2px rgb(0 0 0 / 4%), 0 1px 3px rgb(0 0 0 / 8%);
+  --sl-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 7%), 0 2px 4px -1px rgb(0 0 0 / 5%);
+  --sl-shadow-lg: 0 10px 20px rgb(0 0 0 / 8%), 0 3px 6px rgb(0 0 0 / 5%);
+  --sl-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 10%), 0 10px 10px -5px rgb(0 0 0 / 4%);
+  
+  /* Border Radius */
+  --sl-radius-sm: 8px;
+  --sl-radius-md: 12px;
+  --sl-radius-lg: 16px;
+  --sl-radius-full: 9999px;
+  
+  /* Transitions */
+  --sl-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --sl-transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --sl-transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Container - Follows site's base width system */
+  width: 100%;
+}
+
+.store-locator-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-large); /* Reduced from xlarge for tighter layout */
+
+  /* Width and centering inherited from main > .section > div (max-width: 1200px, margin: auto) */
+
+  /* Adobe Commerce: Prevent layout shift by NOT setting any height constraints */
+
+  /* Let content determine height naturally - no min/max height */
+}
+
+/* ============================================
+   SEARCH SECTION - PREMIUM DESIGN
+   ============================================ */
+.store-locator-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium); /* Reduced from large for compact layout */
+  background: linear-gradient(135deg, var(--sl-surface-primary) 0%, var(--sl-surface-secondary) 100%);
+  padding: var(--spacing-large); /* Reduced from xlarge */
+  border-radius: var(--sl-radius-md); /* Slightly smaller radius */
+  border: 2px solid var(--sl-border-light);
+  overflow: visible; /* Allow autocomplete dropdown to show outside */
+  box-shadow: var(--sl-shadow-sm); /* Lighter shadow */
+}
+
+.store-locator-title {
+  font: var(--type-headline-2-strong-font);
+  letter-spacing: var(--type-headline-2-strong-letter-spacing);
+  color: var(--sl-text-primary);
+  margin: 0;
+  font-size: 20px; /* Reduced from 24px for compact look */
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+/* Search Form - Enhanced layout */
+.store-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small); /* Reduced from medium for tighter spacing */
+  width: 100%;
+  max-width: 100%;
+  overflow: visible; /* Allow autocomplete dropdown to show */
+}
+
+.search-input-wrapper {
+  display: flex;
+  gap: var(--spacing-small);
+  align-items: stretch;
+  width: 100%;
+  position: relative; /* Ensure autocomplete is positioned relative to this */
+}
+
+/* Autocomplete wrapper */
+.autocomplete-wrapper {
+  position: relative;
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: visible; /* Allow dropdown to show outside */
+  z-index: 1; /* Create stacking context */
+}
+
+.search-input {
+  width: 100%;
+  min-width: 0;
+  height: 44px; /* Reduced from 48px */
+  padding: 0 var(--spacing-medium);
+  border: 2px solid var(--sl-border-medium);
+  border-radius: var(--sl-radius-sm);
+  font: var(--type-body-1-default-font);
+  letter-spacing: var(--type-body-1-default-letter-spacing);
+  font-size: 15px; /* Slightly smaller */
+  transition: all var(--sl-transition-base);
+  background: var(--sl-surface-primary);
+  color: var(--sl-text-primary);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-input::placeholder {
+  color: var(--sl-text-tertiary);
+}
+
+.search-input:hover {
+  border-color: var(--sl-border-dark);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--sl-primary);
+  box-shadow: 0 0 0 3px rgb(69 69 69 / 10%);
+}
+
+/* Autocomplete dropdown - Enhanced */
+.autocomplete-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--sl-surface-primary);
+  border: 2px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-sm);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 9999; /* Highest z-index to ensure dropdown is always on top */
+  box-shadow: var(--sl-shadow-lg);
+
+  /* Ensure dropdown doesn't get cut off by parent containers */
+  margin: 0;
+}
+
+.autocomplete-list.visible {
+  display: block !important;
+}
+
+.autocomplete-item {
+  padding: var(--spacing-small) var(--spacing-medium);
+  cursor: pointer;
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  border-bottom: 1px solid var(--sl-border-light);
+  transition: background-color var(--sl-transition-fast);
+  color: var(--sl-text-primary);
+  font-size: 15px;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background: var(--sl-surface-secondary);
+}
+
+/* ============================================
+   BUTTON SYSTEM - PRIMARY/SECONDARY
+   ============================================ */
+   
+.btn-search,
+.btn-location {
+  height: 44px; /* Reduced from 48px */
+  padding: 0 var(--spacing-medium); /* Reduced padding */
+  border-radius: var(--sl-radius-sm);
+  font: var(--type-button-2-font);
+  letter-spacing: var(--type-button-2-letter-spacing);
+  font-weight: 600;
+  font-size: 14px; /* Slightly smaller */
+  cursor: pointer;
+  transition: all var(--sl-transition-base);
+  white-space: nowrap;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-search {
+  background: var(--sl-primary);
+  color: #fff;
+  border: none;
+  box-shadow: var(--sl-shadow-xs);
+}
+
+.btn-search:hover {
+  background: var(--sl-primary-hover);
+  box-shadow: var(--sl-shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-search:active {
+  transform: translateY(0);
+}
+
+.btn-location {
+  background: var(--sl-surface-primary);
+  color: var(--sl-primary);
+  border: 2px solid var(--sl-primary);
+}
+
+.btn-location:hover {
+  background: var(--sl-primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   CONTROLS ROW - FILTERS & SORT
+   ============================================ */
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-small);
+  align-items: center;
+  padding-top: var(--spacing-small);
+  margin-top: 0;
+  border-top: 1px solid var(--sl-border-light);
+}
+
+/* Services Filter - Horizontal layout */
+.services-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xsmall);
+  flex: 1; /* Take remaining space */
+}
+
+.filter-label {
+  font: var(--type-details-overline-font);
+  letter-spacing: var(--type-details-overline-letter-spacing);
+  color: var(--sl-text-tertiary);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 11px;
+  flex-shrink: 0; /* Don't let label shrink */
+  margin-right: var(--spacing-xsmall);
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall);
+  align-items: center;
+}
+
+/* Sort Controls */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xsmall);
+  flex-shrink: 0; /* Keep sort together */
+  margin-left: auto; /* Push to the right on wider screens */
+}
+
+.sort-label {
+  font: var(--type-details-overline-font);
+  letter-spacing: var(--type-details-overline-letter-spacing);
+  color: var(--sl-text-tertiary);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 10px; /* Even smaller */
+  white-space: nowrap;
+}
+
+.sort-select {
+  height: 32px; /* More compact */
+  padding: 0 var(--spacing-small);
+  border: 2px solid var(--sl-border-medium);
+  border-radius: var(--sl-radius-sm);
+  background: var(--sl-surface-primary);
+  color: var(--sl-text-primary);
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  font-size: 12px; /* Smaller */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--sl-transition-base);
+}
+
+.sort-select:hover {
+  border-color: var(--sl-border-dark);
+}
+
+.sort-select:focus {
+  outline: none;
+}
+
+.sort-select:focus-visible {
+  border-color: var(--sl-primary);
+  box-shadow: 0 0 0 3px rgb(69 69 69 / 10%);
+}
+
+/* ============================================
+   FILTER PILLS - MODERN DESIGN
+   ============================================ */
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px; /* More compact */
+  background: var(--sl-surface-primary);
+  border: 2px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-full);
+  cursor: pointer;
+  transition: all var(--sl-transition-base);
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  font-weight: 500;
+  font-size: 12px; /* Smaller */
+  user-select: none;
+  text-transform: capitalize;
+  color: var(--sl-text-secondary);
+  white-space: nowrap;
+}
+
+.checkbox-label:hover {
+  background: var(--sl-surface-secondary);
+  border-color: var(--sl-border-medium);
+  transform: scale(1.02);
+}
+
+.checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 14px; /* Reduced from 16px */
+  height: 14px; /* Reduced from 16px */
+  accent-color: var(--sl-primary);
+  flex-shrink: 0;
+  outline: none;
+}
+
+/* Keyboard focus indicator for checkbox */
+.checkbox-label input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--sl-primary);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.checkbox-label:has(input[type="checkbox"]:checked) {
+  background: var(--sl-primary);
+  border-color: var(--sl-primary);
+  color: #fff;
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.checkbox-label:has(input[type="checkbox"]:checked) input[type="checkbox"] {
+  accent-color: #fff;
+}
+
+/* Open Now checkbox - Green accent */
+.checkbox-open-now {
+  border-color: var(--sl-open);
+  background: var(--sl-open-bg);
+  color: #065f46;
+}
+
+.checkbox-open-now:hover {
+  background: rgb(16 185 129 / 15%);
+}
+
+.checkbox-open-now:has(input[type="checkbox"]:checked) {
+  background: var(--sl-open);
+  border-color: var(--sl-open);
+  color: #fff;
+}
+
+/* Open Now checkbox keyboard focus */
+.checkbox-open-now:has(input[type="checkbox"]:focus-visible) {
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 20%);
+}
+
+/* ============================================
+   CONTENT LAYOUT - VERTICAL STACKING
+   ============================================ */
+.store-locator-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-large);
+  width: 100%;
+}
+
+/* ============================================
+   STORE LIST - IMPROVED SPACING
+   ============================================ */
+.store-list {
+  position: relative; /* For absolute positioned loading overlay */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small); /* Reduced gap */
+  overflow-y: auto;
+  max-height: 800px; /* Allow more space for vertical layout */
+  flex-shrink: 0; /* Prevent flex container from shrinking this */
+  padding: var(--spacing-xsmall) 0;
+  width: 100%;
+  order: 2; /* Store list appears after map */
+}
+
+/* Custom scrollbar - Enhanced */
+.store-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.store-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.store-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--sl-border-medium), var(--sl-border-dark));
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.store-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--sl-border-dark), #6b7280);
+  background-clip: padding-box;
+}
+
+/* ============================================
+   STORE CARDS - MODERN ELEVATED DESIGN
+   ============================================ */
+.store-card {
+  background: var(--sl-surface-primary);
+  border: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-md);
+  padding: var(--spacing-medium); /* Reduced from large */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+  transition: all var(--sl-transition-slow);
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.store-card:hover {
+  border-color: var(--sl-primary);
+  box-shadow: var(--sl-shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Store Photo - Full-bleed image */
+.store-photo {
+  width: calc(100% + calc(var(--spacing-large) * 2));
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  margin: calc(var(--spacing-large) * -1) calc(var(--spacing-large) * -1) var(--spacing-medium);
+  border-bottom: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-md) var(--sl-radius-md) 0 0;
+}
+
+/* Store Card Header - Better hierarchy */
+.store-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+  margin-bottom: 0; /* Removed bottom margin */
+}
+
+.store-name {
+  font: var(--type-headline-2-default-font);
+  letter-spacing: var(--type-headline-2-default-letter-spacing);
+  color: var(--sl-text-primary);
+  font-size: 18px; /* Reduced from 20px */
+  font-weight: 600;
+  line-height: 1.2; /* Tighter line height */
+  margin: 0;
+  flex: 1;
+
+  /* Prevent text overflow on small screens */
+  overflow-wrap: break-word;
+  min-width: 0; /* Allow flex item to shrink below content size */
+}
+
+/* Status Badge - Enhanced with icons */
+.store-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-details-caption-1-font);
+  letter-spacing: var(--type-details-caption-1-letter-spacing);
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: var(--sl-radius-full);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.store-status.open::before {
+  content: "●";
+  color: var(--sl-open);
+  font-size: 14px;
+}
+
+.store-status.open {
+  background: var(--sl-open-bg);
+  color: #065f46;
+  border: 1px solid rgb(16 185 129 / 30%);
+}
+
+.store-status.closed::before {
+  content: "○";
+  color: var(--sl-closed);
+  font-size: 14px;
+}
+
+.store-status.closed {
+  background: var(--sl-closed-bg);
+  color: #991b1b;
+  border: 1px solid rgb(239 68 68 / 30%);
+}
+
+/* Store Address - Clear hierarchy */
+.store-address {
+  font-style: normal;
+  color: var(--sl-text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+
+  /* Prevent text overflow on small screens */
+  overflow-wrap: break-word;
+}
+
+/* Store Distance - Prominent */
+.store-distance {
+  font: var(--type-body-2-strong-font);
+  letter-spacing: var(--type-body-2-strong-letter-spacing);
+  color: var(--sl-link);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxsmall);
+  font-weight: 600;
+}
+
+/* Store Contact */
+.store-contact {
+  display: flex;
+  gap: var(--spacing-small);
+  align-items: center;
+}
+
+.store-phone {
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  color: var(--sl-text-primary);
+  text-decoration: none;
+  transition: color var(--sl-transition-base);
+  font-size: 15px;
+}
+
+.store-phone:hover {
+  color: var(--sl-link);
+  text-decoration: underline;
+}
+
+/* ============================================
+   SERVICE BADGES - ENHANCED DESIGN
+   ============================================ */
+.store-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall);
+}
+
+.service-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, var(--sl-surface-secondary) 0%, var(--sl-surface-primary) 100%);
+  color: var(--sl-text-secondary);
+  border: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-sm);
+  font: var(--type-details-caption-2-font);
+  letter-spacing: var(--type-details-caption-2-letter-spacing);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  transition: all var(--sl-transition-fast);
+}
+
+.service-badge:hover {
+  background: var(--sl-surface-primary);
+  border-color: var(--sl-primary);
+  color: var(--sl-primary);
+  transform: scale(1.05);
+}
+
+/* Store Details - Enhanced container */
+.store-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xxsmall);
+  padding: var(--spacing-medium);
+  background: var(--sl-surface-secondary);
+  border-radius: var(--sl-radius-sm);
+  margin-top: var(--spacing-small);
+  border: 1px solid var(--sl-border-light);
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xsmall);
+  font: var(--type-details-caption-2-font);
+  letter-spacing: var(--type-details-caption-2-letter-spacing);
+  color: var(--sl-text-secondary);
+  font-size: 13px;
+}
+
+.detail-item::before {
+  content: "✓";
+  color: var(--sl-open);
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* Store Hours */
+.store-hours-today {
+  font: var(--type-details-caption-2-font);
+  letter-spacing: var(--type-details-caption-2-letter-spacing);
+  color: var(--sl-text-tertiary);
+  font-size: 13px;
+}
+
+/* ============================================
+   STORE ACTIONS - ENHANCED BUTTONS
+   ============================================ */
+.store-actions {
+  display: flex;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+  margin-top: var(--spacing-small); /* Reduced from medium */
+  padding-top: var(--spacing-small); /* Reduced from medium */
+  border-top: 1px solid var(--sl-border-light); /* Reduced from 2px */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  align-items: stretch; /* Ensure consistent button heights */
+}
+
+.btn-directions,
+.btn-set-store {
+  flex: 1;
+  height: 36px; /* Reduced from 44px */
+  padding: 0 var(--spacing-medium);
+  border-radius: var(--sl-radius-sm);
+  font: var(--type-button-2-font);
+  letter-spacing: var(--type-button-2-letter-spacing);
+  font-weight: 600;
+  font-size: 13px; /* Reduced from 14px */
+  cursor: pointer;
+  transition: all var(--sl-transition-base);
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxsmall);
+  white-space: nowrap;
+}
+
+.btn-directions {
+  background: var(--sl-primary);
+  color: #fff !important;
+  border: none;
+  box-shadow: var(--sl-shadow-xs);
+}
+
+.btn-directions:hover {
+  background: var(--sl-primary-hover);
+  box-shadow: var(--sl-shadow-sm);
+  transform: translateY(-1px);
+  color: #fff !important;
+}
+
+.btn-directions:active {
+  transform: translateY(0);
+  color: #fff !important;
+}
+
+.btn-directions:visited {
+  color: #fff !important;
+}
+
+.btn-set-store {
+  background: var(--sl-surface-primary);
+  color: var(--sl-primary);
+  border: 2px solid var(--sl-primary);
+}
+
+.btn-set-store:hover:not(:disabled) {
+  background: var(--sl-primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.btn-set-store:disabled {
+  cursor: not-allowed;
+  background: var(--sl-open-bg);
+  color: #065f46;
+  border-color: var(--sl-open);
+  opacity: 0.8;
+  transform: none;
+}
+
+/* Map Container - Clean and linear */
+.store-map {
+  height: var(--store-map-height);
+  border-radius: var(--shape-border-radius-2);
+  overflow: hidden;
+  background: var(--color-neutral-100);
+  position: relative;
+  border: var(--shape-border-width-1) solid var(--color-neutral-300);
+  width: 100%;
+  order: 1; /* Map appears first */
+}
+
+.map-placeholder,
+.map-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-small);
+  height: 100%;
+  padding: var(--spacing-xxlarge);
+  text-align: center;
+  color: #595959; /* Readable gray */
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  line-height: 1.6;
+}
+
+.map-placeholder strong {
+  color: #2a2a2a; /* Darker for emphasis */
+  font-weight: 600;
+}
+
+/* Map Info Window Styles - Premium styling */
+.map-info-window {
+  padding: var(--spacing-xxsmall);
+  font-family: var(--type-base-font-family);
+}
+
+.map-info-window h4 {
+  margin: 0 0 var(--spacing-xsmall) 0;
+  font: var(--type-body-1-strong-font);
+  letter-spacing: var(--type-body-1-strong-letter-spacing);
+  color: var(--color-neutral-900);
+}
+
+.map-info-window p {
+  margin: 0 0 var(--spacing-small) 0;
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  color: var(--color-neutral-700);
+}
+
+.map-info-window a {
+  color: var(--color-brand-500);
+  text-decoration: none;
+  font: var(--type-body-2-strong-font);
+  letter-spacing: var(--type-body-2-strong-letter-spacing);
+  transition: color 0.2s ease;
+}
+
+.map-info-window a:hover {
+  color: var(--color-brand-600);
+}
+
+/* Loading Spinner - Overlay to prevent layout shift */
+.loading-spinner {
+  position: absolute;
+  inset: 0;
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-medium);
+  padding: var(--spacing-xxlarge);
+  color: var(--sl-text-tertiary);
+  background: rgb(255 255 255 / 95%);
+  backdrop-filter: blur(4px);
+  border-radius: var(--sl-radius-md);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* Show spinner when active */
+.loading-spinner.active {
+  display: flex;
+}
+
+.loading-spinner p {
+  font: var(--type-body-1-default-font);
+  letter-spacing: var(--type-body-1-default-letter-spacing);
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--sl-border-light);
+  border-top-color: var(--sl-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Adobe Commerce: Smooth fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Error and No Results */
+.error,
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--store-list-max-height); /* Match parent minimum height */
+  padding: var(--spacing-xxlarge);
+  background: var(--sl-surface-secondary);
+  color: var(--color-alert-800);
+  border: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-md);
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+  text-align: center;
+}
+
+.error::before {
+  content: "⚠️";
+  display: block;
+  font-size: 40px;
+  margin-bottom: var(--spacing-small);
+}
+
+.no-results {
+  color: var(--sl-text-tertiary);
+}
+
+.no-results::before {
+  content: "🔍";
+  display: block;
+  font-size: 40px;
+  margin-bottom: var(--spacing-small);
+  opacity: 0.5;
+}
+
+/* Responsive Design */
+
+/* Large Tablet (1024px - 1200px) - Adjust search bar */
+@media (max-width: 1200px) {
+  .search-input-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .autocomplete-wrapper {
+    flex: 0 0 100%;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .btn-search,
+  .btn-location {
+    flex: 1 1 calc(50% - var(--spacing-small) / 2);
+    flex-shrink: 0;
+  }
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS - TABLET
+   ============================================ */
+@media (max-width: 1023px) {
+  .store-locator-container {
+    gap: var(--spacing-medium); /* More compact */
+  }
+
+  .store-locator-search {
+    padding: var(--spacing-medium); /* Reduced padding */
+    gap: var(--spacing-small); /* Tighter spacing */
+  }
+
+  .store-map {
+    height: var(--store-map-height-mobile);
+  }
+
+  .store-list {
+    max-height: 600px;
+    gap: var(--spacing-small);
+  }
+
+  .error,
+  .no-results {
+    min-height: 400px;
+  }
+
+  .services-filter {
+    flex: 1 1 100%; /* Take full width */
+  }
+
+  .sort-controls {
+    margin-left: 0; /* Reset margin */
+  }
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS - MOBILE
+   ============================================ */
+@media (max-width: 767px) {
+  .store-locator-container {
+    gap: var(--spacing-small); /* More compact */
+  }
+
+  .store-locator-search {
+    padding: var(--spacing-medium);
+    gap: var(--spacing-small); /* Tighter spacing */
+    border-radius: var(--sl-radius-md);
+  }
+
+  .store-locator-title {
+    font-size: 18px; /* Slightly smaller */
+  }
+
+  .search-input-wrapper {
+    flex-direction: column;
+    gap: var(--spacing-xsmall); /* Tighter spacing */
+  }
+
+  .autocomplete-wrapper {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+    width: 100%;
+    height: 44px; /* Maintain touch-friendly size */
+  }
+
+  .btn-search,
+  .btn-location {
+    width: 100%;
+    flex: 0 0 auto;
+    height: 44px; /* Maintain touch-friendly size */
+  }
+
+  .controls-row {
+    gap: var(--spacing-xsmall);
+    flex-direction: column; /* Stack vertically */
+    align-items: stretch;
+  }
+
+  .services-filter {
+    width: 100%;
+  }
+
+  .sort-controls {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .sort-select {
+    flex: 1;
+  }
+
+  .filter-checkboxes {
+    width: 100%;
+  }
+
+  .store-list {
+    max-height: 500px;
+    gap: var(--spacing-small);
+  }
+
+  .error,
+  .no-results {
+    min-height: 300px;
+  }
+
+  .store-card {
+    padding: var(--spacing-medium);
+  }
+
+  .store-card-header {
+    flex-direction: column;
+    gap: var(--spacing-xsmall);
+    align-items: flex-start;
+  }
+
+  .store-name {
+    font-size: 18px;
+  }
+
+  .my-store-hero {
+    padding: var(--spacing-medium);
+  }
+
+  .my-store-name {
+    font-size: 18px;
+  }
+
+  .my-store-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xsmall);
+  }
+
+  .my-store-actions {
+    flex-direction: column;
+    gap: var(--spacing-xsmall);
+  }
+
+  .btn-my-store-action,
+  .btn-my-store-change,
+  .btn-my-store-clear {
+    width: 100%;
+    min-width: 0;
+    height: 44px; /* Slightly taller for easier mobile tap */
+  }
+
+  .store-photo {
+    width: calc(100% + calc(var(--spacing-small) * 2));
+    height: 150px;
+    margin: calc(var(--spacing-small) * -1) calc(var(--spacing-small) * -1) var(--spacing-xsmall);
+  }
+
+  .store-status {
+    align-self: flex-start;
+  }
+
+  .store-actions {
+    flex-direction: column;
+    gap: var(--spacing-xsmall);
+  }
+
+  .btn-directions,
+  .btn-set-store {
+    width: 100%;
+  }
+
+  .store-map {
+    height: 350px;
+  }
+}
+
+/* ============================================
+   MY STORE HERO CARD - PREMIUM STORE CARD STYLE
+   ============================================ */
+
+.my-store-hero {
+  background: var(--sl-surface-primary);
+  border: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-md);
+  padding: var(--spacing-medium); /* Reduced from large */
+  margin-bottom: var(--spacing-small); /* Reduced from large */
+  box-shadow: var(--sl-shadow-md); /* Slightly enhanced shadow */
+  transition: all var(--sl-transition-slow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+}
+
+.my-store-hero:hover {
+  border-color: var(--sl-primary);
+  box-shadow: 0 8px 16px -4px rgb(0 0 0 / 12%); /* Slightly more elevated than regular cards */
+  transform: translateY(-2px);
+}
+
+.my-store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0; /* Removed bottom margin */
+}
+
+.my-store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sl-primary);
+  font: var(--type-body-2-strong-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.my-store-name {
+  font: var(--type-headline-3-strong-font);
+  letter-spacing: var(--type-headline-3-strong-letter-spacing);
+  color: var(--sl-text-primary);
+  font-size: 18px; /* Reduced from 20px */
+  font-weight: 600;
+  line-height: 1.2; /* Tighter line height */
+  margin: 0; /* Removed bottom margin */
+
+  /* Prevent text overflow on small screens */
+  overflow-wrap: break-word;
+}
+
+.my-store-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+  align-items: center;
+  margin-bottom: 0; /* Removed bottom margin */
+  font: var(--type-body-2-font);
+  font-size: 14px;
+}
+
+.my-store-address {
+  color: var(--sl-text-secondary);
+}
+
+.my-store-distance {
+  color: var(--sl-link);
+  font-weight: 600;
+}
+
+.my-store-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--sl-radius-full);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.my-store-status.status-open {
+  background: var(--sl-open-bg);
+  color: #065f46;
+}
+
+.my-store-status.status-closing-soon {
+  background: var(--sl-warning-bg);
+  color: #92400e;
+}
+
+.my-store-status.status-opening-soon {
+  background: rgb(59 130 246 / 10%);
+  color: #1e40af;
+}
+
+.my-store-status.status-closed {
+  background: var(--sl-closed-bg);
+  color: #991b1b;
+}
+
+.my-store-status.status-unknown {
+  background: var(--sl-surface-tertiary);
+  color: #4b5563;
+}
+
+.my-store-phone {
+  display: inline-block;
+  color: var(--sl-link);
+  text-decoration: none;
+  font: var(--type-body-2-font);
+  font-size: 14px;
+  margin-bottom: 0; /* Removed bottom margin */
+  transition: color var(--sl-transition-base);
+}
+
+.my-store-phone:hover {
+  color: var(--sl-link-hover);
+  text-decoration: underline;
+}
+
+.my-store-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall);
+  margin-bottom: 0; /* Removed bottom margin */
+}
+
+.service-badge-small {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--sl-surface-secondary);
+  color: var(--sl-text-secondary);
+  border: 1px solid var(--sl-border-light);
+  border-radius: var(--sl-radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.my-store-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall); /* Reduced from small */
+  margin-top: var(--spacing-small); /* Reduced from medium */
+  padding-top: var(--spacing-small); /* Reduced from medium */
+  border-top: 1px solid var(--sl-border-light);
+
+  /* Ensure buttons wrap gracefully on all screen sizes */
+  align-items: stretch;
+}
+
+.btn-my-store-action,
+.btn-my-store-change,
+.btn-my-store-clear {
+  height: 36px; /* Reduced from 40px */
+  padding: 0 var(--spacing-medium);
+  border-radius: var(--sl-radius-sm);
+  font: var(--type-button-2-font);
+  letter-spacing: var(--type-button-2-letter-spacing);
+  font-weight: 600;
+  font-size: 13px; /* Reduced from 14px */
+  text-decoration: none;
+  transition: all var(--sl-transition-base);
+  cursor: pointer;
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Space between icon and text */
+  box-sizing: border-box; /* Prevent border artifacts */
+  -webkit-font-smoothing: antialiased; /* Better text rendering */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.btn-my-store-action {
+  background: #2c2c2c;
+  color: #fff !important;
+  border: none;
+  text-decoration: none !important;
+  box-shadow: var(--sl-shadow-xs); /* Premium subtle shadow */
+}
+
+.btn-my-store-action:hover {
+  background: #1a1a1a;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: var(--sl-shadow-sm);
+  text-decoration: none !important;
+}
+
+.btn-my-store-action:visited {
+  color: #fff !important;
+}
+
+.btn-my-store-action:active {
+  transform: translateY(0);
+}
+
+.btn-my-store-change {
+  background: #2c2c2c;
+  color: #fff !important;
+  border: none;
+  text-decoration: none !important;
+  box-shadow: var(--sl-shadow-xs);
+}
+
+.btn-my-store-change:hover {
+  background: #1a1a1a;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.btn-my-store-change:active {
+  transform: translateY(0);
+}
+
+.btn-my-store-clear {
+  background: var(--sl-surface-primary);
+  color: #dc2626;
+  border: 2px solid var(--sl-border-light);
+}
+
+.btn-my-store-clear:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-my-store-clear:active {
+  transform: translateY(0);
+}
+
+/* Focus states - Accessibility */
+.search-input:focus-visible,
+.btn-search:focus-visible,
+.btn-location:focus-visible,
+.btn-directions:focus-visible,
+/* stylelint-disable-next-line no-descending-specificity */
+.btn-set-store:focus-visible,
+.btn-my-store-action:focus-visible,
+.btn-my-store-change:focus-visible,
+.btn-my-store-clear:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Prevent any double borders or outline artifacts */
+.btn-my-store-action:focus,
+.btn-my-store-change:focus,
+.btn-my-store-clear:focus {
+  outline: none; /* Remove default outline */
+}
+
+.btn-my-store-action:active,
+.btn-my-store-change:active,
+.btn-my-store-clear:active {
+  transform: translateY(0); /* Reset transform on click */
+}
+
+/* Label visual feedback on keyboard focus */
+.checkbox-label:has(input[type="checkbox"]:focus-visible) {
+  border-color: var(--color-brand-500);
+  background: var(--color-brand-50);
+  box-shadow: 0 0 0 2px var(--color-brand-100);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .store-locator-search,
+  .store-map,
+  .store-actions {
+    display: none;
+  }
+
+  .store-card {
+    break-inside: avoid;
+    border: 2px solid #000;
+    box-shadow: none;
+  }
+  
+  .my-store-hero {
+    display: none; /* Hide hero card in print */
+  }
+}
+
+/* Mobile responsive styles for My Store hero card */
+
+/* Duplicate mobile styles removed - consolidated above in main mobile breakpoint */
+
+/* ============================================
+   EXTRA SMALL SCREENS - iPhone SE, etc
+   ============================================ */
+@media (max-width: 374px) {
+  .store-locator-search {
+    padding: var(--spacing-small);
+  }
+
+  .store-locator-title {
+    font-size: 16px;
+  }
+
+  .search-input {
+    height: 44px; /* Larger tap target */
+  }
+
+  .btn-search,
+  .btn-location {
+    height: 44px; /* Larger tap target */
+    font-size: 14px;
+  }
+
+  .checkbox-label {
+    padding: 5px 10px; /* Very compact */
+    font-size: 11px;
+  }
+
+  .store-card {
+    padding: var(--spacing-small);
+  }
+
+  .store-name {
+    font-size: 16px;
+  }
+
+  .my-store-hero {
+    padding: var(--spacing-small);
+  }
+
+  .my-store-name {
+    font-size: 16px;
+  }
+
+  .service-badge,
+  .service-badge-small {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "definitions": [
+    {
+      "title": "Slider Accordion",
+      "id": "slider-accordion",
+      "plugins": {
+        "da": {
+          "name": "slider-accordion",
+          "rows": 5,
+          "columns": 4,
+          "behaviour": "columns"
+        }
+      }
+    },
+    {
+      "title": "Slider Accordion Slide",
+      "id": "slider-accordion-slide",
+      "plugins": {
+        "da": {
+          "name": "slider-accordion-slide",
+          "behaviour": "columns-row"
+        }
+      }
+    },
+    {
+      "title": "Slider Accordion Cell",
+      "id": "slider-accordion-cell",
+      "plugins": {
+        "da": {
+          "unsafeHTML": "<div></div>",
+          "behaviour": "columns-cell"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "slider-accordion",
+      "fields": [
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "slides",
+          "label": "Number of Slides",
+          "description": "Maximum number of slides to display (1-5)",
+          "value": 5,
+          "required": false,
+          "validation": {
+            "numberMin": 1,
+            "numberMax": 5
+          }
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "autoplay",
+          "label": "Enable Autoplay",
+          "description": "Automatically cycle through slides every 5 seconds",
+          "value": true,
+          "required": false
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "slider-accordion",
+      "components": [
+        "slider-accordion-slide"
+      ]
+    },
+    {
+      "id": "slider-accordion-slide",
+      "components": []
+    },
+    {
+      "id": "slider-accordion-cell",
+      "components": [
+        "text",
+        "image",
+        "button"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "definitions": [
+    {
+      "title": "Store Locator",
+      "id": "store-locator",
+      "plugins": {
+        "da": {
+          "name": "store-locator",
+          "rows": 20,
+          "columns": 6,
+          "behaviour": "columns"
+        }
+      }
+    },
+    {
+      "title": "Store Locator Item",
+      "id": "store-locator-item",
+      "plugins": {
+        "da": {
+          "name": "store-locator-item",
+          "behaviour": "columns-row"
+        }
+      }
+    },
+    {
+      "title": "Store Locator Cell",
+      "id": "store-locator-cell",
+      "plugins": {
+        "da": {
+          "unsafeHTML": "<div></div>",
+          "behaviour": "columns-cell"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "store-locator",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "defaultView",
+          "label": "Default View",
+          "description": "Initial display layout for the store locator",
+          "value": "split",
+          "required": false,
+          "options": [
+            {
+              "name": "Split View (50/50)",
+              "value": "split"
+            },
+            {
+              "name": "Map Focused (Sidebar)",
+              "value": "map"
+            },
+            {
+              "name": "List Only (No Map)",
+              "value": "list"
+            }
+          ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "mapProvider",
+          "label": "Map Provider",
+          "description": "Which mapping service to use (requires API key)",
+          "value": "google",
+          "required": false,
+          "options": [
+            {
+              "name": "Google Maps",
+              "value": "google"
+            },
+            {
+              "name": "OpenStreetMap",
+              "value": "openstreetmap"
+            }
+          ]
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "searchRadius",
+          "label": "Search Radius (miles)",
+          "description": "Default search radius from user location",
+          "value": 25,
+          "required": false,
+          "validation": {
+            "numberMin": 5,
+            "numberMax": 100
+          }
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "maxResults",
+          "label": "Maximum Results",
+          "description": "Maximum number of stores to display",
+          "value": 10,
+          "required": false,
+          "validation": {
+            "numberMin": 5,
+            "numberMax": 50
+          }
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "autoDetect",
+          "label": "Auto-Detect Location",
+          "description": "Automatically use browser geolocation on page load",
+          "value": true,
+          "required": false
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "showDistance",
+          "label": "Show Distance",
+          "description": "Display distance from user to each store",
+          "value": true,
+          "required": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "defaultLocation",
+          "label": "Default Location",
+          "description": "Fallback location if geolocation is denied (e.g., 'Portland, OR')",
+          "value": "Portland, OR",
+          "required": false
+        },
+        {
+          "component": "multiselect",
+          "valueType": "string",
+          "name": "servicesFilter",
+          "label": "Available Service Filters",
+          "description": "Services that users can filter stores by",
+          "value": ["pharmacy", "pickup", "delivery", "24-hour", "deli", "bakery"],
+          "required": false,
+          "options": [
+            {
+              "name": "Pharmacy",
+              "value": "pharmacy"
+            },
+            {
+              "name": "Pickup",
+              "value": "pickup"
+            },
+            {
+              "name": "Delivery",
+              "value": "delivery"
+            },
+            {
+              "name": "24 Hour",
+              "value": "24-hour"
+            },
+            {
+              "name": "Deli",
+              "value": "deli"
+            },
+            {
+              "name": "Bakery",
+              "value": "bakery"
+            },
+            {
+              "name": "Organic",
+              "value": "organic"
+            },
+            {
+              "name": "Gas Station",
+              "value": "gas-station"
+            }
+          ]
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "zoomLevel",
+          "label": "Map Zoom Level",
+          "description": "Initial zoom level for the map (8-18, where 11 is city-wide)",
+          "value": 11,
+          "required": false,
+          "validation": {
+            "numberMin": 8,
+            "numberMax": 18
+          }
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "dataSource",
+          "label": "Store Data Source",
+          "description": "Where to load store data from",
+          "value": "block-content",
+          "required": false,
+          "options": [
+            {
+              "name": "Block Content (DA.live rows)",
+              "value": "block-content"
+            },
+            {
+              "name": "JSON File (/data/stores.json)",
+              "value": "json-file"
+            },
+            {
+              "name": "API Endpoint (/api/stores)",
+              "value": "api"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "store-locator",
+      "components": [
+        "store-locator-item"
+      ]
+    },
+    {
+      "id": "store-locator-item",
+      "components": []
+    },
+    {
+      "id": "store-locator-cell",
+      "components": [
+        "text"
+      ]
+    }
+  ]
+}
