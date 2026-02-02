@@ -77,6 +77,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-large); /* Reduced from xlarge for tighter layout */
+  max-width: 100%; /* Prevent overflow on mobile */
+  box-sizing: border-box; /* Include padding in width */
 
   /* Width and centering inherited from main > .section > div (max-width: 1200px, margin: auto) */
 
@@ -983,6 +985,7 @@
 @media (max-width: 767px) {
   .store-locator-container {
     gap: var(--spacing-small); /* More compact */
+    padding: 0 var(--spacing-small); /* Add horizontal padding on mobile */
   }
 
   .store-locator-search {
@@ -1045,6 +1048,7 @@
   .store-list {
     max-height: 500px;
     gap: var(--spacing-small);
+    padding: 0; /* Remove side padding, use container padding instead */
   }
 
   .error,
@@ -1054,6 +1058,8 @@
 
   .store-card {
     padding: var(--spacing-medium);
+    width: 100%; /* Ensure card doesn't overflow */
+    box-sizing: border-box; /* Include padding in width calculation */
   }
 
   .store-card-header {
@@ -1068,6 +1074,8 @@
 
   .my-store-hero {
     padding: var(--spacing-medium);
+    width: 100%; /* Ensure doesn't overflow */
+    box-sizing: border-box; /* Include padding in width */
   }
 
   .my-store-name {
@@ -1083,6 +1091,9 @@
   .my-store-actions {
     flex-direction: column;
     gap: var(--spacing-xsmall);
+    margin: 0 calc(var(--spacing-medium) * -1); /* Extend to card edges */
+    padding: var(--spacing-small) var(--spacing-medium); /* Restore padding */
+    margin-top: var(--spacing-small);
   }
 
   .btn-my-store-action,
@@ -1091,6 +1102,7 @@
     width: 100%;
     min-width: 0;
     height: 44px; /* Slightly taller for easier mobile tap */
+    box-sizing: border-box; /* Include padding in width */
   }
 
   .store-photo {
@@ -1106,11 +1118,17 @@
   .store-actions {
     flex-direction: column;
     gap: var(--spacing-xsmall);
+    margin: 0 calc(var(--spacing-medium) * -1); /* Negative margin to extend to card edges */
+    padding: var(--spacing-small) var(--spacing-medium); /* Restore padding */
+    margin-top: var(--spacing-small);
   }
 
   .btn-directions,
   .btn-set-store {
     width: 100%;
+    box-sizing: border-box; /* Include padding in width */
+    padding: 0 var(--spacing-small); /* Reduce padding on mobile */
+    font-size: 13px; /* Slightly smaller font */
   }
 
   .store-map {
@@ -1427,6 +1445,10 @@
    EXTRA SMALL SCREENS - iPhone SE, etc
    ============================================ */
 @media (max-width: 374px) {
+  .store-locator-container {
+    padding: 0 var(--spacing-xsmall); /* Tighter padding on very small screens */
+  }
+
   .store-locator-search {
     padding: var(--spacing-small);
   }
@@ -1470,5 +1492,11 @@
   .service-badge-small {
     font-size: 10px;
     padding: 3px 8px;
+  }
+
+  .btn-directions,
+  .btn-set-store {
+    font-size: 12px; /* Even smaller on tiny screens */
+    padding: 0 var(--spacing-xsmall);
   }
 }
