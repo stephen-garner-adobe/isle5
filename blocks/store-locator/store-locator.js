@@ -1437,6 +1437,93 @@ function createSearchSection(config, availableServices, onSearch, onSortChange) 
 }
 
 /**
+ * Create rich info window HTML content with all Places API data
+ * @param {Object} store - Store object with Places API data
+ * @returns {string} HTML content for info window
+ */
+function createInfoWindowContent(store) {
+  const isOpen = isStoreOpen(store);
+  const statusClass = isOpen ? 'open' : 'closed';
+  const hoursText = getTodayHours(store);
+
+  // Build photo HTML
+  let photoHTML = '';
+  if (store.photo) {
+    photoHTML = `<img src="${store.photo}" alt="${store.name}" class="info-photo" />`;
+  }
+
+  // Build rating HTML
+  let ratingHTML = '';
+  if (store.rating && store.userRatingsTotal) {
+    const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
+    ratingHTML = `
+      <div class="info-rating">
+        <span class="info-stars">${stars}</span>
+        <span class="info-rating-value">${store.rating}</span>
+        <span class="info-rating-count">· ${store.userRatingsTotal} reviews</span>
+      </div>
+    `;
+  }
+
+  // Build status/hours HTML
+  let statusHoursText = '';
+  if (hoursText && hoursText !== 'Hours not available') {
+    statusHoursText = ` · ${hoursText}`;
+  }
+  const statusHTML = `
+    <div class="info-status-row">
+      <span class="info-status-dot ${statusClass}">●</span>
+      <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
+    </div>
+  `;
+
+  // Build phone HTML
+  let phoneHTML = '';
+  if (store.contact?.phone) {
+    phoneHTML = `
+      <div class="info-row">
+        <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#5f6368" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </svg>
+        <a href="tel:${store.contact.phone.replace(/\D/g, '')}">${store.contact.phone}</a>
+      </div>
+    `;
+  }
+
+  // Build distance HTML
+  let distanceHTML = '';
+  if (store.distance !== undefined) {
+    distanceHTML = `
+      <div class="info-row info-distance-row">
+        <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#1a73e8" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+        </svg>
+        <span class="info-distance-text">${store.distance.toFixed(1)} miles away</span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="map-info-window">
+      ${photoHTML}
+      <div class="info-content">
+        <h4 class="info-name">${store.name}</h4>
+        ${ratingHTML}
+        ${statusHTML}
+        <div class="info-row">
+          <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="#ea4335" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          <span class="info-address-text">${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}</span>
+        </div>
+        ${phoneHTML}
+        ${distanceHTML}
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Initialize Google Maps with NEW Advanced Markers (replaces deprecated Marker)
  * @param {Element} container - Map container element
  * @param {Array} stores - Array of stores to display
@@ -1499,19 +1586,8 @@ async function initializeMap(container, stores, center, zoomLevel) {
       });
 
       const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div class="map-info-window">
-            <h4>${store.name}</h4>
-            <p>${store.address.street}<br>
-            ${store.address.city}, ${store.address.state} ${store.address.zip}</p>
-            ${store.distance ? `<p><strong>${store.distance.toFixed(1)} miles away</strong></p>` : ''}
-            <a href="https://maps.google.com/?q=${store.address.coordinates.lat},${store.address.coordinates.lng}" 
-               target="_blank" 
-               rel="noopener noreferrer">
-              Get Directions →
-            </a>
-          </div>
-        `,
+        content: createInfoWindowContent(store),
+        maxWidth: 320,
       });
 
       marker.addListener('click', () => {
