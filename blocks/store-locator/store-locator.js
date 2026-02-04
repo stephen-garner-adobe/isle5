@@ -1447,9 +1447,24 @@ function createInfoWindowContent(store) {
   const hoursText = getTodayHours(store);
 
   // Build photo HTML
+  let photos = [];
+  if (Array.isArray(store.photos) && store.photos.length > 0) {
+    photos = store.photos;
+  } else if (store.photo) {
+    photos = [store.photo];
+  }
   let photoHTML = '';
-  if (store.photo) {
-    photoHTML = `<img src="${store.photo}" alt="${store.name}" class="info-photo" />`;
+  if (photos.length > 0) {
+    const photoSlides = photos.map((url, index) => `
+      <div class="info-photo-slide">
+        <img src="${url}" alt="${store.name} photo ${index + 1}" class="info-photo" />
+      </div>
+    `).join('');
+    photoHTML = `
+      <div class="info-photos" role="group" aria-label="Photos of ${store.name}">
+        ${photoSlides}
+      </div>
+    `;
   }
 
   // Build rating HTML
@@ -1465,17 +1480,148 @@ function createInfoWindowContent(store) {
     `;
   }
 
-  // Build status/hours HTML
+  // Build reviews section (5 most helpful reviews)
+  let reviewsHTML = '';
+  if (store.reviews && store.reviews.length > 0) {
+    const reviewCards = store.reviews.map((review) => {
+      const reviewStars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+      const truncatedText = review.text.length > 150
+        ? `${review.text.substring(0, 150)}...`
+        : review.text;
+      // Generate avatar HTML with fallback to initial
+      let avatarHTML;
+      if (review.authorPhotoUri) {
+        avatarHTML = `<img src="${review.authorPhotoUri}" alt="${review.author}" class="info-review-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="info-review-avatar-placeholder" style="display:none;">${review.author.charAt(0).toUpperCase()}</div>`;
+      } else {
+        const initial = review.author.charAt(0).toUpperCase();
+        avatarHTML = `<div class="info-review-avatar-placeholder">${initial}</div>`;
+      }
+
+      return `
+        <div class="info-review-card">
+          <div class="info-review-header">
+            <div class="info-review-author">
+              ${avatarHTML}
+              <div class="info-review-author-info">
+                <span class="info-review-author-name">${review.author}</span>
+                <span class="info-review-time">${review.relativeTime}</span>
+              </div>
+            </div>
+            <div class="info-review-rating">
+              <span class="info-review-stars">${reviewStars}</span>
+            </div>
+          </div>
+          <p class="info-review-text">${truncatedText}</p>
+        </div>
+      `;
+    }).join('');
+
+    reviewsHTML = `
+      <div class="info-reviews-section">
+        <h3 class="info-reviews-title">Recent Reviews</h3>
+        <div class="info-reviews-container">
+          ${reviewCards}
+        </div>
+      </div>
+    `;
+  }
+
+  // Build status/hours HTML with expandable dropdown
   let statusHoursText = '';
   if (hoursText && hoursText !== 'Hours not available') {
     statusHoursText = ` · ${hoursText}`;
   }
-  const statusHTML = `
-    <div class="info-status-row">
-      <span class="info-status-dot ${statusClass}">●</span>
-      <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
-    </div>
-  `;
+
+  // Build full weekly hours HTML (for dropdown)
+  let fullHoursHTML = '';
+  if (store.hours && Object.keys(store.hours).length > 0) {
+    const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+
+    const hoursRows = daysOrder.map((day) => {
+      const dayHours = store.hours[day];
+      const isToday = day === today;
+      const dayLabel = day.charAt(0).toUpperCase() + day.slice(1);
+
+      if (dayHours) {
+        const openTime = formatTime(dayHours.open);
+        const closeTime = formatTime(dayHours.close);
+        return `
+          <div class="info-hours-row ${isToday ? 'today' : ''}">
+            <span class="info-hours-day">${dayLabel}</span>
+            <span class="info-hours-time">${openTime} – ${closeTime}</span>
+          </div>
+        `;
+      }
+      return `
+        <div class="info-hours-row ${isToday ? 'today' : ''}">
+          <span class="info-hours-day">${dayLabel}</span>
+          <span class="info-hours-time">Closed</span>
+        </div>
+      `;
+    }).join('');
+
+    fullHoursHTML = `
+      <div class="info-opening-times">
+        <button class="info-hours-toggle" type="button" aria-expanded="false" data-toggle-hours>
+          <div class="info-status-row">
+            <span class="info-status-dot ${statusClass}"></span>
+            <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
+          </div>
+          <svg class="info-hours-arrow" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="#5f6368" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+          </svg>
+        </button>
+        <div class="info-hours-dropdown" data-hours-dropdown>
+          ${hoursRows}
+        </div>
+      </div>
+    `;
+  } else {
+    // No hours available - show static status
+    fullHoursHTML = `
+      <div class="info-status-row info-status-static">
+        <span class="info-status-dot ${statusClass}"></span>
+        <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
+      </div>
+    `;
+  }
+
+  // Build supplementary info HTML
+  const supplementaryItems = [
+    ...(Array.isArray(store.services) ? store.services : []),
+    ...(Array.isArray(store.details) ? store.details : []),
+  ].filter((item) => item);
+
+  let supplementaryHTML = '';
+  if (supplementaryItems.length > 0 || store.contact?.website) {
+    const tagsHTML = supplementaryItems.length > 0
+      ? `
+        <div class="info-supplementary-tags">
+          ${supplementaryItems.map((item) => `<span class="info-tag">${item}</span>`).join('')}
+        </div>
+      `
+      : '';
+
+    const websiteHTML = store.contact?.website
+      ? `
+        <div class="info-row info-website-row">
+          <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="#5f6368" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
+          </svg>
+          <a href="${store.contact.website}" target="_blank" rel="noopener noreferrer">Website</a>
+        </div>
+      `
+      : '';
+
+    supplementaryHTML = `
+      <div class="info-supplementary">
+        ${tagsHTML}
+        ${websiteHTML}
+      </div>
+    `;
+  }
 
   // Build phone HTML
   let phoneHTML = '';
@@ -1509,7 +1655,7 @@ function createInfoWindowContent(store) {
       <div class="info-content">
         <h4 class="info-name">${store.name}</h4>
         ${ratingHTML}
-        ${statusHTML}
+        ${fullHoursHTML}
         <div class="info-row">
           <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
             <path fill="#ea4335" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -1518,6 +1664,8 @@ function createInfoWindowContent(store) {
         </div>
         ${phoneHTML}
         ${distanceHTML}
+        ${supplementaryHTML}
+        ${reviewsHTML}
       </div>
     </div>
   `;
@@ -1592,6 +1740,21 @@ async function initializeMap(container, stores, center, zoomLevel) {
 
       marker.addListener('click', () => {
         infoWindow.open(map, marker);
+
+        // Wait for InfoWindow to render, then attach event listeners
+        google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+          const toggleBtn = document.querySelector('[data-toggle-hours]');
+          const dropdown = document.querySelector('[data-hours-dropdown]');
+
+          if (toggleBtn && dropdown) {
+            toggleBtn.addEventListener('click', () => {
+              const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+              toggleBtn.setAttribute('aria-expanded', !isExpanded);
+              toggleBtn.classList.toggle('expanded');
+              dropdown.classList.toggle('expanded');
+            });
+          }
+        });
       });
     });
 
@@ -1673,6 +1836,7 @@ async function enrichStoreWithPlacesData(store) {
         'userRatingCount',
         'photos',
         'types',
+        'reviews',
       ],
     });
 
@@ -1701,6 +1865,34 @@ async function enrichStoreWithPlacesData(store) {
       const meaningfulTypes = (place.types || [])
         .filter((type) => !excludedTypes.includes(type))
         .map((type) => type.replace(/_/g, ' ')); // Convert snake_case to readable
+
+      // Prepare photos array
+      let storePhotos = [];
+      if (place.photos && place.photos.length > 0) {
+        storePhotos = place.photos.slice(0, 6).map((photo) => photo.getURI({ maxHeight: 240 }));
+      } else if (store.photo) {
+        storePhotos = [store.photo];
+      }
+
+      // Prepare reviews array (top 5 most helpful)
+      let storeReviews = [];
+      if (place.reviews && place.reviews.length > 0) {
+        storeReviews = place.reviews.slice(0, 5).map((review) => {
+          // Try multiple property paths for author photo (often not provided by Google)
+          const photoUri = review.authorAttribution?.photoUri
+            || review.authorAttribution?.photoURI
+            || review.author_photo
+            || '';
+
+          return {
+            author: review.authorAttribution?.displayName || 'Anonymous',
+            rating: review.rating || 0,
+            text: review.text?.text || review.text || '',
+            relativeTime: review.relativePublishTimeDescription || '',
+            authorPhotoUri: photoUri,
+          };
+        });
+      }
 
       // Merge Places API data with store data
       const enrichedStore = {
@@ -1731,8 +1923,10 @@ async function enrichStoreWithPlacesData(store) {
         photo: place.photos && place.photos[0]
           ? place.photos[0].getURI({ maxHeight: 200 })
           : '',
+        photos: storePhotos,
         rating: place.rating || 0,
         userRatingsTotal: place.userRatingCount || 0,
+        reviews: storeReviews,
         placeData: place, // Keep full Places API data
         requiresEnrichment: false,
       };
