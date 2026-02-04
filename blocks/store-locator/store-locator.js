@@ -681,32 +681,11 @@ function renderStoreCard(store) {
   const isOpen = isStoreOpen(store);
   const hoursText = getTodayHours(store);
 
-  // Card Header with badges
-  const header = document.createElement('div');
-  header.classList.add('card-header');
+  // Top row: Distance + Status badge
+  const topRow = document.createElement('div');
+  topRow.classList.add('card-top-row');
 
-  // Store name (left side)
-  const name = document.createElement('h3');
-  name.classList.add('store-name');
-  name.textContent = store.name;
-  header.appendChild(name);
-
-  // Badges container (right side)
-  const badges = document.createElement('div');
-  badges.classList.add('card-badges');
-
-  // Status badge
-  const statusBadge = document.createElement('div');
-  statusBadge.classList.add('card-status-badge', isOpen ? 'open' : 'closed');
-  statusBadge.innerHTML = `
-    <svg class="status-icon" viewBox="0 0 8 8" width="8" height="8">
-      <circle cx="4" cy="4" r="4" fill="currentColor"/>
-    </svg>
-    ${isOpen ? 'OPEN' : 'CLOSED'}
-  `;
-  badges.appendChild(statusBadge);
-
-  // Distance badge (if available)
+  // Distance badge (left side)
   if (store.distance !== undefined) {
     const distanceBadge = document.createElement('div');
     distanceBadge.classList.add('card-distance-badge');
@@ -716,63 +695,97 @@ function renderStoreCard(store) {
       </svg>
       ${store.distance.toFixed(1)} miles away
     `;
-    badges.appendChild(distanceBadge);
+    topRow.appendChild(distanceBadge);
   }
 
-  header.appendChild(badges);
-  card.appendChild(header);
+  // Status badge (right side)
+  const statusBadge = document.createElement('div');
+  statusBadge.classList.add('card-status-badge', isOpen ? 'open' : 'closed');
+  statusBadge.innerHTML = `
+    <svg class="status-icon" viewBox="0 0 8 8" width="8" height="8">
+      <circle cx="4" cy="4" r="4" fill="currentColor"/>
+    </svg>
+    ${isOpen ? 'OPEN' : 'CLOSED'}
+  `;
+  topRow.appendChild(statusBadge);
 
-  // Star rating (if available)
+  card.appendChild(topRow);
+
+  // Store name (always visible with fallback)
+  const name = document.createElement('h3');
+  name.classList.add('store-name');
+  name.textContent = store.name || 'Store Location';
+  card.appendChild(name);
+
+  // Star rating (always render to maintain spacing)
+  const ratingRow = document.createElement('div');
+  ratingRow.classList.add('card-rating');
   if (store.rating && store.userRatingsTotal) {
-    const ratingRow = document.createElement('div');
-    ratingRow.classList.add('card-rating');
     const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
     ratingRow.innerHTML = `<span class="stars">${stars}</span> <span class="rating-value">${store.rating}</span> <span class="rating-count">(${store.userRatingsTotal})</span>`;
-    card.appendChild(ratingRow);
+  } else {
+    ratingRow.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
   }
+  card.appendChild(ratingRow);
 
-  // Address
+  // Address (always visible with fallback)
   const address = document.createElement('address');
   address.classList.add('card-address');
-  address.textContent = `${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}${store.address.country ? `, ${store.address.country}` : ''}`;
+  if (store.address && (store.address.street || store.address.city)) {
+    const addressParts = [
+      store.address.street,
+      store.address.city,
+      store.address.state,
+      store.address.zip,
+    ].filter(Boolean);
+    address.textContent = addressParts.join(', ');
+  } else {
+    address.textContent = 'Address not available';
+  }
   card.appendChild(address);
 
-  // Phone (if available)
+  // Phone (always render to maintain spacing)
+  const phone = document.createElement('div');
+  phone.classList.add('card-phone');
   if (store.contact?.phone) {
-    const phone = document.createElement('div');
-    phone.classList.add('card-phone');
     phone.innerHTML = `<a href="tel:${store.contact.phone.replace(/\D/g, '')}">${store.contact.phone}</a>`;
-    card.appendChild(phone);
+  } else {
+    phone.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
   }
+  card.appendChild(phone);
 
-  // Service tags (if available)
+  // Service tags (always render to maintain spacing)
+  const servicesTags = document.createElement('div');
+  servicesTags.classList.add('card-services');
   if (store.services && store.services.length > 0) {
-    const servicesTags = document.createElement('div');
-    servicesTags.classList.add('card-services');
-    store.services.slice(0, 4).forEach((service) => {
+    store.services.forEach((service) => {
       const tag = document.createElement('span');
       tag.classList.add('card-service-tag');
       tag.textContent = service;
       servicesTags.appendChild(tag);
     });
-    card.appendChild(servicesTags);
+  } else {
+    servicesTags.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
   }
+  card.appendChild(servicesTags);
 
-  // Hours text
+  // Hours text (always render to maintain spacing)
+  const hours = document.createElement('div');
+  hours.classList.add('card-hours');
   if (hoursText && hoursText !== 'Hours not available') {
-    const hours = document.createElement('div');
-    hours.classList.add('card-hours');
     hours.textContent = hoursText;
-    card.appendChild(hours);
+  } else {
+    hours.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
   }
+  card.appendChild(hours);
 
-  // Action buttons
+  // Action buttons container
   const actions = document.createElement('div');
   actions.classList.add('card-actions');
 
-  // Directions button
+  // Primary action: Get Directions button (full-width)
   const directionsBtn = document.createElement('a');
-  directionsBtn.classList.add('card-action-btn', 'btn-directions');
+  directionsBtn.classList.add('btn-primary');
   if (store.placeId) {
     directionsBtn.href = `https://www.google.com/maps/place/?q=place_id:${store.placeId}`;
   } else {
@@ -781,295 +794,16 @@ function renderStoreCard(store) {
   directionsBtn.target = '_blank';
   directionsBtn.rel = 'noopener noreferrer';
   directionsBtn.innerHTML = `
-    <svg viewBox="0 0 24 24" width="16" height="16">
+    <svg viewBox="0 0 24 24" width="18" height="18">
       <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
     </svg>
     Get Directions
   `;
   actions.appendChild(directionsBtn);
 
-  // Set as My Store button
-  const preferredStoreId = localStorage.getItem('preferredStore');
-  const setStoreBtn = document.createElement('button');
-  setStoreBtn.classList.add('card-action-btn', 'btn-set-store');
-  setStoreBtn.dataset.storeId = store.id;
-
-  if (preferredStoreId === store.id) {
-    setStoreBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16">
-        <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-      </svg>
-      My Store
-    `;
-    setStoreBtn.disabled = true;
-    setStoreBtn.classList.add('selected');
-  } else {
-    setStoreBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16">
-        <path fill="currentColor" d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>
-      </svg>
-      Set as My Store
-    `;
-    setStoreBtn.addEventListener('click', () => {
-      setPreferredStore(store.id, store.name);
-      window.location.reload();
-    });
-  }
-
-  actions.appendChild(setStoreBtn);
   card.appendChild(actions);
 
   return card;
-}
-
-/**
- * Set preferred store in localStorage
- * @param {string} storeId - Store ID
- * @param {string} storeName - Store name
- */
-function setPreferredStore(storeId, storeName) {
-  localStorage.setItem('preferredStore', storeId);
-  localStorage.setItem('preferredStoreName', storeName);
-
-  // Dispatch custom event for other components to listen to
-  document.dispatchEvent(new CustomEvent('store-selected', {
-    detail: { storeId, storeName },
-  }));
-}
-
-/**
- * Clear preferred store from localStorage
- */
-function clearPreferredStore() {
-  const storeName = localStorage.getItem('preferredStoreName') || 'your store';
-
-  // Show confirmation modal
-  // eslint-disable-next-line no-alert, no-restricted-globals
-  const confirmed = confirm(`Are you sure you want to remove "${storeName}" as your preferred store?`);
-
-  if (confirmed) {
-    localStorage.removeItem('preferredStore');
-    localStorage.removeItem('preferredStoreName');
-
-    // Dispatch custom event
-    document.dispatchEvent(new CustomEvent('store-cleared'));
-
-    console.log('✅ Preferred store cleared');
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * Calculate real-time store status using existing helper functions
- * @param {Object} store - Store object with hours
- * @returns {Object} Status object with state, message, and color
- */
-function getStoreStatus(store) {
-  if (!store.hours) {
-    return {
-      state: 'unknown', message: 'Hours not available', color: 'gray', emoji: '❓',
-    };
-  }
-
-  const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-  const todayHours = store.hours[currentDay];
-
-  // Check if store is closed today
-  if (!todayHours) {
-    return {
-      state: 'closed', message: 'Closed today', color: 'red', emoji: '🔴',
-    };
-  }
-
-  // Check if 24-hour store
-  if (todayHours.open === '00:00' && todayHours.close === '23:59') {
-    return {
-      state: 'open', message: 'Open 24 hours', color: 'green', emoji: '🟢',
-    };
-  }
-
-  const isOpen = isStoreOpen(store);
-  const todayHoursText = getTodayHours(store);
-
-  if (isOpen) {
-    // Parse closing time to check if closing soon
-    const [hours, minutes] = todayHours.close.split(':').map(Number);
-    const closeMinutes = hours * 60 + minutes;
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const minutesUntilClose = closeMinutes - currentMinutes;
-
-    if (minutesUntilClose <= 60 && minutesUntilClose > 0) {
-      return {
-        state: 'closing-soon',
-        message: `Closes in ${minutesUntilClose} min`,
-        color: 'yellow',
-        emoji: '🟡',
-      };
-    }
-
-    return {
-      state: 'open',
-      message: todayHoursText,
-      color: 'green',
-      emoji: '🟢',
-    };
-  }
-
-  // Store is closed - check if opening soon
-  const [openHours, openMinutes] = todayHours.open.split(':').map(Number);
-  const openTime = openHours * 60 + openMinutes;
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  if (openTime > currentMinutes && (openTime - currentMinutes) <= 60) {
-    return {
-      state: 'opening-soon',
-      message: `Opens in ${openTime - currentMinutes} min`,
-      color: 'yellow',
-      emoji: '⏰',
-    };
-  }
-
-  return {
-    state: 'closed',
-    message: todayHoursText,
-    color: 'red',
-    emoji: '🔴',
-  };
-}
-
-/**
- * Render the "My Store" hero card
- * @param {Object} store - The preferred store object
- * @param {Object} userLocation - User's current location {lat, lng}
- * @returns {HTMLElement} Hero card element
- */
-function renderMyStoreHeroCard(store, userLocation = null) {
-  const heroCard = document.createElement('div');
-  heroCard.classList.add('my-store-hero');
-
-  // Header
-  const header = document.createElement('div');
-  header.classList.add('my-store-header');
-  header.innerHTML = '<span class="my-store-badge">⭐ MY STORE</span>';
-  heroCard.appendChild(header);
-
-  // Store name
-  const name = document.createElement('h3');
-  name.classList.add('my-store-name');
-  name.textContent = store.name;
-  heroCard.appendChild(name);
-
-  // Address and status row
-  const metaRow = document.createElement('div');
-  metaRow.classList.add('my-store-meta');
-
-  const address = document.createElement('span');
-  address.classList.add('my-store-address');
-  address.textContent = store.address.street;
-  metaRow.appendChild(address);
-
-  // Distance (if available)
-  if (userLocation && store.distance !== undefined) {
-    const distance = document.createElement('span');
-    distance.classList.add('my-store-distance');
-    distance.textContent = `📍 ${store.distance.toFixed(1)} mi`;
-    metaRow.appendChild(distance);
-  }
-
-  // Real-time status
-  const status = getStoreStatus(store);
-  const statusBadge = document.createElement('span');
-  statusBadge.classList.add('my-store-status', `status-${status.state}`);
-  statusBadge.textContent = `${status.emoji} ${status.message}`;
-  metaRow.appendChild(statusBadge);
-
-  heroCard.appendChild(metaRow);
-
-  // Phone
-  if (store.contact && store.contact.phone) {
-    const phone = document.createElement('a');
-    phone.classList.add('my-store-phone');
-    phone.href = `tel:${store.contact.phone.replace(/\D/g, '')}`;
-    phone.textContent = `📞 ${store.contact.phone}`;
-    heroCard.appendChild(phone);
-  }
-
-  // Services (if any)
-  if (store.services && store.services.length > 0) {
-    const servicesContainer = document.createElement('div');
-    servicesContainer.classList.add('my-store-services');
-
-    store.services.slice(0, 4).forEach((service) => {
-      const badge = document.createElement('span');
-      badge.classList.add('service-badge-small');
-      badge.textContent = service;
-      servicesContainer.appendChild(badge);
-    });
-
-    heroCard.appendChild(servicesContainer);
-  }
-
-  // Action buttons
-  const actions = document.createElement('div');
-  actions.classList.add('my-store-actions');
-
-  // Call button
-  if (store.contact && store.contact.phone) {
-    const callBtn = document.createElement('a');
-    callBtn.classList.add('btn-my-store-action');
-    callBtn.href = `tel:${store.contact.phone.replace(/\D/g, '')}`;
-    callBtn.textContent = 'Call Store';
-    actions.appendChild(callBtn);
-  }
-
-  // Directions button
-  const directionsBtn = document.createElement('a');
-  directionsBtn.classList.add('btn-my-store-action');
-  directionsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    `${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}`,
-  )}`;
-  directionsBtn.target = '_blank';
-  directionsBtn.rel = 'noopener noreferrer';
-  directionsBtn.textContent = 'Get Directions';
-  actions.appendChild(directionsBtn);
-
-  // Change store button
-  const changeBtn = document.createElement('button');
-  changeBtn.classList.add('btn-my-store-change');
-  changeBtn.textContent = 'Change Store';
-  changeBtn.addEventListener('click', () => {
-    // Scroll to results
-    const resultsSection = document.querySelector('.store-results');
-    if (resultsSection) {
-      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-  actions.appendChild(changeBtn);
-
-  // Clear store button
-  const clearBtn = document.createElement('button');
-  clearBtn.classList.add('btn-my-store-clear');
-  clearBtn.textContent = 'Clear';
-  clearBtn.addEventListener('click', () => {
-    if (clearPreferredStore()) {
-      // Remove hero card from DOM
-      heroCard.remove();
-
-      // Update all store cards to show "Set as My Store" button
-      document.querySelectorAll('.btn-set-store').forEach((btn) => {
-        btn.innerHTML = '⭐ Set as My Store';
-        btn.disabled = false;
-      });
-    }
-  });
-  actions.appendChild(clearBtn);
-
-  heroCard.appendChild(actions);
-
-  return heroCard;
 }
 
 /**
@@ -2091,33 +1825,6 @@ export default async function decorate(block) {
   function renderStores(stores) {
     // Adobe Commerce Best Practice: Build DOM fragment first
     const fragment = document.createDocumentFragment();
-
-    // Check if user has a preferred store
-    const preferredStoreId = localStorage.getItem('preferredStore');
-    if (preferredStoreId) {
-      // Find the preferred store in all stores (not just filtered results)
-      const preferredStore = allStores.find((s) => s.id === preferredStoreId);
-
-      if (preferredStore) {
-        // Calculate distance for preferred store if user location is available
-        let storeWithDistance = preferredStore;
-        if (userLocation) {
-          storeWithDistance = {
-            ...preferredStore,
-            distance: calculateDistance(
-              userLocation.lat,
-              userLocation.lng,
-              preferredStore.address.coordinates.lat,
-              preferredStore.address.coordinates.lng,
-            ),
-          };
-        }
-
-        // Render hero card at the top
-        const heroCard = renderMyStoreHeroCard(storeWithDistance, userLocation);
-        fragment.appendChild(heroCard);
-      }
-    }
 
     if (stores.length === 0) {
       const noResults = document.createElement('p');
