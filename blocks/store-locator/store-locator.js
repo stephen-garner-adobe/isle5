@@ -864,9 +864,16 @@ function loadPreferences() {
  * @param {Array} availableServices - Services found in actual store data
  * @param {Function} onSearch - Search callback function
  * @param {Function} onSortChange - Sort change callback
+ * @param {Promise<boolean>} googleMapsReadyPromise - Resolves when Google Maps is loaded
  * @returns {Element} Search section element
  */
-function createSearchSection(config, availableServices, onSearch, onSortChange) {
+function createSearchSection(
+  config,
+  availableServices,
+  onSearch,
+  onSortChange,
+  googleMapsReadyPromise,
+) {
   const section = document.createElement('div');
   section.classList.add('store-locator-search');
 
@@ -1032,12 +1039,33 @@ function createSearchSection(config, availableServices, onSearch, onSortChange) 
   let autocompleteTimeout;
   let googleAutocompleteService = null;
 
+  const initGoogleAutocomplete = () => {
+    if (googleAutocompleteService) return;
+    if (window.google?.maps?.places) {
+      googleAutocompleteService = new google.maps.places.AutocompleteService();
+      console.log('🔍 Using Google Places Autocomplete');
+    }
+  };
+
   // Initialize Google Places Autocomplete Service if using Google
-  if (config.autocompleteProvider === 'google' && window.google?.maps?.places) {
-    googleAutocompleteService = new google.maps.places.AutocompleteService();
-    console.log('🔍 Using Google Places Autocomplete');
-  } else if (config.autocompleteProvider === 'google') {
-    console.warn('⚠️ Google autocomplete selected but Google Maps not loaded. Falling back to Nominatim.');
+  if (config.autocompleteProvider === 'google') {
+    if (window.google?.maps?.places) {
+      initGoogleAutocomplete();
+    } else if (googleMapsReadyPromise) {
+      googleMapsReadyPromise
+        .then((loaded) => {
+          if (loaded) {
+            initGoogleAutocomplete();
+          } else {
+            console.warn('⚠️ Google autocomplete selected but Google Maps not loaded. Falling back to Nominatim.');
+          }
+        })
+        .catch(() => {
+          console.warn('⚠️ Google autocomplete selected but Google Maps failed to load. Falling back to Nominatim.');
+        });
+    } else {
+      console.warn('⚠️ Google autocomplete selected but Google Maps not loaded. Falling back to Nominatim.');
+    }
   }
 
   input.addEventListener('input', (e) => {
@@ -1798,6 +1826,12 @@ function hideLoading(spinner) {
  */
 export default async function decorate(block) {
   const config = parseBlockConfig(block);
+  const googleMapsReadyPromise = (config.googleMapsApiKey && config.mapProvider === 'google')
+    ? loadGoogleMaps(config.googleMapsApiKey).catch((error) => {
+      console.error('Failed to load Google Maps:', error);
+      return false;
+    })
+    : Promise.resolve(false);
 
   // IMPORTANT: Parse stores BEFORE clearing block content!
   let storeDataObj;
@@ -2002,6 +2036,7 @@ export default async function decorate(block) {
     availableServices,
     handleSearch,
     handleSortChange,
+    googleMapsReadyPromise,
   );
   container.appendChild(searchSection);
 
@@ -2064,7 +2099,10 @@ export default async function decorate(block) {
     // Load Google Maps dynamically if API key is provided
     if (config.googleMapsApiKey && config.mapProvider === 'google') {
       try {
-        await loadGoogleMaps(config.googleMapsApiKey);
+        const mapsLoaded = await googleMapsReadyPromise;
+        if (!mapsLoaded) {
+          throw new Error('Google Maps failed to load');
+        }
 
         // Enrich stores that have Place IDs using NEW Places API
         if (allStores.some((store) => store.requiresEnrichment)) {
