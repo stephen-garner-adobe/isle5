@@ -100,7 +100,7 @@
   overflow: visible; /* Allow autocomplete dropdown to show outside */
   box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
   position: relative;
-  z-index: 100;
+  z-index: 1;
   box-sizing: border-box;
   flex-shrink: 0; /* Don't shrink when content grows */
 }
