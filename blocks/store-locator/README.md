@@ -1,145 +1,268 @@
 # Store Locator Block
 
-A Places‑powered store finder with an interactive map, rich info windows, and a configurable results list. It supports Google Places (New) enrichment, open/closed status in the store’s local timezone, and configurable filters/sorting.
+A Google Places (New) powered store finder for Adobe Commerce Storefront pages, with:
+- Search + geolocation
+- Service and "Open now" filtering
+- Radius filtering (`0` = all distances)
+- Split/list/map views
+- Places enrichment (lite/rich)
+- Interactive map with Advanced Markers
+- Rich info windows (photos, reviews, hours)
+- Analytics hooks (`adobeDataLayer`/`dataLayer`)
 
-## What this block does
+## Capabilities
 
-- **Search & filters:** Address search, service filters, and “Open Now”
-- **Map + info windows:** Google map with Advanced Markers and rich info windows
-- **Store cards:** Name, hours, distance, phone, services, and directions
-- **Sorting:** Distance, Name (A‑Z), Recently Added
-- **Geolocation:** Optional auto‑detect location on load
-- **Timezone‑accurate status:** Uses Places `utcOffsetMinutes` for open/closed
+### Core UX
+- Address search with autocomplete
+- "Use My Location" geolocation search
+- Sort: `distance`, `name`, `recent`
+- Filters: open-now + dynamic service chips from actual store data
+- Radius dropdown from configurable presets
+- View toggle: `list`, `map`, `split`
+- Applied-filter chips + "Clear all"
+- Results summary row
 
-## Setup (Google)
+### Mapping
+- Google Maps JS API + Places API (New)
+- Advanced Markers for stores and user location
+- Info window with:
+  - name, rating, address, phone, distance
+  - full weekly hours dropdown
+  - supplementary tags
+  - optional photos and reviews
+- Desktop split map is sticky; mobile/tablet fallback to non-sticky map
+- Cooperative map gestures on desktop/tablet, greedy on mobile
 
-1. Create a Google Cloud project.
-2. Enable **Maps JavaScript API** and **Places API (New)**.
-3. Create an API key and restrict it to your domains (include `http://localhost:3000/*` for local).
-4. Add the API key to DA.live config (`Google Maps API Key`).
+### Data + Enrichment
+- DA.live block table as primary source
+- Place ID enrichment via Places API (New)
+- `lite` vs `rich` field profiles
+- Optional eager enrich on load, or lazy hydrate on demand
+- Session + memory cache with TTL
+- Concurrency-limited enrichment
+- Stale-photo cache bypass for rich-photo entries with empty photos
 
-## DA.live configuration
+### Accessibility + Interaction
+- Search form semantics (`role="search"`)
+- `aria-live` results summary updates
+- Focus-visible styles on key controls
+- Keyboard-accessible controls/chips/buttons
 
-### Config rows (top of table)
+### Analytics Events
+Pushed (if present) to both `window.adobeDataLayer` and `window.dataLayer`:
+- `search_submit`
+- `use_my_location`
+- `view_change`
+- `sort_change`
+- `filter_change`
+- `radius_change`
+- `filter_chip_remove`
+- `clear_all_filters`
+- `directions_click`
 
-Top row should be the block name only:
+## DA.live Configuration (Full)
 
-```
+Use top config rows, then a data header row.
+
+### Supported config keys
+
+| Key | Aliases | Type | Allowed values / format | Default |
+|---|---|---|---|---|
+| Google Maps API Key | - | string | valid key | empty |
+| Default View | - | enum | `split`, `list`, `map` | `split` |
+| Autocomplete Provider | - | enum | `google` | `google` |
+| Map Provider | - | enum | `google` | `google` |
+| Data Source | - | enum | `block-content`, `json-file`, `api` | `block-content` |
+| Search Radius | Search Radius Miles | number | `0+` (`0` = all) | `0` |
+| Max Results | Maximum Results | number | positive integer | `10` |
+| Auto Detect Location | - | boolean | `true` / `false` | `true` |
+| Show Distance | - | boolean | `true` / `false` | `true` |
+| Default Location | - | string | address text | `Portland, OR` |
+| Services Filter | Available Service Filters | CSV | comma-separated service tokens | built-in defaults |
+| Zoom Level | - | number | map zoom integer | `11` |
+| Places Data Mode | - | enum | `lite`, `rich` | `lite` |
+| Enrich On Load | - | boolean | `true` / `false` | `true` |
+| Enrich Concurrency | - | number | `1..10` | `4` |
+| Cache TTL Minutes | - | number | `1..1440` | `30` |
+| Enable Reviews | - | boolean | `true` / `false` | `true` |
+| Enable Photos | - | boolean | `true` / `false` | `true` |
+| Experience Mode | - | enum | `fast`, `rich` | `fast` |
+| Radius Presets | Search Radius Options | CSV | e.g. `0,5,10,25,50` | `0,5,10,25,50` |
+| Units | - | enum | `miles`, `km` | `miles` |
+| No Results Message | - | string | plain text | built-in message |
+| Max Reviews Per Store | Max Reviews Per Sore (tolerated typo) | number | `1..20` | `5` |
+| Map Style | - | enum | `default`, `muted`, `minimal` | `default` |
+| Primary CTA Label | - | string | button text | `Get Directions` |
+| Store Card Density | Card Density | enum | `comfortable`, `compact` | `comfortable` |
+
+### Important interactions
+- `Experience Mode = fast`
+  - forces fast defaults (lite fields, photos/reviews disabled)
+- `Experience Mode = rich`
+  - sets rich fields and enables photos/reviews
+- `Search Radius = 0`
+  - means no radius cap ("All")
+- `Radius Presets`
+  - controls radius dropdown options
+
+## DA.live Preferred Minimal Options
+
+Use this in production when you want predictable behavior with low config overhead:
+
+```text
 store-locator
-```
-
-Example DA.live table (config + Place IDs):
-
-```
-store-locator
-Google Maps API Key | YOUR_API_KEY
+Google Maps API Key | <YOUR_KEY>
 Default View | split
+Experience Mode | fast
 Search Radius | 0
+Radius Presets | 0,5,10,25,50
 Max Results | 10
 Auto Detect Location | true
-Default Location | 
-Experience Mode | fast
-Radius Presets | 0,5,10,25,50
+Show Distance | true
 Units | miles
-No Results Message | No stores found matching your criteria.
-Max Reviews Per Store | 5
 Map Style | default
 Primary CTA Label | Get Directions
-Store Card Density | comfortable
-Places ID | Featured | Custom Services | Display Order | Override Name
-ChIJ... | true | pickup, deli, delivery | 1 | Downtown Market
-ChIJ... | true | pickup, click&collect | 2 |
-ChIJ... | true | pickup, click&collect, pharmacy | 3 |
 ```
 
-| Row label | Type | Default | Description |
-|---|---|---|---|
-| Google Maps API Key | text | empty | Required for map + Places enrichment |
-| Default View | select | `split` | `split`, `map`, `list` |
-| Search Radius | number | `0` | Default selected radius (`0` = All stores) |
-| Max Results | number | `10` | Max stores shown |
-| Auto Detect Location | boolean | `true` | Use browser geolocation |
-| Default Location | text | `Portland, OR` | Geocoded fallback when geolocation is unavailable |
-| Services Filter | text/multiselect | defaults | Optional allowlist for filter chips |
-| Experience Mode | select | `fast` | `fast` (lighter data) or `rich` (photos/reviews) |
-| Radius Presets | text | `0,5,10,25,50` | Comma-separated radius options for selector |
-| Units | select | `miles` | `miles` or `km` for display + radius filtering |
-| No Results Message | text | default text | Custom empty-state message |
-| Max Reviews Per Store | number | `5` | Max review cards shown in rich details |
-| Map Style | select | `default` | `default`, `muted`, `minimal` (mapId-backed) |
-| Primary CTA Label | text | `Get Directions` | CTA label on cards/info window |
-| Store Card Density | select | `comfortable` | `comfortable` or `compact` spacing |
-| Zoom Level | number | `11` | Optional legacy override |
+Why this baseline:
+- Fast first render
+- All-distance default for broad discovery
+- Clear radius options
+- Lower Places payload by default
 
-> Row label parsing is tolerant, but keep labels close to the table above for consistency.
+## Advanced Presets
 
-### Store rows (Place ID format)
+### Rich merchandising preset
+
+```text
+Experience Mode | rich
+Places Data Mode | rich
+Enable Photos | true
+Enable Reviews | true
+Enrich On Load | true
+Enrich Concurrency | 3
+Cache TTL Minutes | 30
+Max Reviews Per Store | 5
+```
+
+Use when image/review depth matters more than initial payload.
+
+### High-performance preset
+
+```text
+Experience Mode | fast
+Places Data Mode | lite
+Enable Photos | false
+Enable Reviews | false
+Enrich On Load | true
+Enrich Concurrency | 4
+Cache TTL Minutes | 60
+Max Results | 10
+```
+
+Use when speed/API efficiency is priority.
+
+## DA.live Data Schema
+
+### Preferred schema (Place ID format)
 
 Header row (required):
 
-```
+```text
 Places ID | Featured | Custom Services | Display Order | Override Name
 ```
 
-Row example:
+- `Places ID` (required): Google Place ID
+- `Featured`: `true`/`false`
+- `Custom Services`: comma-separated service labels
+- `Display Order`: numeric ordering hint
+- `Override Name`: replaces Google display name
 
+### Legacy schema (supported)
+
+```text
+Name | Address | Coordinates | Phone | Hours | Services | Photo | Details
 ```
-ChIJ... | true | pickup, deli, delivery | 1 | Downtown Market
+
+Used when Place IDs are not provided. Enrichment is limited in this mode.
+
+## Section Metadata
+
+`section-metadata` controls section width outside the block:
+
+```text
+section-metadata
+width | wide
 ```
 
-**Field details:**
-- **Places ID** (required): Google Place ID for the store.
-- **Featured**: `true/false` (used for display and optional styling).
-- **Custom Services**: Comma‑separated tags (used in filters).
-- **Display Order**: Parsed, but **not applied** in sorting yet.
-- **Override Name**: Overrides Google’s display name.
+or
 
-## Autocomplete behavior
+```text
+section-metadata
+width | full
+```
 
-- Uses Google Places Autocomplete when Maps JS is available.
-- Falls back to Nominatim when Google is unavailable.
-- Autocomplete initializes **after** Maps JS loads to avoid fallbacks.
+Notes:
+- `wide`/`full` affect the section wrapper width, not card internals.
+- Verify on page with:
+  - `document.querySelector('main > .section.store-locator-container')?.dataset.width`
 
-## Open/closed status
+## Setup (Google)
 
-Open status uses the store’s **local timezone**:
-- Places `regularOpeningHours` + `utcOffsetMinutes`
-- Computed in the browser so a UK user sees accurate California hours.
+1. Enable `Maps JavaScript API` and `Places API (New)` in Google Cloud.
+2. Configure API key restrictions to your domains.
+3. Add local domain for development (`http://localhost:3000/*`).
+4. Place key in DA.live `Google Maps API Key` row.
 
-## What data comes from Places
+## Performance and API Best Practices
 
-When Place ID enrichment runs, the block requests:
-- Name, address, location
-- Phone, website
-- Regular opening hours
-- Rating + review count
-- Photos + reviews (rich mode only; can be loaded lazily)
-- `utcOffsetMinutes` for timezone‑correct status
-
-## Performance mode (Phase 2)
-
-- `Experience Mode = fast` loads lighter data first.
-- Rich details (photos/reviews) are loaded on demand when a marker is opened.
-- Place responses are cached in memory + session storage (TTL configurable).
-- Enrichment requests are concurrency-limited to reduce API bursts.
+- Prefer `Experience Mode = fast` as default.
+- Use `rich` only when photo/review UX is required.
+- Keep `Max Results` moderate (`10-20`) for stable rendering.
+- Keep `Enrich Concurrency` conservative (`3-5`) to avoid request bursts.
+- Set `Cache TTL Minutes` to reduce repeated field fetches.
+- Use `Radius Presets` with `0` included to keep "All" available.
 
 ## Troubleshooting
 
-### Autocomplete fallback warning
-- Ensure **Maps JS API** + **Places API (New)** are enabled.
-- Confirm `Google Maps API Key` row is present.
-- Check key restrictions allow your domain.
+### Map and list appear vertically misaligned in split view
+- Check computed map position/top in console.
+- Expected in fixed build: sticky map with no unintended relative top offset.
 
-### Map not displaying
-- Verify API key and API enablement.
-- Check console for “Maps JS API error”.
+### Some stores show no photo even though Google has photos
+- Can be stale rich cache photo payload.
+- Refresh path now bypasses cached rich entries with empty photo arrays.
+- Optional quick reset:
+  - `sessionStorage.removeItem('storeLocator.place.<PLACE_ID>.rich')`
 
-### Open/closed looks wrong
-- Confirm Places enrichment is running (Place IDs present).
-- Ensure `utcOffsetMinutes` is returned (Places API enabled).
+### Radius appears capped when expecting all distances
+- Ensure `Search Radius` is `0`.
+- Ensure radius selector includes `0` via `Radius Presets`.
+- Clear persisted prefs if needed:
+  - `localStorage.removeItem('storeLocatorPrefs'); location.reload();`
 
-## Notes
+### Section width metadata appears ignored
+- Confirm `section-metadata` row exists in the same section.
+- Confirm rendered section `data-width` is set.
+- Ensure no custom wrapper CSS is re-constraining width.
 
-- The map runs via **Maps JavaScript API**.
-- Place details are fetched via **Places API (New)**.
-- Directions links open Google Maps web URLs.
+## Recommended Validation Checklist
+
+- View modes: `list`, `map`, `split`
+- Radius `0` behavior returns cross-distance results
+- Open-now and service filters combine correctly
+- Desktop split sticky behavior + scroll interaction
+- Mobile list/map usability
+- Photos/reviews behavior in `fast` vs `rich`
+- Lint status:
+  - `npx eslint blocks/store-locator/store-locator.js`
+  - `npx stylelint blocks/store-locator/store-locator.css`
+
+## Changelog Notes (Current Implementation)
+
+- Added applied filters row + clear-all action
+- Added results summary row
+- Added view toggle and responsive defaults
+- Added analytics event pushes
+- Added map sticky split behavior refinements
+- Reintroduced card photos and added stale-photo cache bypass

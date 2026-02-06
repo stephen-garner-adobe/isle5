@@ -123,6 +123,13 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   flex-shrink: 0; /* Don't shrink when content grows */
 }
 
+@media (min-width: 1024px) {
+  .store-locator-search {
+    position: relative;
+    top: auto;
+  }
+}
+
 .store-results-summary {
   font: var(--type-body-2-default-font);
   letter-spacing: var(--type-body-2-default-letter-spacing);
@@ -133,6 +140,45 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   border-radius: 0 0 12px 12px;
   background: #f9fafb;
   margin-top: var(--spacing-small);
+}
+
+.applied-filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-small);
+  margin-top: var(--spacing-small);
+}
+
+.applied-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xsmall);
+}
+
+.applied-filter-chip {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 9999px;
+  color: #374151;
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.applied-filter-chip:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.clear-filters-btn {
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .store-locator-title {
@@ -307,8 +353,12 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   gap: var(--spacing-small);
   align-items: center;
   padding-top: var(--spacing-small);
+  padding-bottom: var(--spacing-xsmall);
+  padding-inline: var(--spacing-xsmall);
   margin-top: 0;
   border-top: 1px solid var(--sl-border-light);
+  background: #fbfcfe;
+  border-radius: 10px;
 }
 
 .view-toggle {
@@ -319,6 +369,18 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   border-radius: 9999px;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
+}
+
+@media (max-width: 767px) {
+  .view-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .view-toggle-btn {
+    flex: 1;
+    text-align: center;
+  }
 }
 
 .view-label {
@@ -365,7 +427,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 
 .filter-label {
   font: var(--type-details-overline-font);
-  letter-spacing: var(--type-details-overline-letter-spacing);
+  letter-spacing: 0.08em;
   color: var(--sl-text-tertiary);
   text-transform: uppercase;
   font-weight: 700;
@@ -392,7 +454,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 
 .sort-label {
   font: var(--type-details-overline-font);
-  letter-spacing: var(--type-details-overline-letter-spacing);
+  letter-spacing: 0.08em;
   color: var(--sl-text-tertiary);
   text-transform: uppercase;
   font-weight: 700;
@@ -473,8 +535,8 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 }
 
 .checkbox-label:has(input[type="checkbox"]:checked) {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: #eef2ff;
+  border-color: #6366f1;
   color: #111827;
   box-shadow: none;
 }
@@ -500,6 +562,29 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   color: #fff;
 }
 
+.services-filter:not(.is-expanded) .checkbox-label.is-extra {
+  display: none;
+}
+
+.services-filter:not(.is-expanded) .checkbox-label.is-extra:has(input[type="checkbox"]:checked) {
+  display: inline-flex;
+}
+
+.filter-more-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 9999px;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.filter-more-btn:hover {
+  background: #f9fafb;
+}
+
 /* Open Now checkbox keyboard focus */
 .checkbox-open-now:has(input[type="checkbox"]:focus-visible) {
   box-shadow: 0 0 0 3px rgb(16 185 129 / 20%);
@@ -523,10 +608,10 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  overflow-y: auto;
-  max-height: 800px;
+  overflow: visible;
+  max-height: none;
   flex-shrink: 0;
-  padding: var(--spacing-xsmall) 0;
+  padding: 0 0 var(--spacing-xsmall);
   width: 100%;
   order: 2; /* Store list appears after map */
 }
@@ -585,6 +670,22 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
   border-color: #d0d0d0;
   transform: translateY(-2px);
+}
+
+.card-photo-wrap {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 0 10px;
+  background: #f3f4f6;
+}
+
+.card-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 /* Top Row - Distance + Status on same line - FIXED HEIGHT */
@@ -1121,6 +1222,35 @@ a.btn-primary:visited,
   border: var(--shape-border-width-1) solid var(--color-neutral-300);
   width: 100%;
   order: 1; /* Map appears first */
+}
+
+.store-locator-content[data-view="list"] .store-map {
+  display: none;
+}
+
+.store-locator-content[data-view="map"] .store-list {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .store-locator-content[data-view="split"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: start;
+    gap: var(--spacing-medium);
+  }
+
+  .store-locator-content[data-view="split"] .store-list {
+    order: 1;
+  }
+
+  .store-locator-content[data-view="split"] .store-map {
+    order: 2;
+    position: sticky !important;
+    align-self: start;
+    top: calc(var(--nav-height, 0px) + 12px);
+    height: min(70vh, var(--store-map-height));
+  }
 }
 
 .map-placeholder,
@@ -1929,11 +2059,14 @@ a.btn-primary:visited,
   }
 
   .store-map {
+    position: relative;
+    top: auto;
     height: var(--store-map-height-mobile);
   }
 
   .store-list {
-    max-height: 600px;
+    max-height: none;
+    overflow: visible;
     gap: var(--spacing-small);
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Adjust for tablet */
   }
@@ -2019,7 +2152,8 @@ a.btn-primary:visited,
   }
 
   .store-list {
-    max-height: 500px;
+    max-height: none;
+    overflow: visible;
     grid-template-columns: 1fr; /* Single column on mobile */
     gap: 16px;
     padding: 0; /* Remove side padding, use container padding instead */

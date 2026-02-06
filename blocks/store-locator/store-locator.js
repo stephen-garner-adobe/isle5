@@ -35,6 +35,23 @@ function sanitizeTel(value = '') {
   return digits ? `tel:${digits}` : '';
 }
 
+function trackStoreLocatorEvent(action, payload = {}) {
+  const eventPayload = {
+    event: 'store_locator_interaction',
+    action,
+    component: 'store-locator',
+    ...payload,
+  };
+
+  if (Array.isArray(window.adobeDataLayer)) {
+    window.adobeDataLayer.push(eventPayload);
+  }
+
+  if (Array.isArray(window.dataLayer)) {
+    window.dataLayer.push(eventPayload);
+  }
+}
+
 const PLACES_FIELDS = {
   lite: [
     'displayName',
@@ -950,6 +967,7 @@ function getTodayHours(store) {
  */
 function renderStoreCard(store, uiConfig = {}) {
   const showDistance = uiConfig.showDistance !== false;
+  const showPhotos = uiConfig.enablePhotos !== false;
   const units = uiConfig.units || 'miles';
   const ctaLabel = uiConfig.primaryCtaLabel || 'Get Directions';
   const card = document.createElement('article');
@@ -993,6 +1011,27 @@ function renderStoreCard(store, uiConfig = {}) {
   topRow.appendChild(statusBadge);
 
   card.appendChild(topRow);
+
+  if (showPhotos) {
+    const cardPhotoUrl = Array.isArray(store.photos) && store.photos.length > 0
+      ? store.photos[0]
+      : store.photo;
+
+    if (cardPhotoUrl) {
+      const photoWrap = document.createElement('div');
+      photoWrap.classList.add('card-photo-wrap');
+
+      const photo = document.createElement('img');
+      photo.classList.add('card-photo');
+      photo.src = sanitizeUrl(cardPhotoUrl, '');
+      photo.alt = `${store.name || 'Store'} photo`;
+      photo.loading = 'lazy';
+      photo.decoding = 'async';
+
+      photoWrap.appendChild(photo);
+      card.appendChild(photoWrap);
+    }
+  }
 
   // Store name (always visible with fallback)
   const name = document.createElement('h3');
@@ -1082,6 +1121,13 @@ function renderStoreCard(store, uiConfig = {}) {
     </svg>
     ${escapeHtml(ctaLabel)}
   `;
+  directionsBtn.addEventListener('click', () => {
+    trackStoreLocatorEvent('directions_click', {
+      source: 'store_card',
+      storeId: store.id,
+      placeId: store.placeId || '',
+    });
+  });
   actions.appendChild(directionsBtn);
 
   card.appendChild(actions);
@@ -1139,6 +1185,7 @@ function loadPreferences() {
  * @param {Array} availableServices - Services found in actual store data
  * @param {Function} onSearch - Search callback function
  * @param {Function} onSortChange - Sort change callback
+ * @param {Function} onViewChange - View change callback
  * @param {Promise<boolean>} googleMapsReadyPromise - Resolves when Google Maps is loaded
  * @param {AbortSignal} signal - Signal for listener cleanup
  * @returns {Element} Search section element
@@ -1148,6 +1195,7 @@ function createSearchSection(
   availableServices,
   onSearch,
   onSortChange,
+  onViewChange,
   googleMapsReadyPromise,
   signal,
 ) {
@@ -1210,6 +1258,35 @@ function createSearchSection(
   inputWrapper.appendChild(searchBtn);
   inputWrapper.appendChild(locationBtn);
   form.appendChild(inputWrapper);
+
+  // View toggle (mobile-first list/map with split reset)
+  const viewToggle = document.createElement('div');
+  viewToggle.classList.add('view-toggle');
+  const mobileDefaultView = window.matchMedia('(max-width: 767px)').matches ? 'list' : null;
+  const preferredView = prefs.preferredView || mobileDefaultView || config.defaultView || 'split';
+  const viewOptions = [
+    { value: 'list', label: 'List' },
+    { value: 'map', label: 'Map' },
+    { value: 'split', label: 'Split' },
+  ];
+  viewOptions.forEach((view) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.classList.add('view-toggle-btn');
+    btn.dataset.view = view.value;
+    btn.textContent = view.label;
+    if (preferredView === view.value) {
+      btn.classList.add('is-active');
+    }
+    btn.addEventListener('click', () => {
+      viewToggle.querySelectorAll('.view-toggle-btn').forEach((node) => node.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      savePreferences({ preferredView: view.value });
+      onViewChange(view.value);
+      trackStoreLocatorEvent('view_change', { view: view.value });
+    }, { signal });
+    viewToggle.appendChild(btn);
+  });
 
   // Sort and filter controls row
   const controlsRow = document.createElement('div');
@@ -1315,9 +1392,13 @@ function createSearchSection(
   filterWrapper.appendChild(openNowWrapper);
 
   // Add service filters (only services that actually exist in the data)
-  availableServices.forEach((service) => {
+  const visibleServiceCount = 6;
+  availableServices.forEach((service, index) => {
     const checkboxWrapper = document.createElement('label');
     checkboxWrapper.classList.add('checkbox-label');
+    if (index >= visibleServiceCount) {
+      checkboxWrapper.classList.add('is-extra');
+    }
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -1339,8 +1420,22 @@ function createSearchSection(
   });
 
   filterSection.appendChild(filterWrapper);
+
+  if (availableServices.length > visibleServiceCount) {
+    const moreFiltersBtn = document.createElement('button');
+    moreFiltersBtn.type = 'button';
+    moreFiltersBtn.classList.add('filter-more-btn');
+    moreFiltersBtn.textContent = 'More filters';
+    moreFiltersBtn.addEventListener('click', () => {
+      const expanded = filterSection.classList.toggle('is-expanded');
+      moreFiltersBtn.textContent = expanded ? 'Less filters' : 'More filters';
+    }, { signal });
+    filterSection.appendChild(moreFiltersBtn);
+  }
+
   controlsRow.appendChild(filterSection);
   section.appendChild(form);
+  section.appendChild(viewToggle);
   section.appendChild(controlsRow);
 
   // Autocomplete functionality (Google Places or Nominatim)
@@ -1493,6 +1588,7 @@ function createSearchSection(
       savePreferences({ lastSearch: searchValue });
       autocompleteList.innerHTML = '';
       autocompleteList.classList.remove('visible');
+      trackStoreLocatorEvent('search_submit', { query: searchValue });
       onSearch({
         type: 'address',
         value: searchValue,
@@ -1508,6 +1604,7 @@ function createSearchSection(
       .map((cb) => cb.value);
     const openNow = openNowCheckbox.checked;
     const radius = Number.parseInt(radiusSelect.value, 10) || 0;
+    trackStoreLocatorEvent('use_my_location');
     onSearch({
       type: 'geolocation',
       services: selectedServices,
@@ -1532,6 +1629,11 @@ function createSearchSection(
       openNow,
       selectedRadius: radius,
     });
+    trackStoreLocatorEvent('filter_change', {
+      services: selectedServices.join(','),
+      openNow,
+      radius,
+    });
 
     onSearch({
       type: 'filter',
@@ -1548,6 +1650,10 @@ function createSearchSection(
     const radius = Number.parseInt(radiusSelect.value, 10) || 0;
 
     savePreferences({ selectedRadius: radius });
+    trackStoreLocatorEvent('radius_change', {
+      radius,
+      units: config.units,
+    });
     onSearch({
       type: 'filter',
       services: selectedServices,
@@ -1750,7 +1856,15 @@ function createInfoWindowContent(store, uiConfig = {}) {
             </a>
           ` : ''}
           ${store.directionsUrl ? `
-            <a href="${safeDirectionsHref}" target="_blank" rel="noopener noreferrer" class="info-link">
+            <a
+              href="${safeDirectionsHref}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="info-link"
+              data-analytics="directions"
+              data-store-id="${escapeHtml(store.id)}"
+              data-place-id="${escapeHtml(store.placeId || '')}"
+            >
               <svg viewBox="0 0 24 24" width="18" height="18">
                 <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
               </svg>
@@ -1845,6 +1959,13 @@ async function initializeMap(
   try {
     // Import the NEW marker library using importLibrary (pure new approach)
     const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary('marker');
+    const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+    const mapInteractionOptions = {
+      // Preserve page scroll on desktop/tablet; allow direct map gestures on mobile.
+      gestureHandling: isMobileViewport ? 'greedy' : 'cooperative',
+      scrollwheel: true,
+      clickableIcons: false,
+    };
 
     const mapState = existingMapState || {
       map: null,
@@ -1865,9 +1986,11 @@ async function initializeMap(
         zoom: zoomLevel,
         mapTypeControl: false,
         streetViewControl: false,
+        ...mapInteractionOptions,
         mapId, // Required for Advanced Markers
       });
     } else {
+      mapState.map.setOptions(mapInteractionOptions);
       mapState.map.setCenter({ lat: center.lat, lng: center.lng });
       mapState.map.setZoom(zoomLevel);
     }
@@ -1982,6 +2105,16 @@ async function initializeMap(
             // Set first indicator as active on load
             indicators[0]?.classList.add('active');
           }
+
+          infoRoot.querySelectorAll('[data-analytics="directions"]').forEach((link) => {
+            link.addEventListener('click', () => {
+              trackStoreLocatorEvent('directions_click', {
+                source: 'map_info_window',
+                storeId: link.dataset.storeId || '',
+                placeId: link.dataset.placeId || '',
+              });
+            }, { once: true });
+          });
         });
       });
     });
@@ -2163,7 +2296,10 @@ async function enrichStoreWithPlacesData(store, config, detailLevel = 'lite') {
 
   const ttlMs = config.cacheTtlMinutes * 60 * 1000;
   const cachedPayload = getCachedPlaceData(store.placeId, detailLevel, ttlMs);
-  if (cachedPayload) {
+  const shouldBypassCachedPhotos = detailLevel === 'rich'
+    && config.enablePhotos
+    && (!Array.isArray(cachedPayload?.photos) || cachedPayload.photos.length === 0);
+  if (cachedPayload && !shouldBypassCachedPhotos) {
     return applyPlacePayloadToStore(store, cachedPayload);
   }
 
@@ -2330,6 +2466,88 @@ export default async function decorate(block) {
   const mapContainer = document.createElement('div');
   mapContainer.classList.add('store-map');
 
+  const appliedFiltersRow = document.createElement('div');
+  appliedFiltersRow.classList.add('applied-filters-row');
+  appliedFiltersRow.hidden = true;
+
+  const appliedFilters = document.createElement('div');
+  appliedFilters.classList.add('applied-filters');
+  appliedFiltersRow.appendChild(appliedFilters);
+
+  const clearAllFiltersBtn = document.createElement('button');
+  clearAllFiltersBtn.type = 'button';
+  clearAllFiltersBtn.classList.add('clear-filters-btn');
+  clearAllFiltersBtn.textContent = 'Clear all';
+  clearAllFiltersBtn.hidden = true;
+  appliedFiltersRow.appendChild(clearAllFiltersBtn);
+
+  const resultsSummary = document.createElement('p');
+  resultsSummary.classList.add('store-results-summary');
+  resultsSummary.setAttribute('aria-live', 'polite');
+  resultsSummary.hidden = true;
+
+  let contentArea = null;
+
+  function setView(view) {
+    if (!contentArea) return;
+    const normalizedView = ['list', 'map', 'split'].includes(view) ? view : 'split';
+    contentArea.setAttribute('data-view', normalizedView);
+    const toggleButtons = container.querySelectorAll('.view-toggle-btn');
+    toggleButtons.forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.view === normalizedView);
+    });
+  }
+
+  function getSelectedFilters() {
+    const services = Array.from(container.querySelectorAll('.service-checkbox:checked'))
+      .map((cb) => cb.value);
+    const openNow = container.querySelector('.open-now-checkbox')?.checked || false;
+    const radius = Number.parseInt(
+      container.querySelector('#radius-select')?.value ?? `${config.searchRadius}`,
+      10,
+    ) || 0;
+    return { services, openNow, radius };
+  }
+
+  function updateFilterMeta(stores) {
+    const { services, openNow, radius } = getSelectedFilters();
+    const summaryParts = [`Showing ${stores.length} of ${allStores.length}`];
+    if (userLocation) {
+      if (radius > 0) {
+        summaryParts.push(`within ${radius} ${config.units === 'km' ? 'km' : 'mi'}`);
+      } else {
+        summaryParts.push('across all distances');
+      }
+    }
+    if (openNow) {
+      summaryParts.push('Open now');
+    }
+    if (services.length > 0) {
+      summaryParts.push(`${services.length} service filters`);
+    }
+    resultsSummary.textContent = summaryParts.join(' · ');
+    resultsSummary.hidden = false;
+
+    appliedFilters.innerHTML = '';
+    const chips = [];
+    if (openNow) chips.push({ type: 'open', label: 'Open now' });
+    if (radius > 0) chips.push({ type: 'radius', label: `${radius} ${config.units === 'km' ? 'km' : 'mi'}` });
+    services.forEach((service) => chips.push({ type: 'service', value: service, label: service }));
+    chips.forEach((chip) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.classList.add('applied-filter-chip');
+      button.dataset.chipType = chip.type;
+      if (chip.value) {
+        button.dataset.chipValue = chip.value;
+      }
+      button.textContent = `${chip.label} ×`;
+      appliedFilters.appendChild(button);
+    });
+    clearAllFiltersBtn.hidden = chips.length === 0;
+    appliedFiltersRow.hidden = chips.length === 0;
+  }
+
   /**
    * Render stores in the list
    * @param {Array} stores - Stores to render
@@ -2341,12 +2559,18 @@ export default async function decorate(block) {
     if (stores.length === 0) {
       const noResults = document.createElement('p');
       noResults.classList.add('no-results');
-      noResults.textContent = config.noResultsMessage;
+      const { radius } = getSelectedFilters();
+      if (userLocation && radius > 0) {
+        noResults.textContent = `No stores found within ${radius} ${config.units === 'km' ? 'km' : 'mi'}. Try increasing radius or removing filters.`;
+      } else {
+        noResults.textContent = config.noResultsMessage;
+      }
       fragment.appendChild(noResults);
     } else {
       stores.forEach((store) => {
         const card = renderStoreCard(store, {
           showDistance: config.showDistance,
+          enablePhotos: config.enablePhotos,
           units: config.units,
           primaryCtaLabel: config.primaryCtaLabel,
         });
@@ -2424,6 +2648,8 @@ export default async function decorate(block) {
     ) || 0;
     filteredStores = applyFiltersAndSort(allStores, services, openNow, radius);
     renderStores(filteredStores);
+    updateFilterMeta(filteredStores);
+    trackStoreLocatorEvent('sort_change', { sortBy });
 
     // Update map if needed
     if (mapInstance && userLocation) {
@@ -2461,6 +2687,7 @@ export default async function decorate(block) {
         const radius = Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius;
         filteredStores = applyFiltersAndSort(allStores, services, openNow, radius);
         renderStores(filteredStores);
+        updateFilterMeta(filteredStores);
 
         // Update map
         if (mapInstance) {
@@ -2506,6 +2733,7 @@ export default async function decorate(block) {
         const radius = Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius;
         filteredStores = applyFiltersAndSort(allStores, services, openNow, radius);
         renderStores(filteredStores);
+        updateFilterMeta(filteredStores);
 
         // Update map
         if (mapInstance) {
@@ -2541,6 +2769,7 @@ export default async function decorate(block) {
         // Still show stores below error
         filteredStores = allStores.slice(0, config.maxResults);
         renderStores(filteredStores);
+        updateFilterMeta(filteredStores);
       } finally {
         hideLoading(loadingSpinner);
       }
@@ -2552,6 +2781,7 @@ export default async function decorate(block) {
         Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius,
       );
       renderStores(filteredStores);
+      updateFilterMeta(filteredStores);
 
       // Update map if needed
       if (mapInstance && userLocation) {
@@ -2570,25 +2800,92 @@ export default async function decorate(block) {
     }
   }
 
+  function handleViewChange(view) {
+    setView(view);
+  }
+
   // Search header (with dynamic services from actual data)
   const searchSection = createSearchSection(
     config,
     availableServices,
     handleSearch,
     handleSortChange,
+    handleViewChange,
     googleMapsReadyPromise,
     signal,
   );
+  searchSection.appendChild(appliedFiltersRow);
+  searchSection.appendChild(resultsSummary);
   container.appendChild(searchSection);
 
   // Main content area
-  const contentArea = document.createElement('div');
+  contentArea = document.createElement('div');
   contentArea.classList.add('store-locator-content');
   contentArea.setAttribute('data-view', config.defaultView);
 
   contentArea.appendChild(listContainer);
   contentArea.appendChild(mapContainer);
   container.appendChild(contentArea);
+
+  const mobileDefaultView = window.matchMedia('(max-width: 767px)').matches ? 'list' : null;
+  const preferredView = prefs.preferredView || mobileDefaultView || config.defaultView || 'split';
+  setView(preferredView);
+
+  appliedFilters.addEventListener('click', (event) => {
+    const chip = event.target.closest('.applied-filter-chip');
+    if (!chip) return;
+
+    const { chipType } = chip.dataset;
+    if (chipType === 'open') {
+      const checkbox = container.querySelector('.open-now-checkbox');
+      if (checkbox) checkbox.checked = false;
+    } else if (chipType === 'radius') {
+      const radiusSelect = container.querySelector('#radius-select');
+      if (radiusSelect) radiusSelect.value = '0';
+    } else if (chipType === 'service') {
+      const checkbox = container.querySelector(`.service-checkbox[value="${chip.dataset.chipValue}"]`);
+      if (checkbox) checkbox.checked = false;
+    }
+
+    const { services, openNow, radius } = getSelectedFilters();
+    savePreferences({
+      selectedServices: services,
+      openNow,
+      selectedRadius: radius,
+    });
+    trackStoreLocatorEvent('filter_chip_remove', {
+      chipType,
+      services: services.join(','),
+      openNow,
+      radius,
+    });
+    handleSearch({
+      type: 'filter',
+      services,
+      openNow,
+      radius,
+    });
+  });
+
+  clearAllFiltersBtn.addEventListener('click', () => {
+    container.querySelectorAll('.service-checkbox').forEach((checkbox) => { checkbox.checked = false; });
+    const openNowCheckbox = container.querySelector('.open-now-checkbox');
+    if (openNowCheckbox) openNowCheckbox.checked = false;
+    const radiusSelect = container.querySelector('#radius-select');
+    if (radiusSelect) radiusSelect.value = '0';
+    savePreferences({
+      selectedServices: [],
+      openNow: false,
+      selectedRadius: 0,
+    });
+    trackStoreLocatorEvent('clear_all_filters');
+    handleSearch({
+      type: 'filter',
+      services: [],
+      openNow: false,
+      radius: 0,
+    });
+  });
 
   // Replace block content
   block.innerHTML = '';
@@ -2645,6 +2942,7 @@ export default async function decorate(block) {
 
     // Render store list
     renderStores(filteredStores);
+    updateFilterMeta(filteredStores);
 
     // Hide loading overlay
     hideLoading(loadingSpinner);
@@ -2667,6 +2965,7 @@ export default async function decorate(block) {
           // Re-apply filters and sort (this recalculates distances with userLocation)
           filteredStores = applyFiltersAndSort(allStores, savedServices, savedOpenNow, savedRadius);
           renderStores(filteredStores);
+          updateFilterMeta(filteredStores);
           hideLoading(loadingSpinner);
         }
 
