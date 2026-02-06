@@ -656,8 +656,8 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
    ============================================ */
 .store-card {
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -675,7 +675,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 .card-photo-wrap {
   width: 100%;
   height: 160px;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   margin: 0 0 12px;
   background: #f3f4f6;
@@ -709,7 +709,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 10px;
 }
 
@@ -727,6 +727,10 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   overflow: hidden;
   text-overflow: ellipsis;
   margin-right: auto;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgb(210 227 252 / 90%);
+  background: linear-gradient(135deg, rgb(232 240 254 / 60%) 0%, rgb(255 255 255 / 95%) 100%);
 }
 
 .card-distance-badge .distance-icon {
@@ -740,9 +744,9 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -752,23 +756,25 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 }
 
 .card-status-badge.open {
-  background: #e6f4ea;
+  background: linear-gradient(135deg, rgb(16 185 129 / 14%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(16 185 129 / 25%);
   color: #137333;
 }
 
 .card-status-badge.closed {
-  background: #fce8e6;
+  background: linear-gradient(135deg, rgb(239 68 68 / 14%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(239 68 68 / 25%);
   color: #c5221f;
 }
 
 .card-status-badge .status-icon {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 /* Store Name - FIXED HEIGHT, SINGLE LINE */
 .store-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.35;
   color: #202124;
@@ -778,18 +784,36 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   text-overflow: ellipsis;
 }
 
+.card-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-name-link:hover {
+  text-decoration: underline;
+  text-decoration-color: #1a73e8;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
 /* Rating - FIXED HEIGHT */
 .card-rating {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #fce8c3;
+  background: linear-gradient(135deg, #fef3e2 0%, #fff9f0 100%);
+  min-height: 36px;
+  box-sizing: border-box;
 }
 
 .card-rating .stars {
   color: #fbbc04;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 1px;
 }
 
@@ -801,15 +825,18 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 .card-rating .rating-count {
   color: #70757a;
   white-space: nowrap;
+  font-size: 12px;
 }
 
 /* Address - FIXED HEIGHT, 2 LINES MAX */
 .card-address {
-  font-size: 14px;
+  font-size: 13px;
   color: #4b5563;
   line-height: 1.5;
   font-style: normal;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eceff3;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -819,13 +846,14 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 
 /* Phone - FIXED HEIGHT */
 .card-phone {
-  font-size: 14px;
+  font-size: 13px;
   color: #374151;
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
+  min-height: 20px;
 }
 
 .card-phone a {
@@ -856,35 +884,161 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eceff3;
+  min-height: 34px;
+  box-sizing: border-box;
 }
 
 .card-service-tag {
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   padding: 5px 10px;
-  background: #f1f3f4;
-  border-radius: 6px;
-  font-size: 12px;
+  background: linear-gradient(135deg, rgb(248 249 250 / 85%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(218 220 224 / 90%);
+  border-radius: 9999px;
+  font-size: 11px;
   color: #5f6368;
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
+.card-service-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9ca3af;
+  box-shadow: 0 0 0 2px rgb(156 163 175 / 15%);
+  flex-shrink: 0;
+}
+
 .card-service-tag.card-service-more {
-  background: #eef2ff;
+  background: linear-gradient(135deg, rgb(238 242 255 / 90%) 0%, rgb(255 255 255 / 95%) 100%);
+  border-color: rgb(199 210 254 / 90%);
   color: #374151;
+}
+
+.card-service-tag.card-service-more::before {
+  background: #6366f1;
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 18%);
+}
+
+.card-more-details {
+  margin-bottom: 8px;
+  border-top: 1px solid #eceff3;
+  padding-top: 8px;
+}
+
+.card-more-details summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, rgb(248 250 252 / 90%) 0%, #fff 100%);
+}
+
+.card-more-chevron {
+  font-size: 11px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.card-more-details[open] .card-more-chevron {
+  transform: rotate(180deg);
+}
+
+.card-more-content {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* Hours Text - FIXED HEIGHT */
 .card-hours {
-  font-size: 14px;
-  color: #5f6368;
+  font-size: 13px;
+  color: #4b5563;
   line-height: 1.5;
   margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d6dbe3;
+  background: linear-gradient(135deg, rgb(248 250 252 / 90%) 0%, #fff 100%);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.card-hours-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-hours-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 100%);
+}
+
+.card-hours.open .card-hours-dot {
+  background-color: #34a853;
+  box-shadow: 0 0 0 2px rgb(52 168 83 / 20%), 0 0 8px rgb(52 168 83 / 35%);
+}
+
+.card-hours.closed .card-hours-dot {
+  background-color: #ea4335;
+  box-shadow: 0 0 0 2px rgb(234 67 53 / 20%), 0 0 8px rgb(234 67 53 / 35%);
+}
+
+.card-hours-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-hours-chevron {
+  flex-shrink: 0;
+  color: #8b93a1;
+  font-size: 11px;
+}
+
+.card-slot-empty {
+  color: #9ca3af;
+}
+
+.card-slot-empty.card-rating {
+  border-color: rgb(209 213 219 / 70%);
+  background: linear-gradient(135deg, rgb(248 250 252 / 75%) 0%, #fff 100%);
+}
+
+.card-hours.card-slot-empty .card-hours-dot {
+  background-color: #9ca3af;
+  box-shadow: 0 0 0 2px rgb(156 163 175 / 18%);
+}
+
+.card-service-placeholder {
+  color: #9ca3af;
+  border-style: dashed;
 }
 
 /* Contact Info Container - Groups Address + Phone */
@@ -1085,24 +1239,32 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 
 /* Card Actions - Vertical layout with primary + text link - FIXED HEIGHT */
 .card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
   align-items: stretch;
-  margin: auto -20px -20px;
-  padding: 10px 20px 20px;
+  margin: 8px 0 0;
+  padding: 8px 0 0;
+}
+
+.card-actions > * {
+  min-width: 0;
+}
+
+.card-actions.has-website {
+  grid-template-columns: 1fr 1fr;
 }
 
 /* Primary Button - Full width, blue accent */
 .card-actions .btn-primary,
 a.btn-primary {
   width: 100%;
-  padding: 14px 20px;
-  background: #1a73e8 !important;
-  color: #fff !important;
-  border: none;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgb(218 234 255 / 88%) 0%, rgb(255 255 255 / 92%) 100%) !important;
+  color: #0f4db6 !important;
+  border: 1px solid rgb(160 196 255 / 95%);
   border-radius: var(--sl-radius-sm);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1111,7 +1273,7 @@ a.btn-primary {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 2px 6px rgb(26 115 232 / 30%);
+  box-shadow: none;
   box-sizing: border-box;
 }
 
@@ -1129,12 +1291,12 @@ a.btn-primary {
 a.btn-primary svg,
 .card-actions .btn-primary svg {
   flex-shrink: 0;
-  fill: #fff !important;
+  fill: currentcolor !important;
 }
 
 a.btn-primary svg path,
 .card-actions .btn-primary svg path {
-  fill: #fff !important;
+  fill: currentcolor !important;
 }
 
 .btn-primary:focus-visible {
@@ -1144,23 +1306,56 @@ a.btn-primary svg path,
 
 a.btn-primary:hover,
 .card-actions .btn-primary:hover {
-  background: #1557b0 !important;
-  color: #fff !important;
-  box-shadow: 0 4px 12px rgb(26 115 232 / 40%);
+  background: linear-gradient(135deg, rgb(208 228 255 / 96%) 0%, #fff 100%) !important;
+  border-color: #7aaef7;
+  color: #0b3f95 !important;
+  box-shadow: 0 2px 8px rgb(26 115 232 / 15%);
   transform: translateY(-1px);
 }
 
 a.btn-primary:active,
 .card-actions .btn-primary:active {
-  background: #1765cc !important;
-  color: #fff !important;
-  box-shadow: 0 1px 3px rgb(26 115 232 / 30%);
+  background: linear-gradient(135deg, rgb(199 223 255 / 96%) 0%, #fff 100%) !important;
+  color: #0b3f95 !important;
+  box-shadow: none;
   transform: translateY(0);
 }
 
 a.btn-primary:visited,
 .card-actions .btn-primary:visited {
-  color: #fff !important;
+  color: #0f4db6 !important;
+}
+
+.card-actions .btn-secondary {
+  width: 100%;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgb(232 240 254 / 62%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(210 227 252 / 95%);
+  border-radius: var(--sl-radius-sm);
+  color: #1f3f7a;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.card-actions .btn-secondary:hover {
+  background: linear-gradient(135deg, rgb(232 240 254 / 78%) 0%, #fff 100%);
+  border-color: #8ab4f8;
+  color: #174ea6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgb(26 115 232 / 15%);
+}
+
+.card-actions .btn-primary:focus-visible,
+.card-actions .btn-secondary:focus-visible {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 2px;
 }
 
 .store-locator-container[data-card-density="compact"] .store-card {
@@ -1172,8 +1367,8 @@ a.btn-primary:visited,
 }
 
 .store-locator-container[data-card-density="compact"] .card-actions {
-  margin: auto -14px -14px;
-  padding: 10px 14px 14px;
+  margin: 8px 0 0;
+  padding: 8px 0 0;
   gap: 8px;
 }
 
@@ -1483,22 +1678,15 @@ a.btn-primary:visited,
 .info-name-link {
   color: #202124;
   text-decoration: none;
-  transition: color 0.2s ease;
-  position: relative;
+  transition: text-decoration-color 0.2s ease;
 }
 
 .info-name-link:hover {
-  color: #1a73e8;
-}
-
-.info-name-link:hover::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 2px;
-  background: #1a73e8;
+  color: #202124;
+  text-decoration: underline;
+  text-decoration-color: #1a73e8;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 /* Info Window Row - Perfectly Aligned */
@@ -2254,6 +2442,10 @@ a.btn-primary:visited,
   .card-service-tag {
     padding: 4px 9px;
     font-size: 11px;
+  }
+
+  .card-actions.has-website {
+    grid-template-columns: 1fr;
   }
 
   .store-name {

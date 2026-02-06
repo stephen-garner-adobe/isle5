@@ -1058,7 +1058,18 @@ function renderStoreCard(store, uiConfig = {}) {
   // Store name (always visible with fallback)
   const name = document.createElement('h3');
   name.classList.add('store-name');
-  name.textContent = store.name || 'Store Location';
+  const storeName = store.name || 'Store Location';
+  const nameLink = document.createElement('a');
+  nameLink.classList.add('card-name-link');
+  if (store.placeId) {
+    nameLink.href = sanitizeUrl(`https://www.google.com/maps/place/?q=place_id:${store.placeId}`);
+  } else {
+    nameLink.href = sanitizeUrl(`https://maps.google.com/?q=${store.address.coordinates.lat},${store.address.coordinates.lng}`);
+  }
+  nameLink.target = '_blank';
+  nameLink.rel = 'noopener noreferrer';
+  nameLink.textContent = storeName;
+  name.appendChild(nameLink);
   card.appendChild(name);
 
   if (store.rating && store.userRatingsTotal) {
@@ -1066,6 +1077,11 @@ function renderStoreCard(store, uiConfig = {}) {
     ratingRow.classList.add('card-rating');
     const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
     ratingRow.innerHTML = `<span class="stars">${stars}</span> <span class="rating-value">${store.rating}</span> <span class="rating-count">(${store.userRatingsTotal})</span>`;
+    card.appendChild(ratingRow);
+  } else {
+    const ratingRow = document.createElement('div');
+    ratingRow.classList.add('card-rating', 'card-slot-empty');
+    ratingRow.textContent = 'Ratings unavailable';
     card.appendChild(ratingRow);
   }
 
@@ -1085,21 +1101,25 @@ function renderStoreCard(store, uiConfig = {}) {
   }
   card.appendChild(address);
 
+  const phone = document.createElement('div');
+  phone.classList.add('card-phone');
   if (store.contact?.phone) {
-    const phone = document.createElement('div');
-    phone.classList.add('card-phone');
     phone.innerHTML = `<a href="tel:${store.contact.phone.replace(/\D/g, '')}">${store.contact.phone}</a>`;
-    card.appendChild(phone);
+  } else {
+    phone.classList.add('card-slot-empty');
+    phone.textContent = 'Phone unavailable';
   }
+  card.appendChild(phone);
 
+  const servicesTags = document.createElement('div');
+  servicesTags.classList.add('card-services');
   if (store.services && store.services.length > 0) {
-    const servicesTags = document.createElement('div');
-    servicesTags.classList.add('card-services');
+    let moreDetails = null;
     const visibleServices = store.services.slice(0, maxVisibleServiceTags);
     visibleServices.forEach((service) => {
       const tag = document.createElement('span');
       tag.classList.add('card-service-tag');
-      tag.textContent = service;
+      tag.textContent = formatLabel(service);
       servicesTags.appendChild(tag);
     });
 
@@ -1108,21 +1128,56 @@ function renderStoreCard(store, uiConfig = {}) {
       moreTag.classList.add('card-service-tag', 'card-service-more');
       moreTag.textContent = `+${store.services.length - maxVisibleServiceTags} more`;
       servicesTags.appendChild(moreTag);
+
+      moreDetails = document.createElement('details');
+      moreDetails.classList.add('card-more-details');
+      const extraServices = store.services.slice(maxVisibleServiceTags)
+        .map((service) => `<span class="card-service-tag">${escapeHtml(formatLabel(service))}</span>`)
+        .join('');
+      moreDetails.innerHTML = `
+        <summary><span>Details</span><span class="card-more-chevron" aria-hidden="true">▾</span></summary>
+        <div class="card-more-content">${extraServices}</div>
+      `;
     }
 
-    card.appendChild(servicesTags);
+    if (moreDetails) card.appendChild(moreDetails);
+  } else {
+    servicesTags.classList.add('card-slot-empty');
+    servicesTags.innerHTML = '<span class="card-service-tag card-service-placeholder">No listed services</span>';
   }
+  card.appendChild(servicesTags);
 
+  const hours = document.createElement('div');
+  hours.classList.add('card-hours');
   if (hoursText && hoursText !== 'Hours not available') {
-    const hours = document.createElement('div');
-    hours.classList.add('card-hours');
-    hours.textContent = hoursText;
-    card.appendChild(hours);
+    hours.classList.add(isOpen ? 'open' : 'closed');
+    const statusPrefix = isOpen ? 'Open' : 'Closed';
+    hours.setAttribute('aria-label', `${statusPrefix}. ${hoursText}`);
+    hours.innerHTML = `
+      <div class="card-hours-main">
+        <span class="card-hours-dot" aria-hidden="true"></span>
+        <span class="card-hours-text">${statusPrefix} · ${escapeHtml(hoursText)}</span>
+      </div>
+      <span class="card-hours-chevron" aria-hidden="true">▾</span>
+    `;
+  } else {
+    hours.classList.add('card-slot-empty');
+    hours.innerHTML = `
+      <div class="card-hours-main">
+        <span class="card-hours-dot" aria-hidden="true"></span>
+        <span class="card-hours-text">Hours unavailable</span>
+      </div>
+      <span class="card-hours-chevron" aria-hidden="true">▾</span>
+    `;
   }
+  card.appendChild(hours);
 
   // Action buttons container
   const actions = document.createElement('div');
   actions.classList.add('card-actions');
+  if (store.contact?.website) {
+    actions.classList.add('has-website');
+  }
 
   // Primary action: Get Directions button (full-width)
   const directionsBtn = document.createElement('a');
@@ -1148,6 +1203,21 @@ function renderStoreCard(store, uiConfig = {}) {
     });
   });
   actions.appendChild(directionsBtn);
+
+  if (store.contact?.website) {
+    const websiteBtn = document.createElement('a');
+    websiteBtn.classList.add('btn-secondary');
+    websiteBtn.href = sanitizeUrl(store.contact.website);
+    websiteBtn.target = '_blank';
+    websiteBtn.rel = 'noopener noreferrer';
+    websiteBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="18" height="18">
+        <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
+      </svg>
+      Website
+    `;
+    actions.appendChild(websiteBtn);
+  }
 
   card.appendChild(actions);
 
