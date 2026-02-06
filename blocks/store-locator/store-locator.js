@@ -970,6 +970,7 @@ function renderStoreCard(store, uiConfig = {}) {
   const showPhotos = uiConfig.enablePhotos !== false;
   const units = uiConfig.units || 'miles';
   const ctaLabel = uiConfig.primaryCtaLabel || 'Get Directions';
+  const maxVisibleServiceTags = 3;
   const card = document.createElement('article');
   card.classList.add('store-card');
   card.dataset.storeId = store.id;
@@ -1002,6 +1003,8 @@ function renderStoreCard(store, uiConfig = {}) {
   // Status badge (right side)
   const statusBadge = document.createElement('div');
   statusBadge.classList.add('card-status-badge', isOpen ? 'open' : 'closed');
+  statusBadge.setAttribute('aria-label', isOpen ? 'Store is open' : 'Store is closed');
+  statusBadge.title = isOpen ? 'Store is open' : 'Store is closed';
   statusBadge.innerHTML = `
     <svg class="status-icon" viewBox="0 0 8 8" width="8" height="8">
       <circle cx="4" cy="4" r="4" fill="currentColor"/>
@@ -1030,6 +1033,16 @@ function renderStoreCard(store, uiConfig = {}) {
 
       photoWrap.appendChild(photo);
       card.appendChild(photoWrap);
+    } else {
+      const photoFallback = document.createElement('div');
+      photoFallback.classList.add('card-photo-wrap', 'card-photo-fallback');
+      photoFallback.innerHTML = `
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+          <path fill="currentColor" d="M19 5h-3.2l-1.8-2H10L8.2 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-7 11a4 4 0 110-8 4 4 0 010 8z"/>
+        </svg>
+        <span>No photo available</span>
+      `;
+      card.appendChild(photoFallback);
     }
   }
 
@@ -1039,16 +1052,13 @@ function renderStoreCard(store, uiConfig = {}) {
   name.textContent = store.name || 'Store Location';
   card.appendChild(name);
 
-  // Star rating (always render to maintain spacing)
-  const ratingRow = document.createElement('div');
-  ratingRow.classList.add('card-rating');
   if (store.rating && store.userRatingsTotal) {
+    const ratingRow = document.createElement('div');
+    ratingRow.classList.add('card-rating');
     const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
     ratingRow.innerHTML = `<span class="stars">${stars}</span> <span class="rating-value">${store.rating}</span> <span class="rating-count">(${store.userRatingsTotal})</span>`;
-  } else {
-    ratingRow.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
+    card.appendChild(ratingRow);
   }
-  card.appendChild(ratingRow);
 
   // Address (always visible with fallback)
   const address = document.createElement('address');
@@ -1066,40 +1076,40 @@ function renderStoreCard(store, uiConfig = {}) {
   }
   card.appendChild(address);
 
-  // Phone (always render to maintain spacing)
-  const phone = document.createElement('div');
-  phone.classList.add('card-phone');
   if (store.contact?.phone) {
+    const phone = document.createElement('div');
+    phone.classList.add('card-phone');
     phone.innerHTML = `<a href="tel:${store.contact.phone.replace(/\D/g, '')}">${store.contact.phone}</a>`;
-  } else {
-    phone.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
+    card.appendChild(phone);
   }
-  card.appendChild(phone);
 
-  // Service tags (always render to maintain spacing)
-  const servicesTags = document.createElement('div');
-  servicesTags.classList.add('card-services');
   if (store.services && store.services.length > 0) {
-    store.services.forEach((service) => {
+    const servicesTags = document.createElement('div');
+    servicesTags.classList.add('card-services');
+    const visibleServices = store.services.slice(0, maxVisibleServiceTags);
+    visibleServices.forEach((service) => {
       const tag = document.createElement('span');
       tag.classList.add('card-service-tag');
       tag.textContent = service;
       servicesTags.appendChild(tag);
     });
-  } else {
-    servicesTags.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
-  }
-  card.appendChild(servicesTags);
 
-  // Hours text (always render to maintain spacing)
-  const hours = document.createElement('div');
-  hours.classList.add('card-hours');
-  if (hoursText && hoursText !== 'Hours not available') {
-    hours.textContent = hoursText;
-  } else {
-    hours.innerHTML = '&nbsp;'; // Non-breaking space to maintain height
+    if (store.services.length > maxVisibleServiceTags) {
+      const moreTag = document.createElement('span');
+      moreTag.classList.add('card-service-tag', 'card-service-more');
+      moreTag.textContent = `+${store.services.length - maxVisibleServiceTags} more`;
+      servicesTags.appendChild(moreTag);
+    }
+
+    card.appendChild(servicesTags);
   }
-  card.appendChild(hours);
+
+  if (hoursText && hoursText !== 'Hours not available') {
+    const hours = document.createElement('div');
+    hours.classList.add('card-hours');
+    hours.textContent = hoursText;
+    card.appendChild(hours);
+  }
 
   // Action buttons container
   const actions = document.createElement('div');
