@@ -439,6 +439,15 @@ function formatDistance(distanceMiles, units = 'miles') {
   return `${distanceMiles.toFixed(1)} miles away`;
 }
 
+function formatLabel(value = '') {
+  const text = String(value).trim().replace(/\s+/g, ' ');
+  if (!text) return '';
+  return text
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
 /**
  * Get user's current location via Geolocation API
  * @returns {Promise<Object>} User coordinates {lat, lng}
@@ -1690,6 +1699,7 @@ function createSearchSection(
 function createInfoWindowContent(store, uiConfig = {}) {
   const units = uiConfig.units || 'miles';
   const ctaLabel = uiConfig.primaryCtaLabel || 'Get Directions';
+  const maxVisibleInfoTags = 4;
   const safeStoreName = escapeHtml(store.name || 'Store');
   const safeAddress = escapeHtml(`${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}`.trim());
   const safePhoneText = escapeHtml(store.contact?.phone || '');
@@ -1741,7 +1751,7 @@ function createInfoWindowContent(store, uiConfig = {}) {
     `;
   }
 
-  // Build reviews section (5 most helpful reviews)
+  // Build reviews section (shown in progressive details area)
   let reviewsHTML = '';
   if (store.reviews && store.reviews.length > 0) {
     const reviewCards = store.reviews.map((review) => {
@@ -1844,54 +1854,62 @@ function createInfoWindowContent(store, uiConfig = {}) {
     ...(Array.isArray(store.details) ? store.details : []),
   ].filter((item) => item);
 
-  let supplementaryHTML = '';
-  if (supplementaryItems.length > 0 || store.contact?.website) {
-    const tagsHTML = supplementaryItems.length > 0
-      ? `
-        <div class="info-supplementary-tags">
-          ${supplementaryItems.map((item) => `<span class="info-tag">${escapeHtml(item)}</span>`).join('')}
-        </div>
-      `
-      : '';
-
-    const linksHTML = (store.contact?.website || store.directionsUrl)
-      ? `
-        <div class="info-links-row">
-          ${store.contact?.website ? `
-            <a href="${safeWebsiteHref}" target="_blank" rel="noopener noreferrer" class="info-link">
-              <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
-              </svg>
-              <span>Website</span>
-            </a>
-          ` : ''}
-          ${store.directionsUrl ? `
-            <a
-              href="${safeDirectionsHref}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="info-link"
-              data-analytics="directions"
-              data-store-id="${escapeHtml(store.id)}"
-              data-place-id="${escapeHtml(store.placeId || '')}"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-              </svg>
-              <span>${escapeHtml(ctaLabel)}</span>
-            </a>
-          ` : ''}
-        </div>
-      `
-      : '';
-
-    supplementaryHTML = `
-      <div class="info-supplementary">
-        ${tagsHTML}
-        ${linksHTML}
+  const visibleTags = supplementaryItems.slice(0, maxVisibleInfoTags);
+  const hiddenTagCount = Math.max(0, supplementaryItems.length - visibleTags.length);
+  const tagsHTML = visibleTags.length > 0
+    ? `
+      <div class="info-supplementary-tags">
+        ${visibleTags.map((item) => `<span class="info-tag">${escapeHtml(formatLabel(item))}</span>`).join('')}
+        ${hiddenTagCount > 0 ? `<span class="info-tag info-tag-more">+${hiddenTagCount} more</span>` : ''}
       </div>
-    `;
-  }
+    `
+    : '';
+
+  const actionsHTML = (store.contact?.website || store.directionsUrl)
+    ? `
+      <div class="info-links-row">
+        ${store.directionsUrl ? `
+          <a
+            href="${safeDirectionsHref}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="info-link info-link-primary"
+            data-analytics="directions"
+            data-store-id="${escapeHtml(store.id)}"
+            data-place-id="${escapeHtml(store.placeId || '')}"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
+            </svg>
+            <span>${escapeHtml(ctaLabel)}</span>
+          </a>
+        ` : ''}
+        ${store.contact?.website ? `
+          <a href="${safeWebsiteHref}" target="_blank" rel="noopener noreferrer" class="info-link">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
+            </svg>
+            <span>Website</span>
+          </a>
+        ` : ''}
+      </div>
+    `
+    : '';
+
+  const detailSections = [];
+  if (tagsHTML) detailSections.push(tagsHTML);
+  if (reviewsHTML) detailSections.push(reviewsHTML);
+
+  const moreDetailsHTML = detailSections.length > 0
+    ? `
+      <details class="info-more-details">
+        <summary>Details & reviews</summary>
+        <div class="info-more-content">
+          ${detailSections.join('')}
+        </div>
+      </details>
+    `
+    : '';
 
   // Build phone HTML
   let phoneHTML = '';
@@ -1920,7 +1938,7 @@ function createInfoWindowContent(store, uiConfig = {}) {
   }
 
   return `
-    <div class="map-info-window">
+    <div class="map-info-window map-info-window-compact">
       ${photoHTML}
       <div class="info-content">
         <h4 class="info-name">
@@ -1928,6 +1946,8 @@ function createInfoWindowContent(store, uiConfig = {}) {
         </h4>
         ${ratingHTML}
         ${fullHoursHTML}
+        ${distanceHTML}
+        ${actionsHTML}
         <div class="info-row">
           <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
             <path fill="#ea4335" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -1935,9 +1955,7 @@ function createInfoWindowContent(store, uiConfig = {}) {
           <span class="info-address-text">${safeAddress}</span>
         </div>
         ${phoneHTML}
-        ${distanceHTML}
-        ${supplementaryHTML}
-        ${reviewsHTML}
+        ${moreDetailsHTML}
       </div>
     </div>
   `;
@@ -2053,7 +2071,8 @@ async function initializeMap(
 
       const infoWindow = new google.maps.InfoWindow({
         content: createInfoWindowContent(store, uiConfig),
-        maxWidth: 320,
+        maxWidth: 300,
+        disableAutoPan: false,
       });
       mapState.infoWindows.push(infoWindow);
       mapState.storeMarkers.push(marker);
@@ -2066,6 +2085,9 @@ async function initializeMap(
         }
 
         infoWindow.open(mapState.map, marker);
+        if (window.matchMedia('(min-width: 768px)').matches) {
+          mapState.map.panBy(0, -80);
+        }
 
         // Wait for InfoWindow to render, then attach event listeners
         google.maps.event.addListenerOnce(infoWindow, 'domready', () => {

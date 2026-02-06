@@ -1123,6 +1123,7 @@ a.btn-primary {
 
 .info-link svg {
   flex-shrink: 0;
+  opacity: 0.9;
 }
 
 a.btn-primary svg,
@@ -1294,7 +1295,7 @@ a.btn-primary:visited,
 
 /* Target Google's InfoWindow container classes - ENTIRE POPOVER SCROLLS */
 .gm-style .gm-style-iw-c {
-  max-height: 600px !important;
+  max-height: 480px !important;
   padding: 0 !important;
   overflow: hidden !important;
   border-radius: 12px !important;
@@ -1302,7 +1303,7 @@ a.btn-primary:visited,
 }
 
 .gm-style .gm-style-iw-d {
-  max-height: 600px !important;
+  max-height: 480px !important;
   overflow: hidden auto !important;
   padding: 0 !important;
   scrollbar-width: thin;
@@ -1338,7 +1339,7 @@ a.btn-primary:visited,
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   width: 100%;
-  max-width: 360px;
+  max-width: 300px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -1347,17 +1348,17 @@ a.btn-primary:visited,
 
 /* Info Window Photos - Transparent Bubble Carousel */
 .info-photos-container {
-  margin: 0 0 4px;
-  padding: 6px;
+  margin: 0;
+  padding: 4px;
   background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .info-photos {
   display: flex;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  height: 140px;
+  height: 122px;
   background: #000;
   border-radius: 8px;
   overflow: auto hidden;
@@ -1371,7 +1372,7 @@ a.btn-primary:visited,
   min-width: 100%;
   scroll-snap-align: start;
   overflow: hidden;
-  height: 140px;
+  height: 122px;
   background: #000;
 }
 
@@ -1389,7 +1390,7 @@ a.btn-primary:visited,
   display: flex;
   justify-content: center;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
   padding-bottom: 2px;
 }
 
@@ -1415,7 +1416,7 @@ a.btn-primary:visited,
 
 /* Info Window Content - Entire Window Scrolls */
 .info-content {
-  padding: 4px 16px 16px;
+  padding: 8px 12px 12px;
   overflow-wrap: break-word;
   background: #fff;
 }
@@ -1423,19 +1424,19 @@ a.btn-primary:visited,
 /* Responsive Breakpoints - World-Class Design */
 @media (max-width: 360px) {
   .gm-style .gm-style-iw-c {
-    max-height: 500px !important;
+    max-height: 75vh !important;
   }
 
   .gm-style .gm-style-iw-d {
-    max-height: 500px !important;
+    max-height: 75vh !important;
   }
 
   .map-info-window {
-    max-width: 300px;
+    max-width: 280px;
   }
 
   .info-content {
-    padding: 12px;
+    padding: 8px 10px 10px;
   }
 
   .info-name {
@@ -1457,22 +1458,22 @@ a.btn-primary:visited,
 
 @media (min-width: 361px) and (max-width: 480px) {
   .gm-style .gm-style-iw-c {
-    max-height: 550px !important;
+    max-height: 72vh !important;
   }
 
   .gm-style .gm-style-iw-d {
-    max-height: 550px !important;
+    max-height: 72vh !important;
   }
 
   .map-info-window {
-    max-width: 320px;
+    max-width: 296px;
   }
 }
 
 /* Info Window Name - Premium Typography */
 .info-name {
-  margin: 0 0 12px;
-  font-size: 18px;
+  margin: 0 0 8px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.3;
   overflow-wrap: break-word;
@@ -1504,9 +1505,9 @@ a.btn-primary:visited,
 .info-row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  margin: 10px 0;
-  font-size: 14px;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 13px;
   color: #5f6368;
   line-height: 1.5;
   transition: all 0.2s ease;
@@ -1565,9 +1566,9 @@ a.btn-primary:visited,
 .info-status-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
-  font-size: 14px;
+  font-size: 13px;
   color: #5f6368;
 }
 
@@ -1645,10 +1646,10 @@ a.btn-primary:visited,
 /* Info Window Distance Row - Premium Badge */
 .info-distance-row {
   background: linear-gradient(135deg, #e8f0fe 0%, #f1f8ff 100%);
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid #d2e3fc;
-  margin: 12px 0;
+  margin: 8px 0;
   transition: all 0.2s ease;
 }
 
@@ -1660,7 +1661,7 @@ a.btn-primary:visited,
 .info-distance-text {
   color: #1a73e8;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* Info Window Rating - Premium Design */
@@ -1668,9 +1669,9 @@ a.btn-primary:visited,
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
-  margin: 10px 0;
-  padding: 8px 12px;
+  font-size: 13px;
+  margin: 8px 0;
+  padding: 6px 10px;
   background: linear-gradient(135deg, #fef3e2 0%, #fff9f0 100%);
   border-radius: 8px;
   border: 1px solid #fce8c3;
@@ -1679,102 +1680,126 @@ a.btn-primary:visited,
 .info-stars {
   color: #fbbc04;
   letter-spacing: 1px;
-  font-size: 16px;
+  font-size: 14px;
   text-shadow: 0 1px 2px rgb(251 188 4 / 20%);
 }
 
 .info-rating-value {
   font-weight: 600;
   color: #202124;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .info-rating-count {
   color: #70757a;
   font-weight: 400;
-  font-size: 13px;
-}
-
-/* Supplementary Info - Premium Section */
-.info-supplementary {
-  margin: 12px 0;
-  padding: 12px 0;
-  border-top: 1px solid #e8eaed;
+  font-size: 12px;
 }
 
 .info-supplementary-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .info-tag {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-  border: 1px solid #dadce0;
-  border-radius: 16px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 4px 9px;
+  background: linear-gradient(135deg, rgb(248 249 250 / 85%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(218 220 224 / 90%);
+  border-radius: 9999px;
+  font-size: 11px;
   color: #5f6368;
   font-weight: 500;
   text-transform: capitalize;
-  transition: all 0.2s ease;
   cursor: default;
 }
 
-.info-tag:hover {
-  background: linear-gradient(135deg, #e8eaed 0%, #f1f3f4 100%);
-  border-color: #bdc1c6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+.info-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9ca3af;
+  box-shadow: 0 0 0 2px rgb(156 163 175 / 15%);
+  flex-shrink: 0;
+}
+
+.info-tag.info-tag-more {
+  background: linear-gradient(135deg, rgb(238 242 255 / 90%) 0%, rgb(255 255 255 / 95%) 100%);
+  border-color: rgb(199 210 254 / 90%);
+  color: #374151;
+}
+
+.info-tag.info-tag-more::before {
+  background: #6366f1;
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 18%);
 }
 
 /* Links Row - Horizontal Layout */
 .info-links-row {
   display: flex;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 8px;
+  margin: 8px 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: #fff;
+  padding: 6px 0;
 }
 
 .info-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #fff;
-  border: 1px solid #dadce0;
+  gap: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgb(232 240 254 / 62%) 0%, rgb(255 255 255 / 95%) 100%);
+  border: 1px solid rgb(210 227 252 / 95%);
   border-radius: 8px;
   text-decoration: none;
-  color: #5f6368;
-  font-size: 14px;
-  font-weight: 500;
+  color: #1f3f7a;
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s ease;
   flex: 1;
   justify-content: center;
 }
 
 .info-link:hover {
-  background: #f8f9fa;
-  border-color: #1a73e8;
-  color: #1a73e8;
+  background: linear-gradient(135deg, rgb(232 240 254 / 78%) 0%, #fff 100%);
+  border-color: #8ab4f8;
+  color: #174ea6;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgb(26 115 232 / 15%);
+}
+
+.info-link.info-link-primary {
+  background: linear-gradient(135deg, rgb(218 234 255 / 88%) 0%, rgb(255 255 255 / 92%) 100%);
+  border-color: rgb(160 196 255 / 95%);
+  color: #0f4db6;
+}
+
+.info-link.info-link-primary:hover {
+  background: linear-gradient(135deg, rgb(208 228 255 / 96%) 0%, #fff 100%);
+  border-color: #7aaef7;
+  color: #0b3f95;
 }
 
 /* ============================================
    REVIEWS SECTION - WORLD-CLASS DESIGN
    ============================================ */
 .info-reviews-section {
-  margin: 16px 0 0;
-  padding: 16px 0 0;
+  margin: 10px 0 0;
+  padding: 10px 0 0;
   border-top: 1px solid #e8eaed;
 }
 
 .info-reviews-title {
-  margin: 0 0 12px;
-  font-size: 16px;
+  margin: 0 0 8px;
+  font-size: 12px;
   font-weight: 600;
   color: #202124;
   letter-spacing: -0.01em;
@@ -1783,7 +1808,7 @@ a.btn-primary:visited,
 .info-reviews-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* Individual Review Card */
@@ -1848,10 +1873,47 @@ a.btn-primary:visited,
   overflow-wrap: break-word;
 }
 
+.info-more-details {
+  margin-top: 8px;
+  border-top: 1px solid #eceff3;
+  padding-top: 8px;
+}
+
+.info-more-details summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgb(248 250 252 / 90%) 0%, #fff 100%);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.info-more-details summary::after {
+  content: "▾";
+  font-size: 11px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.info-more-details[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.info-more-content {
+  margin-top: 8px;
+}
+
 /* Info Window Opening Times - Premium Dropdown */
 .info-opening-times {
-  margin: 10px 0;
-  padding: 12px;
+  margin: 8px 0;
+  padding: 10px;
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e8eaed;
