@@ -88,6 +88,13 @@ function normalizeButtonStyle(value, fallback) {
   return fallback;
 }
 
+function normalizeButtonCorner(value, fallback = '') {
+  const val = (value || '').toLowerCase();
+  if (!val) return fallback;
+  if (['sharp', 'default', 'soft', 'rounded-lg', 'pill'].includes(val)) return val;
+  return fallback;
+}
+
 function normalizeButtonWidth(value, fallback) {
   const val = (value || '').toLowerCase();
   if (['auto', 'narrow', 'medium', 'wide', 'fluid', 'fit-content'].includes(val)) return val;
@@ -262,6 +269,18 @@ function normalizeButtonFontWeight(value, fallback = '600') {
   const val = (value || '').toString().trim();
   if (['400', '500', '600', '700'].includes(val)) return val;
   return fallback;
+}
+
+function deriveButtonCorner(buttonStyle, explicitCorner) {
+  if (explicitCorner) return explicitCorner;
+  const legacyCornerByStyle = {
+    sharp: 'sharp',
+    default: 'default',
+    soft: 'soft',
+    'rounded-lg': 'rounded-lg',
+    pill: 'pill',
+  };
+  return legacyCornerByStyle[buttonStyle] || 'default';
 }
 
 function resolveButtonTextColor(colorValue) {
@@ -703,6 +722,12 @@ export default function decorate(block) {
       ['dataButtonWidth', 'dataDataButtonWidth'],
       'auto',
     ),
+    buttonCorner: getConfigValue(
+      block.dataset.buttonCorner,
+      sectionData,
+      ['dataButtonCorner', 'dataDataButtonCorner'],
+      '',
+    ),
     buttonHoverStyle: getConfigValue(
       block.dataset.buttonHoverStyle,
       sectionData,
@@ -865,6 +890,7 @@ export default function decorate(block) {
     'medium',
   );
   const buttonStyle = normalizeButtonStyle(config.buttonStyle, 'pill');
+  const buttonCorner = normalizeButtonCorner(config.buttonCorner, '');
   const buttonWidthRaw = normalizeButtonWidth(config.buttonWidth, 'auto');
   const buttonColor = normalizeButtonColor(config.buttonColor, 'brand');
   const buttonHoverStyle = normalizeButtonHoverStyle(config.buttonHoverStyle, 'fill');
@@ -886,6 +912,7 @@ export default function decorate(block) {
   const contentSurface = normalizeContentSurface(config.contentSurface, 'none');
   const imageFrameStyle = normalizeImageFrameStyle(config.imageFrameStyle, 'default');
   const buttonTextColor = normalizeButtonTextColor(config.buttonTextColor, 'white');
+  const resolvedButtonCorner = deriveButtonCorner(buttonStyle, buttonCorner);
   const buttonWidth = (!hasButtonWidthOverride && size === 'short') ? 'medium' : buttonWidthRaw;
 
   warnOnInvalidConfig('data-align', config.align, align, 'right');
@@ -893,6 +920,7 @@ export default function decorate(block) {
   warnOnInvalidConfig('data-size', config.size, size, 'tall');
   warnOnInvalidConfig('data-gradient-intensity', config.gradientIntensity, gradientIntensity, 'medium');
   warnOnInvalidConfig('data-button-style', config.buttonStyle, buttonStyle, 'pill');
+  warnOnInvalidConfig('data-button-corner', config.buttonCorner, resolvedButtonCorner, 'default');
   warnOnInvalidConfig('data-button-width', config.buttonWidth, buttonWidthRaw, 'auto');
   warnOnInvalidConfig('data-button-color', config.buttonColor, buttonColor, 'brand');
   warnOnInvalidConfig('data-button-hover-style', config.buttonHoverStyle, buttonHoverStyle, 'fill');
@@ -925,6 +953,7 @@ export default function decorate(block) {
   block.dataset.interval = interval;
   block.dataset.gradientIntensity = gradientIntensity;
   block.dataset.buttonStyle = buttonStyle;
+  block.dataset.buttonCorner = resolvedButtonCorner;
   block.dataset.buttonWidth = buttonWidth;
   block.dataset.buttonHoverStyle = buttonHoverStyle;
   block.dataset.buttonBorderWidth = buttonBorderWidth;

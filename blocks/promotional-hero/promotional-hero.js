@@ -23,6 +23,7 @@ const DEFAULTS = {
   cardBorderColor: '',
   cardBorderWidth: '0',
   buttonStyle: 'pill',
+  buttonCorner: '',
   buttonWidth: 'auto',
   buttonTextTransform: 'none',
   buttonHoverStyle: 'fill',
@@ -84,6 +85,24 @@ function normalizePositiveInt(value, fallback, allowed = []) {
   if (Number.isNaN(parsed)) return fallback;
   if (allowed.length && !allowed.includes(parsed)) return fallback;
   return parsed.toString();
+}
+
+function normalizeButtonCorner(value, fallback = '') {
+  const val = (value || '').toString().trim().toLowerCase();
+  if (!val) return fallback;
+  return ['sharp', 'default', 'soft', 'rounded-lg', 'pill'].includes(val) ? val : fallback;
+}
+
+function deriveButtonCorner(buttonStyle, explicitCorner) {
+  if (explicitCorner) return explicitCorner;
+  const legacyCornerByStyle = {
+    sharp: 'sharp',
+    default: 'default',
+    soft: 'soft',
+    'rounded-lg': 'rounded-lg',
+    pill: 'pill',
+  };
+  return legacyCornerByStyle[buttonStyle] || 'default';
 }
 
 function isSafeUrl(url) {
@@ -360,6 +379,12 @@ export default function decorate(block) {
       DEFAULTS.cardBorderWidth,
     ),
     buttonStyle: getConfigValue(block.dataset.buttonStyle, sectionData, ['dataButtonStyle', 'dataDataButtonStyle'], DEFAULTS.buttonStyle),
+    buttonCorner: getConfigValue(
+      block.dataset.buttonCorner,
+      sectionData,
+      ['dataButtonCorner', 'dataDataButtonCorner'],
+      DEFAULTS.buttonCorner,
+    ),
     buttonWidth: getConfigValue(block.dataset.buttonWidth, sectionData, ['dataButtonWidth', 'dataDataButtonWidth'], DEFAULTS.buttonWidth),
     buttonTextTransform: getConfigValue(
       block.dataset.buttonTextTransform,
@@ -492,6 +517,7 @@ export default function decorate(block) {
       ],
       DEFAULTS.buttonStyle,
     ),
+    buttonCorner: normalizeButtonCorner(raw.buttonCorner, DEFAULTS.buttonCorner),
     buttonWidth: normalizeToken(raw.buttonWidth, ['auto', 'narrow', 'medium', 'wide', 'fluid'], DEFAULTS.buttonWidth),
     buttonTextTransform: normalizeToken(raw.buttonTextTransform, ['none', 'uppercase', 'capitalize'], DEFAULTS.buttonTextTransform),
     buttonHoverStyle: normalizeToken(raw.buttonHoverStyle, ['fill', 'inverse', 'darken', 'lift', 'lift-only', 'none'], DEFAULTS.buttonHoverStyle),
@@ -523,6 +549,8 @@ export default function decorate(block) {
     config.buttonWidth = 'medium';
   }
 
+  const resolvedButtonCorner = deriveButtonCorner(config.buttonStyle, config.buttonCorner);
+
   block.dataset.align = config.align;
   block.dataset.columns = config.columns;
   block.dataset.cardWidth = config.cardWidth;
@@ -545,6 +573,7 @@ export default function decorate(block) {
   block.dataset.cardBorderStyle = config.cardBorderStyle;
   block.dataset.cardBorderWidth = config.cardBorderWidth;
   block.dataset.buttonStyle = config.buttonStyle;
+  block.dataset.buttonCorner = resolvedButtonCorner;
   block.dataset.buttonWidth = config.buttonWidth;
   block.dataset.buttonTextTransform = config.buttonTextTransform;
   block.dataset.buttonHoverStyle = config.buttonHoverStyle;

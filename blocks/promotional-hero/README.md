@@ -70,6 +70,7 @@ Example:
 | `data-image-position` | `center` |
 | `data-hover-effect` | `subtle` |
 | `data-button-style` | `pill` |
+| `data-button-corner` | `pill` |
 | `data-button-width` | `auto` |
 | `data-button-text-transform` | `none` |
 | `data-button-hover-style` | `fill` |
@@ -117,7 +118,8 @@ Example:
 | `data-image-shadow` | `soft` | `none`, `soft`, `strong` | Sets image depth level by controlling shadow intensity in default and hover states. |
 | `data-image-position` | `center` | `left`, `center`, `right`, `top`, `bottom` | Repositions the crop focus to keep the important subject visible across responsive breakpoints. |
 | `data-hover-effect` | `subtle` | `none`, `subtle`, `lift` | Controls hover motion behavior: disable motion, keep gentle zoom/lift, or use stronger panel-lift emphasis. |
-| `data-button-style` | `pill` | `default`, `pill`, `sharp`, `soft`, `rounded-lg`, `outline`, `ghost`, `elevated`, `minimal`, `glass`, `gradient`, `link` | Controls CTA visual personality through corner radius and fill/shadow treatment: from quiet minimal/link styles to high-emphasis elevated/gradient styles. |
+| `data-button-style` | `pill` | `default`, `pill`, `sharp`, `soft`, `rounded-lg`, `outline`, `ghost`, `elevated`, `minimal`, `glass`, `gradient`, `link` | Primary CTA visual treatment control (surface + emphasis). Use `data-button-corner` to explicitly control corner geometry when needed. |
+| `data-button-corner` | style-derived | `sharp`, `default`, `soft`, `rounded-lg`, `pill` | Explicitly controls CTA corner shape independent of surface style; if omitted, legacy shape-compatible style values still derive a corner fallback. |
 | `data-button-width` | `auto` | `auto`, `narrow`, `medium`, `wide`, `fluid` | Defines CTA width strategy from intrinsic width to fixed presets or full panel width (`fluid`). |
 | `data-button-text-transform` | `none` | `none`, `uppercase`, `capitalize` | Sets visual casing style for CTA labels without requiring content rewrite in authoring. |
 | `data-button-hover-style` | `fill` | `fill`, `inverse`, `darken`, `lift`, `lift-only`, `none` | Controls CTA hover behavior: standard fill shift, color inversion, darken emphasis, lift motion, lift-only motion (no color change), or no hover change. |

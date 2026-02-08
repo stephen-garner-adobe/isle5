@@ -367,6 +367,27 @@
   text-decoration: underline;
 }
 
+/* Independent corner system (overrides legacy shape encoded in button-style) */
+.hero-cta[data-button-corner='sharp'] .hero-cta-actions .button {
+  border-radius: 0;
+}
+
+.hero-cta[data-button-corner='default'] .hero-cta-actions .button {
+  border-radius: var(--shape-border-radius-2);
+}
+
+.hero-cta[data-button-corner='soft'] .hero-cta-actions .button {
+  border-radius: 12px;
+}
+
+.hero-cta[data-button-corner='rounded-lg'] .hero-cta-actions .button {
+  border-radius: 20px;
+}
+
+.hero-cta[data-button-corner='pill'] .hero-cta-actions .button {
+  border-radius: 999px;
+}
+
 /* Button width variants */
 .hero-cta[data-button-width='auto'] .hero-cta-actions .button {
   width: auto;

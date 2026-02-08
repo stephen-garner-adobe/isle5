@@ -82,6 +82,7 @@ Example:
 | `data-content-surface` | `glass` |
 | `data-eyebrow-style` | `label` |
 | `data-button-style` | `rounded-lg` |
+| `data-button-corner` | `rounded-lg` |
 | `data-button-width` | `fit-content` |
 | `data-button-color` | `brand` |
 | `data-button-hover-style` | `fill` |
@@ -123,7 +124,8 @@ DA.live model fields are intentionally empty to avoid duplicate control paths an
 | `data-overlay-blur` | `none` | `none`, `soft`, `medium` | Applies backdrop blur strength to reduce background noise behind text and improve legibility. |
 | `data-content-surface` | `none` | `none`, `glass`, `solid` | Adds an optional panel treatment behind content for stronger text contrast on complex imagery. |
 | `data-eyebrow-style` | `none` | `none`, `label`, `pill`, `underline` | Styles the first supporting line as an eyebrow treatment when present, helping hierarchy and campaign tagging. |
-| `data-button-style` | `pill` | `default`, `pill`, `sharp`, `soft`, `rounded-lg`, `outline`, `ghost`, `elevated`, `minimal`, `glass`, `gradient`, `link` | Changes CTA shape and surface treatment from classic solid styles to minimalist, glass, gradient, or link-like presentation. |
+| `data-button-style` | `pill` | `default`, `pill`, `sharp`, `soft`, `rounded-lg`, `outline`, `ghost`, `elevated`, `minimal`, `glass`, `gradient`, `link` | Primary CTA visual treatment control (surface + emphasis). Use `data-button-corner` to explicitly control corner geometry when needed. |
+| `data-button-corner` | style-derived | `sharp`, `default`, `soft`, `rounded-lg`, `pill` | Explicitly controls CTA corner shape independent of surface style; if omitted, legacy shape-compatible style values still derive a corner fallback. |
 | `data-button-width` | `auto` | `auto`, `narrow`, `medium`, `wide`, `fluid`, `fit-content` | Controls CTA sizing behavior from intrinsic width (`auto`/`fit-content`) to fixed (`narrow`/`medium`/`wide`) and full-row (`fluid`). |
 | `data-button-color` | `brand` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Sets CTA background and border color using design tokens or explicit colors. |
 | `data-button-colour` | same as above | alias of `data-button-color` | UK spelling alias for the same button color control. |
