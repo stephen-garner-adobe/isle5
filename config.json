@@ -1,37 +1,28 @@
 {
   "public": {
     "default": {
-      "commerce-core-endpoint": "https://www.aemshop.net/graphql",
-      "commerce-endpoint": "https://www.aemshop.net/cs-graphql",
+      "commerce-core-endpoint": "https://na1-sandbox.api.commerce.adobe.com/6WXTJKdnmj6fQs3hmhv1wA/graphql",
+      "commerce-endpoint": "https://na1-sandbox.api.commerce.adobe.com/6WXTJKdnmj6fQs3hmhv1wA/graphql",
       "commerce-assets-enabled": false,
       "headers": {
-        "all": {
-          "Store": "default"
-        },
         "cs": {
-          "Magento-Store-Code": "main_website_store",
-          "Magento-Store-View-Code": "default",
-          "Magento-Website-Code": "base",
-          "x-api-key": "4dfa19c9fe6f4cccade55cc5b3da94f7",
-          "Magento-Environment-Id": "f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a"
+          "AC-View-ID": "17e9126a-cd72-4723-833a-86e0a11e999d",
+          "AC-Source-Locale": "en-AE",
+          "AC-Price-Book-ID": "ae-retail",
+          "AC-Environment-Id": "6WXTJKdnmj6fQs3hmhv1wA"
         }
       },
       "analytics": {
-        "aep-ims-org-id": null,
-        "aep-datastream-id": null,
-        "base-currency-code": "USD",
-        "environment": "Testing",
-        "environment-id": "f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a",
-        "store-code": "main_website_store",
-        "store-id": 1,
-        "store-name": "Main Website Store",
-        "store-url": "https://www.aemshop.net",
-        "store-view-code": "default",
-        "store-view-id": 1,
-        "store-view-name": "Default Store View",
-        "website-code": "base",
-        "website-id": 1,
-        "website-name": "Main Website"
+        "aep-ims-org-id": "{{IMS_ORG_ID}}",
+        "aep-datastream-id": "{{DATASTREAM_ID}}",
+        "base-currency-code": "{{CURRENCY_CODE}}",
+        "environment": "{{ENVIRONMENT_TYPE}}",
+        "environment-id": "{{YOUR_TENANT_ID}}",
+        "locale": "{{LOCALE}}",
+        "store-url": "{{STORE_URL}}",
+        "store-view-currency-code": "{{CURRENCY_CODE}}",
+        "storefront-template": "{{TEMPLATE_TYPE}}",
+        "view-id": "{{CATALOG_VIEW_ID}}"
       },
       "plugins": {
         "picker": {
