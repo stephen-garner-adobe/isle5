@@ -1,10 +1,25 @@
 import { getProductLink, rootLink, fetchPlaceholders } from '../../scripts/commerce.js';
 
 const SEARCH_SCOPE = 'search-bar-block';
-const MIN_QUERY_LENGTH = 3;
+const MIN_QUERY_LENGTH = 1;
 const DEFAULT_RESULT_COUNT = 8;
 const MIN_RESULT_COUNT = 2;
 const MAX_RESULT_COUNT = 20;
+const DEFAULT_STYLE = 'default';
+const STYLE_OPTIONS = [
+  'default',
+  'minimal',
+  'elevated',
+  'glass',
+  'outline',
+  'soft',
+  'clean',
+  'contrast',
+  'premium-light',
+  'utility',
+  'editorial',
+  'campaign',
+];
 let searchBarInstanceCounter = 0;
 
 function getUniqueId(prefix) {
@@ -21,38 +36,37 @@ function sanitizeResultCount(value) {
   return Math.min(MAX_RESULT_COUNT, Math.max(MIN_RESULT_COUNT, parsed));
 }
 
+function normalizeStyle(value, fallback = DEFAULT_STYLE) {
+  const val = (value || '').toString().trim().toLowerCase();
+  return STYLE_OPTIONS.includes(val) ? val : fallback;
+}
+
+function getStyleValue(block) {
+  const sectionData = block.closest('.section')?.dataset || {};
+  const rawStyle = (
+    block.dataset.style
+    || sectionData.dataStyle
+    || sectionData.dataDataStyle
+    || DEFAULT_STYLE
+  );
+  const style = normalizeStyle(rawStyle, DEFAULT_STYLE);
+  if ((rawStyle || '').toString().trim() && style !== rawStyle.toString().trim().toLowerCase()) {
+    // eslint-disable-next-line no-console
+    console.warn(`search-bar: invalid data-style "${rawStyle}". Using "${DEFAULT_STYLE}".`);
+  }
+  return style;
+}
+
 /**
  * Parse block configuration from DA.live
  */
 function parseBlockConfig(block) {
   const rows = [...block.children];
-
-  // Get placeholder (always first row)
   const placeholder = rows[0]?.textContent.trim() || 'Search products...';
-
-  // Get position - handle both old (4-row) and new (3-row) configurations
-  // Old config: [placeholder, width, position, resultCount]
-  // New config: [placeholder, position, resultCount]
-  let position = 'center';
-  let resultCount = 8;
-
-  // Check if row[1] is a valid position value (old config had width here)
-  const row1Value = rows[1]?.textContent.trim();
   const validPositions = ['left', 'center', 'right'];
-
-  if (validPositions.includes(row1Value)) {
-    // New config: row[1] is position
-    position = row1Value;
-    resultCount = sanitizeResultCount(rows[2]?.textContent.trim());
-  } else {
-    // Old config: row[1] is width, row[2] is position
-    position = rows[2]?.textContent.trim() || 'center';
-    // Validate position is valid
-    if (!validPositions.includes(position)) {
-      position = 'center';
-    }
-    resultCount = sanitizeResultCount(rows[3]?.textContent.trim());
-  }
+  const rawPosition = rows[1]?.textContent.trim().toLowerCase();
+  const position = validPositions.includes(rawPosition) ? rawPosition : 'center';
+  const resultCount = sanitizeResultCount(rows[2]?.textContent.trim());
 
   return {
     placeholder,
@@ -67,9 +81,11 @@ function parseBlockConfig(block) {
  */
 export default async function decorate(block) {
   const config = parseBlockConfig(block);
+  const style = getStyleValue(block);
   const eventsController = new AbortController();
   const { signal } = eventsController;
   const resultsId = getUniqueId('search-results');
+  block.dataset.style = style;
 
   // Create search bar container
   const searchBarContainer = document.createElement('div');
@@ -78,6 +94,7 @@ export default async function decorate(block) {
     ? config.position
     : 'center';
   searchBarContainer.classList.add('search-bar-container', `search-bar--${validPosition}`);
+  searchBarContainer.dataset.style = style;
   searchBarContainer.setAttribute('aria-expanded', 'false');
 
   // Create form with search icon button

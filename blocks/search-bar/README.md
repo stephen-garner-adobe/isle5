@@ -1,208 +1,88 @@
 # Search Bar Block
 
-A standalone, configurable search bar block that integrates with Adobe Commerce's product discovery services. This block can be placed anywhere on your page via DA.live and operates independently of the header search functionality.
+## Overview
 
-## Features
+The `search-bar` block is a standalone storefront search input with inline product results, powered by the product discovery drop-in APIs.
 
-- **Configurable via DA.live** - No code changes needed
-- **Independent scope** - Works alongside header search without conflicts
-- **Inline results** - Shows product results directly below the search bar
-- **Customizable appearance** - Configure width, alignment, placeholder text
-- **Responsive design** - Adapts to mobile, tablet, and desktop
-- **Integrated with Commerce** - Uses same drop-in infrastructure as header search
+It supports:
+- DA.live row-based authoring for placeholder, alignment, and result count.
+- Section Metadata visual presets via `data-style`.
+- Inline result panel + redirect submit flow to `/search?q=...`.
+- Accessibility-friendly focus handling, escape close, and live region announcements.
 
-## Usage in DA.live
+## DA.live Integration
 
-### Basic Configuration
+Create a 3-row, 1-column `search-bar` block.
 
-Add a "Search Bar" block to your page with default settings:
+| Row | Purpose | Required | Default | Notes |
+|---|---|---|---|---|
+| 1 | Placeholder text | No | `Search products...` | Example: `Search products` |
+| 2 | Alignment | No | `center` | `left`, `center`, `right` |
+| 3 | Results count | No | `8` | Number between `2` and `20` |
 
-| Field | Value |
-|-------|-------|
-| Placeholder Text | Search products... |
-| Width | 600px |
-| Alignment | center |
-| Results Count | 8 |
+### Example
 
-### Advanced Configuration
-
-Customize the search bar appearance:
-
-**Hero Search (Homepage):**
-- Placeholder: "What are you looking for today?"
-- Width: 800px
-- Alignment: center
-- Results Count: 12
-
-**Sidebar Search:**
-- Placeholder: "Search..."
-- Width: 100%
-- Alignment: left
-- Results Count: 4
-
-**Category Page Search:**
-- Placeholder: "Search this category..."
-- Width: 400px
-- Alignment: right
-- Results Count: 6
+| search-bar |
+|---|
+| Search products |
+| center |
+| 10 |
 
 ## Configuration Options
 
-### 1. Placeholder Text
-**Type:** String  
-**Default:** "Search products..."  
-**Description:** The text displayed in the search input when empty.
+| Key | Default | Possible Values | Effect |
+|---|---|---|---|
+| Author row 1 (placeholder) | `Search products...` | Any text | Sets input placeholder copy. |
+| Author row 2 (alignment) | `center` | `left`, `center`, `right` | Aligns the search bar container inside the section. |
+| Author row 3 (results count) | `8` | `2` to `20` | Controls number of inline product results requested/rendered. |
 
-**Examples:**
-- "Search for fresh groceries..."
-- "Find what you need..."
-- "What are you shopping for today?"
+## Section Metadata Reference
 
-### 2. Width
-**Type:** String  
-**Default:** "600px"  
-**Description:** Maximum width of the search bar container.
+Place **Section Metadata immediately above** the `search-bar` block.
 
-**Supported values:**
-- Pixels: `600px`, `400px`, `800px`
-- Percentage: `100%`, `80%`, `50%`
-- Viewport: `50vw`, `80vw`
+| Key | Default | Possible Values | Effect |
+|---|---|---|---|
+| `data-style` | `default` | `default`, `minimal`, `elevated`, `glass`, `outline`, `soft`, `clean`, `contrast`, `premium-light`, `utility`, `editorial`, `campaign` | Applies a full visual preset (surface, border, icon treatment, shadow, and result panel styling). No search behavior changes. |
 
-### 3. Alignment
-**Type:** Select (left | center | right)  
-**Default:** "center"  
-**Description:** Horizontal alignment of the search bar.
+### Preset Notes
 
-**Options:**
-- `left` - Aligns to the left edge
-- `center` - Centers the search bar (default)
-- `right` - Aligns to the right edge
+- `default`: balanced baseline storefront style.
+- `minimal`: reduced chrome, low-noise utility look.
+- `elevated`: stronger depth and prominence for hero-like placement.
+- `glass`: translucent/frosted panel style.
+- `outline`: high-structure, crisp border treatment.
+- `soft`: warm, lower-contrast editorial presentation.
+- `clean`: restrained, lightweight utility presentation.
+- `contrast`: high-clarity black/white emphasis.
+- `premium-light`: refined luminous premium look.
+- `utility`: functional, system-like UI treatment.
+- `editorial`: content-led merchandising look.
+- `campaign`: brand-accented promotional treatment.
 
-### 4. Results Count
-**Type:** Number (2-20)  
-**Default:** 8  
-**Description:** Number of products to display in search results.
+## Behavior Patterns
 
-**Recommendations:**
-- Homepage hero: 8-12 products
-- Sidebar: 4-6 products
-- Category pages: 6-8 products
-
-## Technical Details
-
-### Scope
-The block uses a unique scope (`search-bar-block`) to avoid conflicts with the header search (`popover` scope). Both can operate simultaneously on the same page.
-
-### Dependencies
-- `@dropins/storefront-product-discovery` - Search functionality
-- `scripts/initializers/search.js` - Shared search initialization
-- `scripts/commerce.js` - Commerce utilities
-
-### Search Behavior
-- **Minimum query length:** 3 characters
-- **Search trigger:** Real-time as user types
-- **Results display:** Inline below search bar
-- **Submit action:** Redirects to `/search?q=query`
-- **Filters:** Products with visibility: "Search" or "Catalog, Search"
-
-### Performance
-- **Lazy loading:** Search components load on first use
-- **Shared initialization:** Reuses existing drop-in instance
-- **Debounced search:** Prevents excessive API calls
-- **Cached results:** Drop-in caches search results per scope
-
-## Examples
-
-### Homepage Hero
-```
-┌──────────────────────────────────────────────┐
-│                                              │
-│   [  Search for fresh groceries...        ] │
-│                                              │
-└──────────────────────────────────────────────┘
-
-        ↓ User types "tomato"
-
-┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
-│ Cherry │ │ Roma   │ │ Beef   │ │Organic│
-│Tomatoes│ │Tomatoes│ │Tomatoes│ │Tomatoes│
-│ $3.99  │ │ $2.99  │ │ $4.99  │ │ $5.99  │
-└────────┘ └────────┘ └────────┘ └────────┘
-```
-
-### Sidebar Search
-```
-Sidebar
-┌──────────────────┐
-│ Categories       │
-│ ─────────────    │
-│                  │
-│ [Search...]      │ ← Search Bar Block
-│                  │
-│ Results here...  │
-└──────────────────┘
-```
-
-## Styling
-
-The block uses design tokens from your theme for consistent styling:
-
-- `--color-brand-500` - Focus border color
-- `--color-neutral-50` - Background color
-- `--color-neutral-300` - Border color
-- `--spacing-*` - Padding and margins
-- `--shape-border-radius-*` - Border radius
-
-Custom styling can be added in `search-bar.css`.
+- Minimum query length is `1` character before inline search executes.
+- Search results render inline in the block result panel.
+- Form submit navigates to `/search?q=<query>`.
+- Escape closes open results and returns focus safely.
+- Clicking outside closes open results.
+- Product visibility is filtered to searchable catalog values.
 
 ## Accessibility
 
-- Semantic HTML (`<form>`, `role="search"`)
-- Keyboard navigation support
-- Focus indicators
-- Screen reader friendly
-- ARIA attributes from drop-in components
-
-## Browser Support
-
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-- IE11 not supported (drop-in limitation)
-
-## Known Limitations
-
-- Minimum 3 characters required for search
-- Maximum 20 results configurable
-- Results are cached per scope (refresh page to clear)
-- Requires active Adobe Commerce GraphQL endpoint
+- Uses semantic search form (`role="search"`).
+- Includes an ARIA live region for result announcements.
+- Uses visible focus styles (`:focus-visible`).
+- Preserves keyboard behavior (submit, escape close, focus return).
 
 ## Troubleshooting
 
-**Search not working:**
-1. Check `config.json` has valid `commerce-endpoint`
-2. Verify GraphQL endpoint is accessible
-3. Check browser console for errors
-4. Ensure search initializer loads (`scripts/initializers/search.js`)
-
-**No results showing:**
-1. Verify products have visibility set to "Search" or "Catalog, Search"
-2. Check query length (minimum 3 characters)
-3. Verify Adobe Commerce index is up to date
-
-**Styling issues:**
-1. Check for CSS conflicts with custom styles
-2. Verify design tokens are defined in theme
-3. Test in different browsers
-
-## Related Blocks
-
-- **Header** (`blocks/header/`) - Contains icon-based search
-- **Product List Page** (`blocks/product-list-page/`) - Full search results page
-- **Product Details** (`blocks/product-details/`) - Individual product pages
-
-## Support
-
-For issues or questions, refer to:
-- [Adobe Commerce Storefront Documentation](https://experienceleague.adobe.com/developer/commerce/storefront/)
-- Drop-in API documentation
-- Project README.md
+- Metadata not applying:
+  - Ensure `section-metadata` is directly above the `search-bar` block.
+- Unexpected style:
+  - Verify `data-style` value exactly matches a supported preset.
+- No inline results:
+  - Ensure query length is at least 3 characters.
+  - Verify searchable products and discovery API connectivity.
+- Wrong count:
+  - Ensure row 3 is a number from 2 to 20.
