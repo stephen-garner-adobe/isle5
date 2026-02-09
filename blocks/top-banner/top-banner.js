@@ -22,6 +22,7 @@ const DEFAULTS = {
   tickerSource: 'all',
   tickerControls: false,
   tickerMobileMode: 'static',
+  bannerDebug: false,
   bannerRegion: 'global',
   bannerAudience: 'all',
   bannerAnalyticsId: '',
@@ -37,6 +38,12 @@ function onWindowResize() {
   if (currentBannerBlock) {
     updateTopBannerOffset(currentBannerBlock);
   }
+}
+
+function debugLog(block, message, details = {}) {
+  if (block?.dataset?.bannerDebug !== 'true') return;
+  // eslint-disable-next-line no-console
+  console.log(`top-banner: ${message}`, details);
 }
 
 function stopNavWrapperObserver() {
@@ -247,21 +254,8 @@ function applyPortableHeaderOffsets(heightPx, contentGap = 'none') {
   };
 }
 
-function clearPortableHeaderOffsets() {
-  const navWrapper = document.querySelector('header .nav-wrapper');
-  const main = document.querySelector('main');
-
-  if (navWrapper) {
-    navWrapper.style.removeProperty('top');
-  }
-
-  if (main) {
-    main.style.removeProperty('padding-top');
-    main.removeAttribute('data-top-banner-base-padding');
-  }
-}
-
 function mountBannerToHeader(block, selector) {
+  const sourceSection = block.closest('.section');
   if (block.closest('header')) return true;
 
   let target = null;
@@ -284,11 +278,32 @@ function mountBannerToHeader(block, selector) {
     target.prepend(block);
   }
 
+  // If the authored source section only contained top-banner, collapse it
+  // after moving the block to avoid leftover vertical spacing in page flow.
+  if (sourceSection) {
+    const remainingBlocks = sourceSection.querySelectorAll('.block');
+    if (!remainingBlocks.length) {
+      sourceSection.style.display = 'none';
+      sourceSection.dataset.topBannerMounted = 'true';
+    }
+  }
+
   return true;
 }
 
 function updateTopBannerOffset(block) {
-  const mountMode = block?.dataset?.bannerMount || DEFAULTS.bannerMount;
+  if (block && !document.contains(block)) {
+    stopNavWrapperObserver();
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
+    if (currentBannerBlock === block) {
+      currentBannerBlock = null;
+    }
+    return;
+  }
+
   const contentGap = block?.dataset?.bannerContentGap || DEFAULTS.bannerContentGap;
   const retries = Number(block?.dataset?.offsetRetry || '0');
 
@@ -300,14 +315,13 @@ function updateTopBannerOffset(block) {
 
   if (!block || block.dataset.dismissed === 'true') {
     document.documentElement.style.setProperty('--top-banner-height', '0px');
-    if (mountMode === 'header') {
-      const { hasNavWrapper } = applyPortableHeaderOffsets(0, contentGap);
-      if (!hasNavWrapper) {
-        ensureNavWrapperObserver(block);
-        scheduleRetry();
-      } else {
-        stopNavWrapperObserver();
-      }
+    const { hasNavWrapper } = applyPortableHeaderOffsets(0, contentGap);
+    if (!hasNavWrapper) {
+      ensureNavWrapperObserver(block);
+      scheduleRetry();
+      debugLog(block, 'waiting for nav wrapper (dismissed)', { retries });
+    } else {
+      stopNavWrapperObserver();
     }
     return;
   }
@@ -315,28 +329,20 @@ function updateTopBannerOffset(block) {
   const { height } = block.getBoundingClientRect();
   const safeHeight = Math.max(0, Math.round(height));
 
-  if (mountMode === 'integrated') {
-    stopNavWrapperObserver();
-    clearPortableHeaderOffsets();
-    document.documentElement.style.setProperty('--top-banner-height', `${safeHeight}px`);
-    return;
-  }
-
   document.documentElement.style.setProperty('--top-banner-height', '0px');
-  if (mountMode === 'header') {
-    const { hasNavWrapper } = applyPortableHeaderOffsets(safeHeight, contentGap);
-    if (!hasNavWrapper) {
-      ensureNavWrapperObserver(block);
-      scheduleRetry();
-    } else {
-      stopNavWrapperObserver();
-      block.dataset.offsetRetry = '0';
-    }
+  const { hasNavWrapper } = applyPortableHeaderOffsets(safeHeight, contentGap);
+  if (!hasNavWrapper) {
+    ensureNavWrapperObserver(block);
+    scheduleRetry();
+    debugLog(block, 'waiting for nav wrapper (header mount)', {
+      safeHeight,
+      contentGap,
+      retries,
+    });
   } else {
     stopNavWrapperObserver();
-    clearPortableHeaderOffsets();
-    applyPortableHeaderOffsets(0, 'none');
     block.dataset.offsetRetry = '0';
+    debugLog(block, 'applied portable header offsets', { safeHeight, contentGap });
   }
 }
 
@@ -472,6 +478,7 @@ export default function decorate(block) {
     bannerTickerSource: getConfigValue(block.dataset.tickerSource, sectionData, ['dataTickerSource', 'dataDataTickerSource'], DEFAULTS.tickerSource),
     bannerTickerControls: getConfigValue(block.dataset.tickerControls, sectionData, ['dataTickerControls', 'dataDataTickerControls'], ''),
     bannerTickerMobileMode: getConfigValue(block.dataset.tickerMobileMode, sectionData, ['dataTickerMobileMode', 'dataDataTickerMobileMode'], DEFAULTS.tickerMobileMode),
+    bannerDebug: getConfigValue(block.dataset.bannerDebug, sectionData, ['dataBannerDebug', 'dataDataBannerDebug'], ''),
     bannerRegion: getConfigValue(block.dataset.bannerRegion, sectionData, ['dataBannerRegion', 'dataDataBannerRegion'], DEFAULTS.bannerRegion),
     bannerAudience: getConfigValue(block.dataset.bannerAudience, sectionData, ['dataBannerAudience', 'dataDataBannerAudience'], DEFAULTS.bannerAudience),
     bannerAnalyticsId: getConfigValue(block.dataset.bannerAnalyticsId, sectionData, ['dataBannerAnalyticsId', 'dataDataBannerAnalyticsId'], DEFAULTS.bannerAnalyticsId),
@@ -479,7 +486,7 @@ export default function decorate(block) {
 
   const config = {
     bannerMode: normalizeToken(raw.bannerMode, ['static', 'ticker'], DEFAULTS.bannerMode),
-    bannerMount: normalizeToken(raw.bannerMount, ['integrated', 'header', 'inline'], DEFAULTS.bannerMount),
+    bannerMount: DEFAULTS.bannerMount,
     bannerMountTarget: normalizeMountTarget(raw.bannerMountTarget, DEFAULTS.bannerMountTarget),
     bannerLayout: normalizeToken(raw.bannerLayout, ['single', 'split', 'multi'], DEFAULTS.bannerLayout),
     bannerAriaLive: normalizeToken(raw.bannerAriaLive, ['off', 'polite'], DEFAULTS.bannerAriaLive),
@@ -504,6 +511,7 @@ export default function decorate(block) {
     bannerTickerSource: normalizeToken(raw.bannerTickerSource, ['all', 'left', 'left-right'], DEFAULTS.tickerSource),
     bannerTickerControls: normalizeBoolean(raw.bannerTickerControls, DEFAULTS.tickerControls),
     bannerTickerMobileMode: normalizeToken(raw.bannerTickerMobileMode, ['static', 'ticker'], DEFAULTS.tickerMobileMode),
+    bannerDebug: normalizeBoolean(raw.bannerDebug, DEFAULTS.bannerDebug),
     bannerRegion: normalizeToken(raw.bannerRegion, ['global', 'emea', 'na', 'apac'], DEFAULTS.bannerRegion),
     bannerAudience: normalizeToken(raw.bannerAudience, ['all', 'guest', 'signed-in', 'vip'], DEFAULTS.bannerAudience),
     bannerAnalyticsId: (raw.bannerAnalyticsId || '').toString().trim(),
@@ -531,14 +539,11 @@ export default function decorate(block) {
     block.dataset[key] = value.toString();
   });
 
-  if (config.bannerMount === 'header') {
-    const didMount = mountBannerToHeader(block, config.bannerMountTarget);
-    if (!didMount) {
-      // eslint-disable-next-line no-console
-      console.warn(`top-banner: header mount target not found ("${config.bannerMountTarget}"), falling back to inline.`);
-      config.bannerMount = 'inline';
-      block.dataset.bannerMount = 'inline';
-    }
+  const didMount = mountBannerToHeader(block, config.bannerMountTarget);
+  if (!didMount) {
+    // eslint-disable-next-line no-console
+    console.warn(`top-banner: header mount target not found ("${config.bannerMountTarget}").`);
+    debugLog(block, 'header mount target not found', { target: config.bannerMountTarget });
   }
 
   const effectiveLayout = config.bannerMode === 'ticker' ? 'single' : config.bannerLayout;
@@ -588,6 +593,13 @@ export default function decorate(block) {
   let tickerRuntime = { isAnimated: false, ticker: null };
   if (config.bannerMode === 'ticker') {
     tickerRuntime = buildTicker(leftLane, rows, config, prefersReducedMotion);
+    debugLog(block, 'ticker resolved', {
+      isAnimated: tickerRuntime.isAnimated,
+      source: config.bannerTickerSource,
+      direction: config.bannerTickerDirection,
+      mobileMode: config.bannerTickerMobileMode,
+      reducedMotion: prefersReducedMotion,
+    });
   } else {
     leftLane.append(cloneCellContent(firstRow.left));
   }

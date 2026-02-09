@@ -98,7 +98,7 @@ Place **Section Metadata immediately above** the `top-banner` block.
 | Key | Default | Possible Values | Effect |
 |---|---|---|---|
 | `data-banner-mode` | `static` | `static`, `ticker` | Chooses static message rendering or animated ticker rendering for column-1 rows. |
-| `data-banner-mount` | `header` | `integrated`, `header`, `inline` | Controls mounting strategy. `header` self-mounts and self-offsets for portability; `integrated` is only for projects that keep header/style integration wiring; `inline` renders in content flow. |
+| `data-banner-mount` | `header` | `header` | Controls mounting strategy. `header` self-mounts and self-offsets for portability. |
 | `data-banner-mount-target` | `header .header.block` | CSS selector | Target used when `data-banner-mount=header`. |
 | `data-banner-layout` | `split` | `single`, `split`, `multi` | Controls lane layout for static mode: message only, message + right, or message + center + right. |
 | `data-banner-aria-live` | `off` | `off`, `polite` | Controls assistive announcement behavior. Use `polite` only when content updates should be announced. |

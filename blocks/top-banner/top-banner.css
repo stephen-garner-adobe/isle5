@@ -22,13 +22,6 @@
   z-index: 5;
 }
 
-.top-banner[data-banner-mount='inline'] {
-  left: auto;
-  position: relative;
-  right: auto;
-  top: auto;
-}
-
 .top-banner[data-banner-variant='urgent'] {
   border-bottom-color: color-mix(in srgb, var(--color-negative-700, #b42318) 45%, transparent);
 }
