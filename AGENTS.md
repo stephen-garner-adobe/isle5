@@ -44,6 +44,30 @@ Every new block should include:
   - avoid extra hyphen chains in field names (prefer `contentwidth` over `content-max-width`).
 - Keep field tokens semantically clear and stable (`btn`, `cta`, `img` abbreviations are acceptable when consistently applied).
 
+### Metadata precedence contract (required)
+
+Every block must implement and document a deterministic precedence model.
+
+Implementation must resolve metadata in this exact order:
+
+1. **Layout tier**:
+   - placement, container width, block size, structural positioning
+   - examples: sidebar mode, width mode, align/position, inset, content width
+2. **Content/structure tier**:
+   - CTA grouping, gaps, type transforms, sizing controls
+3. **Style/shape tier**:
+   - style preset, corner/shape overrides, border thickness
+4. **Color/explicit overrides tier**:
+   - border/fill/text colors and other direct visual tokens
+5. **Media/motion tier**:
+   - frame styles, transitions, image constraints, hover motion
+
+Required behavior:
+- Higher tiers establish layout semantics first.
+- Lower tiers may refine visuals but must not silently break higher-tier semantics.
+- If one setting makes another inapplicable, treat it as a no-op and log a clear block-prefixed warning.
+- Avoid hidden coupling. If coupling is intentional, codify it as an explicit rule (for example: full-width disabled when sidebar is enabled).
+
 ### DA.live section metadata reads
 
 Section metadata may appear with double-prefix keys. Always read robustly from both:
@@ -173,15 +197,28 @@ Include both:
 - **DA.live Model Options**
 - **Section Metadata Reference**
 
-Each metadata row must include:
+Section Metadata Reference must use a **3-column table**:
 - key/field
-- default
 - possible values
-- effect (plain-language, outcome-focused)
+- effect (plain-language, outcome-focused, extensive)
+
+Default behavior must still be documented, but include it inside the effect text
+(for example: `Default: medium. Controls ...`), rather than as a separate column.
 
 Also include:
 - Section Metadata placement guidance (immediately above block).
 - Supported aliases (only if intentionally implemented).
+
+### README must mirror precedence contract
+
+For block creation and first-pass docs, README must include:
+- A **Metadata Precedence** section using the same tier order implemented in code.
+- A concise **Override Rules** table:
+  - condition
+  - winner
+  - ignored/no-op fields
+  - user-visible effect
+- A **Conflict/No-op Notes** section for common invalid or non-effective combinations.
 
 ## DA.live JSON Config
 
@@ -209,9 +246,11 @@ Follow project conventions (line length, quotes, trailing commas, selector order
 
 1. Lint passes (`lint:js` and `lint:css`).
 2. Metadata resolution works for both single and double-prefix section keys.
-3. Invalid metadata safely falls back and logs actionable warnings.
-4. Unsafe URLs are blocked; `_blank` links include `noopener noreferrer`.
-5. No-JS behavior is acceptable for critical content and links.
-6. Motion respects `prefers-reduced-motion` and timers are lifecycle-safe.
-7. Mobile and desktop layouts are verified, including `44x44` tap targets.
-8. README and `_block-name.json` match implemented behavior.
+3. Precedence tiers are implemented in code and documented in README with matching terminology.
+4. Override/no-op combinations are deterministic and warned clearly.
+5. Invalid metadata safely falls back and logs actionable warnings.
+6. Unsafe URLs are blocked; `_blank` links include `noopener noreferrer`.
+7. No-JS behavior is acceptable for critical content and links.
+8. Motion respects `prefers-reduced-motion` and timers are lifecycle-safe.
+9. Mobile and desktop layouts are verified, including `44x44` tap targets.
+10. README and `_block-name.json` match implemented behavior.

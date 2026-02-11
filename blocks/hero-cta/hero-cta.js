@@ -2,56 +2,21 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const DEFAULT_INTERVAL = 5000;
 
-/**
- * Calculate relative luminance for WCAG contrast ratio
- * @param {string} hex - Hex color (#RRGGBB)
- * @returns {number} Relative luminance (0-1)
- */
-function getLuminance(hex) {
-  const rgb = parseInt(hex.slice(1), 16);
-  // eslint-disable-next-line no-bitwise
-  const r = ((rgb >> 16) & 0xff) / 255;
-  // eslint-disable-next-line no-bitwise
-  const g = ((rgb >> 8) & 0xff) / 255;
-  // eslint-disable-next-line no-bitwise
-  const b = (rgb & 0xff) / 255;
-
-  const [rs, gs, bs] = [r, g, b].map((c) => (
-    c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-  ));
-
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-}
-
-/**
- * Validate WCAG 2.1 AA contrast ratio
- * @param {string} bgColor - Background hex color
- * @param {string} textColor - Text hex color (default white)
- */
-function validateContrast(bgColor, textColor = '#ffffff') {
-  if (!bgColor.startsWith('#')) return;
-
-  const bgLum = getLuminance(bgColor);
-  const textLum = getLuminance(textColor);
-  const ratio = (Math.max(bgLum, textLum) + 0.05) / (Math.min(bgLum, textLum) + 0.05);
-
-  if (ratio < 4.5) {
-    console.warn(
-      `hero-cta: Low contrast ratio ${ratio.toFixed(2)}:1 for ${bgColor}. `
-      + 'WCAG AA requires 4.5:1 minimum. Consider adjusting color.',
-    );
-  }
-}
-
-function normalizeAlign(value, fallback) {
+function normalizePosition(value, fallback) {
   const val = (value || '').toLowerCase();
-  if (['left', 'center', 'right', 'start', 'end'].includes(val)) return val;
-  return fallback;
-}
-
-function normalizeVertical(value, fallback) {
-  const val = (value || '').toLowerCase();
-  if (['top', 'middle', 'bottom', 'top-safe', 'bottom-safe'].includes(val)) return val;
+  if (
+    [
+      'top-left',
+      'top-center',
+      'top-right',
+      'middle-left',
+      'middle-center',
+      'middle-right',
+      'bottom-left',
+      'bottom-center',
+      'bottom-right',
+    ].includes(val)
+  ) return val;
   return fallback;
 }
 
@@ -65,17 +30,24 @@ function normalizeButtonStyle(value, fallback) {
   const val = (value || '').toLowerCase();
   if (
     [
-      'default',
-      'pill',
-      'soft',
-      'rounded-lg',
       'outline',
+      'solid',
       'ghost',
       'elevated',
-      'minimal',
       'glass',
-      'gradient',
+      'soft',
+      'pill',
       'link',
+      'inset',
+      'underline',
+      'quiet',
+      'strong',
+      'halo',
+      'bevel',
+      'tab',
+      'rail',
+      'outline-double',
+      'compact',
     ].includes(val)
   ) return val;
   return fallback;
@@ -84,7 +56,7 @@ function normalizeButtonStyle(value, fallback) {
 function normalizeButtonCorner(value, fallback = '') {
   const val = (value || '').toLowerCase();
   if (!val) return fallback;
-  if (['default', 'soft', 'rounded-lg', 'pill'].includes(val)) return val;
+  if (['default', 'soft', 'rounded-lg', 'pill', 'none'].includes(val)) return val;
   return fallback;
 }
 
@@ -111,6 +83,12 @@ function normalizeSidebar(value) {
   return '';
 }
 
+function normalizeLayoutWidth(value, fallback = 'default') {
+  const val = (value || '').toLowerCase();
+  if (['default', 'full-width'].includes(val)) return val;
+  return fallback;
+}
+
 function normalizeImageMaxWidth(value, fallback = 2400) {
   const allowed = [1200, 1600, 2000, 2400, 3000, 3600];
   const parsed = Number.parseInt(value, 10);
@@ -118,9 +96,9 @@ function normalizeImageMaxWidth(value, fallback = 2400) {
   return fallback;
 }
 
-function normalizeDensity(value, fallback = 'comfortable') {
+function normalizeOverlayInset(value, fallback = 'medium') {
   const val = (value || '').toLowerCase();
-  if (['compact', 'comfortable', 'spacious'].includes(val)) return val;
+  if (['xsmall', 'small', 'medium', 'large', 'xlarge'].includes(val)) return val;
   return fallback;
 }
 
@@ -170,10 +148,10 @@ function normalizeImageFrameStyle(value, fallback = 'default') {
       'soft-medium',
       'soft-large',
       'outline',
-      'elevated',
       'double-stroke',
       'glass-ring',
-      'gradient-ring',
+      'floating-panel',
+      'halo-ring',
       'photo-matte',
     ].includes(val)
   ) return val;
@@ -190,7 +168,17 @@ function normalizeButtonTextColor(value, fallback = '') {
   return fallback;
 }
 
-function normalizeButtonColor(value, fallback = '') {
+function normalizeButtonBorderColor(value, fallback = '') {
+  const raw = (value || '').toString().trim();
+  if (!raw) return fallback;
+  const val = raw.toLowerCase();
+  if (['transparent', 'light', 'neutral', 'dark', 'brand', 'accent', 'white', 'black'].includes(val)) return val;
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(raw)) return raw;
+  if (/^rgba?\(/i.test(raw)) return raw;
+  return fallback;
+}
+
+function normalizeButtonFillColor(value, fallback = '') {
   const raw = (value || '').toString().trim();
   if (!raw) return fallback;
   const val = raw.toLowerCase();
@@ -212,17 +200,6 @@ function normalizeButtonBorderWidth(value, fallback = '3') {
   return fallback;
 }
 
-function deriveButtonCorner(buttonStyle, explicitCorner) {
-  if (explicitCorner) return explicitCorner;
-  const legacyCornerByStyle = {
-    default: 'default',
-    soft: 'soft',
-    'rounded-lg': 'rounded-lg',
-    pill: 'pill',
-  };
-  return legacyCornerByStyle[buttonStyle] || 'default';
-}
-
 function resolveButtonTextColor(colorValue) {
   const key = (colorValue || '').toLowerCase();
   const tokenMap = {
@@ -235,7 +212,7 @@ function resolveButtonTextColor(colorValue) {
   return tokenMap[key] || colorValue;
 }
 
-function resolveButtonColor(colorValue) {
+function resolveSurfaceColor(colorValue) {
   const key = (colorValue || '').toLowerCase();
   const tokenMap = {
     transparent: 'transparent',
@@ -250,26 +227,6 @@ function resolveButtonColor(colorValue) {
   return tokenMap[key] || colorValue;
 }
 
-function resolveButtonHoverColor(colorValue, resolvedBaseColor) {
-  const key = (colorValue || '').toLowerCase();
-  const tokenMap = {
-    transparent: 'var(--color-neutral-50)',
-    light: 'var(--color-neutral-200)',
-    neutral: 'var(--color-neutral-300)',
-    dark: 'var(--color-neutral-900)',
-    brand: 'var(--color-brand-600)',
-    accent: 'var(--color-informational-800)',
-    white: 'var(--color-neutral-100)',
-    black: 'var(--color-neutral-900)',
-  };
-
-  if (tokenMap[key]) return tokenMap[key];
-  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorValue) || /^rgba?\(/i.test(colorValue)) {
-    return `color-mix(in srgb, ${resolvedBaseColor} 92%, black)`;
-  }
-  return resolvedBaseColor;
-}
-
 function getConfigValue(blockValue, sectionData, keys, fallback) {
   if (blockValue) return blockValue;
   for (let i = 0; i < keys.length; i += 1) {
@@ -277,6 +234,15 @@ function getConfigValue(blockValue, sectionData, keys, fallback) {
     if (sectionData?.[key]) return sectionData[key];
   }
   return fallback;
+}
+
+function hasConfigValue(blockValue, sectionData, keys) {
+  if (typeof blockValue === 'string' && blockValue.trim()) return true;
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    if (typeof sectionData?.[key] === 'string' && sectionData[key].trim()) return true;
+  }
+  return false;
 }
 
 function warnOnInvalidConfig(name, rawValue, normalizedValue, fallback) {
@@ -287,6 +253,11 @@ function warnOnInvalidConfig(name, rawValue, normalizedValue, fallback) {
   if (raw !== normalized && normalized === fallbackValue) {
     console.warn(`hero-cta: invalid ${name} "${rawValue}". Using "${fallback}".`);
   }
+}
+
+function warnOnNoOpConfig(name, rawValue, reason) {
+  if (!rawValue || !rawValue.toString().trim()) return;
+  console.warn(`hero-cta: ${name} "${rawValue}" has no effect. ${reason}`);
 }
 
 /**
@@ -416,14 +387,13 @@ function extractImageSource(cell) {
     return { src: text, alt: '' };
   }
 
-  console.warn('hero-cta: No valid image source found in cell:', cell.innerHTML);
+  console.warn('hero-cta: No valid image source found in image cell.');
   return null;
 }
 
 function buildSlide(row, isFirstSlide = false, config = {}) {
   const cells = [...row.children];
   const contentCell = cells[1];
-  const categoryCell = cells[2];
 
   const slide = document.createElement('div');
   slide.className = 'hero-cta-slide';
@@ -460,25 +430,11 @@ function buildSlide(row, isFirstSlide = false, config = {}) {
     while (contentCell.firstElementChild) content.append(contentCell.firstElementChild);
   }
 
-  // Column 3: Extract color variants (one per button)
-  const colorVariants = [];
-  if (categoryCell) {
-    const categoryParagraphs = [...categoryCell.querySelectorAll('p')];
-    categoryParagraphs.forEach((p) => {
-      const text = p.textContent.trim();
-      if (text) {
-        colorVariants.push(text);
-      }
-    });
-  }
-
-  // Auto-convert simple text to CTA buttons with color variants from Column 3
+  // Auto-convert simple text to CTA buttons.
   const paragraphs = [...content.querySelectorAll('p')];
   const buttonGroups = [];
 
-  paragraphs.forEach((p, index) => {
-    const colorVariant = colorVariants[index] || 'transparent'; // Legacy fallback when metadata button color is not set
-
+  paragraphs.forEach((p) => {
     // If paragraph already has button links, style it
     if (p.querySelector('a.button')) {
       buttonGroups.push({ button: p });
@@ -496,18 +452,7 @@ function buildSlide(row, isFirstSlide = false, config = {}) {
         existingLink.setAttribute('aria-disabled', 'true');
         existingLink.setAttribute('tabindex', '-1');
       }
-
-      if (colorVariant.startsWith('#')) {
-        // Custom hex color - validate contrast
-        validateContrast(colorVariant);
-        existingLink.className = 'button button--custom';
-        existingLink.style.backgroundColor = colorVariant;
-        existingLink.style.borderColor = colorVariant;
-        existingLink.style.color = 'var(--color-neutral-50)';
-      } else {
-        // Predefined variant
-        existingLink.classList.add('button', `button--${colorVariant}`);
-      }
+      existingLink.classList.add('button');
 
       buttonGroups.push({ button: p });
       return;
@@ -531,19 +476,7 @@ function buildSlide(row, isFirstSlide = false, config = {}) {
         button.setAttribute('aria-disabled', 'true');
         button.setAttribute('tabindex', '-1');
       }
-
-      // Apply color variant from Column 3
-      if (colorVariant.startsWith('#')) {
-        // Custom hex color - validate contrast
-        validateContrast(colorVariant);
-        button.className = 'button button--custom';
-        button.style.backgroundColor = colorVariant;
-        button.style.borderColor = colorVariant;
-        button.style.color = 'var(--color-neutral-50)';
-      } else {
-        // Predefined variant (white, transparent, brand, accent, dark, outline-dark)
-        button.className = `button button--${colorVariant}`;
-      }
+      button.className = 'button';
 
       p.textContent = '';
       p.appendChild(button);
@@ -601,21 +534,53 @@ export default function decorate(block) {
   // Get section element for metadata fallback
   const section = block.closest('.section');
   const sectionData = section?.dataset || {};
-  const hasButtonWidthOverride = Boolean(
-    block.dataset.heroctaBtnwidth?.trim()
-    || sectionData.heroctaBtnwidth?.trim()
-    || sectionData.dataHeroctaBtnwidth?.trim(),
+  const hasButtonWidthOverride = hasConfigValue(
+    block.dataset.heroctaBtnwidth,
+    sectionData,
+    ['heroctaBtnwidth', 'dataHeroctaBtnwidth'],
   );
+
+  const hasExplicitConfig = {
+    sidebar: hasConfigValue(
+      block.dataset.heroctaSidebar,
+      sectionData,
+      ['heroctaSidebar', 'dataHeroctaSidebar'],
+    ),
+    ctaLayout: hasConfigValue(
+      block.dataset.heroctaCtalayout,
+      sectionData,
+      ['heroctaCtalayout', 'dataHeroctaCtalayout'],
+    ),
+    buttonCorner: hasConfigValue(
+      block.dataset.heroctaBtncorner,
+      sectionData,
+      ['heroctaBtncorner', 'dataHeroctaBtncorner'],
+    ),
+    buttonBorderWidth: hasConfigValue(
+      block.dataset.heroctaBtnborder,
+      sectionData,
+      ['heroctaBtnborder', 'dataHeroctaBtnborder'],
+    ),
+    buttonBorderColor: hasConfigValue(
+      block.dataset.heroctaBtncolor,
+      sectionData,
+      ['heroctaBtncolor', 'dataHeroctaBtncolor'],
+    ),
+    buttonFillColor: hasConfigValue(
+      block.dataset.heroctaBtnfill,
+      sectionData,
+      ['heroctaBtnfill', 'dataHeroctaBtnfill'],
+    ),
+  };
 
   // Read configuration from block data attributes or section metadata
   // Note: DA.live Section Metadata may add double prefix (data-data-*)
   const config = {
-    align: getConfigValue(block.dataset.heroctaAlign, sectionData, ['heroctaAlign', 'dataHeroctaAlign'], 'right'),
-    vertical: getConfigValue(
-      block.dataset.heroctaVertical,
+    position: getConfigValue(
+      block.dataset.heroctaPosition,
       sectionData,
-      ['heroctaVertical', 'dataHeroctaVertical'],
-      'bottom',
+      ['heroctaPosition', 'dataHeroctaPosition'],
+      'bottom-right',
     ),
     size: getConfigValue(block.dataset.heroctaSize, sectionData, ['heroctaSize', 'dataHeroctaSize'], 'tall'),
     buttonStyle: getConfigValue(
@@ -663,11 +628,11 @@ export default function decorate(block) {
       ['heroctaBtnborder', 'dataHeroctaBtnborder'],
       '3',
     ),
-    density: getConfigValue(
-      block.dataset.heroctaDensity,
+    overlayInset: getConfigValue(
+      block.dataset.heroctaInset,
       sectionData,
-      ['heroctaDensity', 'dataHeroctaDensity'],
-      'comfortable',
+      ['heroctaInset', 'dataHeroctaInset'],
+      'medium',
     ),
     contentMaxWidthRaw: getConfigValue(
       block.dataset.heroctaContentwidth,
@@ -729,17 +694,29 @@ export default function decorate(block) {
       ],
       'white',
     ),
-    buttonColor: getConfigValue(
+    buttonBorderColor: getConfigValue(
       block.dataset.heroctaBtncolor,
       sectionData,
       ['heroctaBtncolor', 'dataHeroctaBtncolor'],
       'white',
+    ),
+    buttonFillColor: getConfigValue(
+      block.dataset.heroctaBtnfill,
+      sectionData,
+      ['heroctaBtnfill', 'dataHeroctaBtnfill'],
+      'transparent',
     ),
     sidebar: getConfigValue(
       block.dataset.heroctaSidebar,
       sectionData,
       ['heroctaSidebar', 'dataHeroctaSidebar'],
       '',
+    ),
+    layoutWidth: getConfigValue(
+      block.dataset.heroctaWidth,
+      sectionData,
+      ['heroctaWidth', 'dataHeroctaWidth'],
+      'default',
     ),
   };
 
@@ -773,101 +750,168 @@ export default function decorate(block) {
     block.replaceChildren(wrapper);
   }
 
-  // Apply normalized configuration to block
-  const align = normalizeAlign(config.align, 'right');
-  const vertical = normalizeVertical(config.vertical, 'bottom');
-  const size = normalizeSize(config.size, 'tall');
-  const buttonStyle = normalizeButtonStyle(config.buttonStyle, 'outline');
-  const buttonCorner = normalizeButtonCorner(config.buttonCorner, '');
-  const buttonWidthRaw = normalizeButtonWidth(config.buttonWidth, 'medium');
-  const buttonColor = normalizeButtonColor(config.buttonColor, 'white');
-  const buttonHoverStyle = normalizeButtonHoverStyle(config.buttonHoverStyle, 'lift');
-  const buttonBorderWidth = normalizeButtonBorderWidth(config.buttonBorderWidth, '3');
-  const density = normalizeDensity(config.density, 'comfortable');
-  const ctaLayout = normalizeCtaLayout(config.ctaLayout, 'stack');
-  const ctaGap = normalizeCtaGap(config.ctaGap, 'medium');
-  const ctaTextTransform = normalizeCtaTextTransform(config.ctaTextTransform, 'none');
-  const ctaFontSize = normalizeCtaFontSize(config.ctaFontSize, 'default');
-  const slideTransition = normalizeSlideTransition(config.slideTransition, 'fade');
-  const imageFrameStyle = normalizeImageFrameStyle(config.imageFrameStyle, 'default');
-  const buttonTextColor = normalizeButtonTextColor(config.buttonTextColor, 'white');
-  const resolvedButtonCorner = deriveButtonCorner(buttonStyle, buttonCorner);
-  const buttonWidth = (!hasButtonWidthOverride && size === 'short') ? 'medium' : buttonWidthRaw;
+  // Resolve by precedence tiers.
+  // Tier 1: Layout
+  const layoutConfig = {
+    position: normalizePosition(config.position, 'bottom-right'),
+    size: normalizeSize(config.size, 'tall'),
+    sidebarPosition: normalizeSidebar(config.sidebar),
+    layoutWidthRaw: normalizeLayoutWidth(config.layoutWidth, 'default'),
+    overlayInset: normalizeOverlayInset(config.overlayInset, 'medium'),
+    contentMaxWidth: normalizeContentMaxWidth(config.contentMaxWidthRaw, 420),
+    imageMaxWidth: normalizeImageMaxWidth(config.imageMaxWidthRaw, 2400),
+  };
+  layoutConfig.layoutWidth = layoutConfig.sidebarPosition ? 'default' : layoutConfig.layoutWidthRaw;
 
-  warnOnInvalidConfig('herocta-align', config.align, align, 'right');
-  warnOnInvalidConfig('herocta-vertical', config.vertical, vertical, 'bottom');
-  warnOnInvalidConfig('herocta-size', config.size, size, 'tall');
-  warnOnInvalidConfig('herocta-btnstyle', config.buttonStyle, buttonStyle, 'outline');
-  warnOnInvalidConfig('herocta-btncorner', config.buttonCorner, resolvedButtonCorner, 'default');
-  warnOnInvalidConfig('herocta-btnwidth', config.buttonWidth, buttonWidthRaw, 'medium');
-  warnOnInvalidConfig('herocta-btncolor', config.buttonColor, buttonColor, 'white');
-  warnOnInvalidConfig('herocta-btnhover', config.buttonHoverStyle, buttonHoverStyle, 'lift');
-  warnOnInvalidConfig('herocta-btnborder', config.buttonBorderWidth, buttonBorderWidth, '3');
-  warnOnInvalidConfig('herocta-density', config.density, density, 'comfortable');
-  warnOnInvalidConfig('herocta-contentwidth', config.contentMaxWidthRaw, config.contentMaxWidth, '420');
-  warnOnInvalidConfig('herocta-ctalayout', config.ctaLayout, ctaLayout, 'stack');
-  warnOnInvalidConfig('herocta-ctagap', config.ctaGap, ctaGap, 'medium');
-  warnOnInvalidConfig('herocta-ctacase', config.ctaTextTransform, ctaTextTransform, 'none');
-  warnOnInvalidConfig('herocta-ctasize', config.ctaFontSize, ctaFontSize, 'default');
-  warnOnInvalidConfig('herocta-transition', config.slideTransition, slideTransition, 'fade');
-  warnOnInvalidConfig('herocta-frame', config.imageFrameStyle, imageFrameStyle, 'default');
-  warnOnInvalidConfig('herocta-btntext', config.buttonTextColor, buttonTextColor, 'white');
-  warnOnInvalidConfig('herocta-sidebar', config.sidebar, sidebarPosition || 'off', 'off');
-  warnOnInvalidConfig('herocta-imgmax', config.imageMaxWidthRaw, config.imageMaxWidth, '2400');
+  // Tier 2: CTA/content structure
+  const structureConfig = {
+    ctaLayout: normalizeCtaLayout(config.ctaLayout, 'stack'),
+    ctaGap: normalizeCtaGap(config.ctaGap, 'medium'),
+    ctaTextTransform: normalizeCtaTextTransform(config.ctaTextTransform, 'none'),
+    ctaFontSize: normalizeCtaFontSize(config.ctaFontSize, 'default'),
+    buttonWidthRaw: normalizeButtonWidth(config.buttonWidth, 'medium'),
+  };
+  structureConfig.buttonWidth = (
+    !hasButtonWidthOverride && layoutConfig.size === 'short'
+      ? 'medium'
+      : structureConfig.buttonWidthRaw
+  );
 
-  block.dataset.align = align;
-  block.dataset.vertical = vertical;
-  block.dataset.size = size;
+  // Tier 3: Style and shape
+  const styleConfig = {
+    buttonStyle: normalizeButtonStyle(config.buttonStyle, 'outline'),
+    buttonCorner: normalizeButtonCorner(config.buttonCorner, ''),
+    buttonBorderWidth: normalizeButtonBorderWidth(config.buttonBorderWidth, '3'),
+  };
+
+  // Tier 4: Explicit color overrides
+  const colorConfig = {
+    buttonBorderColor: normalizeButtonBorderColor(config.buttonBorderColor, 'white'),
+    buttonFillColor: normalizeButtonFillColor(config.buttonFillColor, 'transparent'),
+    buttonTextColor: normalizeButtonTextColor(config.buttonTextColor, 'white'),
+  };
+
+  // Tier 5: Media and motion
+  const motionConfig = {
+    slideTransition: normalizeSlideTransition(config.slideTransition, 'fade'),
+    imageFrameStyle: normalizeImageFrameStyle(config.imageFrameStyle, 'default'),
+    buttonHoverStyle: normalizeButtonHoverStyle(config.buttonHoverStyle, 'lift'),
+  };
+
+  warnOnInvalidConfig('herocta-position', config.position, layoutConfig.position, 'bottom-right');
+  warnOnInvalidConfig('herocta-size', config.size, layoutConfig.size, 'tall');
+  warnOnInvalidConfig('herocta-btnstyle', config.buttonStyle, styleConfig.buttonStyle, 'outline');
+  warnOnInvalidConfig('herocta-btnwidth', config.buttonWidth, structureConfig.buttonWidthRaw, 'medium');
+  warnOnInvalidConfig('herocta-btncolor', config.buttonBorderColor, colorConfig.buttonBorderColor, 'white');
+  warnOnInvalidConfig('herocta-btnfill', config.buttonFillColor, colorConfig.buttonFillColor, 'transparent');
+  warnOnInvalidConfig('herocta-btnhover', config.buttonHoverStyle, motionConfig.buttonHoverStyle, 'lift');
+  warnOnInvalidConfig('herocta-btnborder', config.buttonBorderWidth, styleConfig.buttonBorderWidth, '3');
+  warnOnInvalidConfig('herocta-inset', config.overlayInset, layoutConfig.overlayInset, 'medium');
+  warnOnInvalidConfig('herocta-contentwidth', config.contentMaxWidthRaw, layoutConfig.contentMaxWidth, '420');
+  warnOnInvalidConfig('herocta-ctalayout', config.ctaLayout, structureConfig.ctaLayout, 'stack');
+  warnOnInvalidConfig('herocta-ctagap', config.ctaGap, structureConfig.ctaGap, 'medium');
+  warnOnInvalidConfig('herocta-ctacase', config.ctaTextTransform, structureConfig.ctaTextTransform, 'none');
+  warnOnInvalidConfig('herocta-ctasize', config.ctaFontSize, structureConfig.ctaFontSize, 'default');
+  warnOnInvalidConfig('herocta-transition', config.slideTransition, motionConfig.slideTransition, 'fade');
+  warnOnInvalidConfig('herocta-frame', config.imageFrameStyle, motionConfig.imageFrameStyle, 'default');
+  warnOnInvalidConfig('herocta-btntext', config.buttonTextColor, colorConfig.buttonTextColor, 'white');
+  warnOnInvalidConfig('herocta-sidebar', config.sidebar, layoutConfig.sidebarPosition || 'off', 'off');
+  warnOnInvalidConfig('herocta-width', config.layoutWidth, layoutConfig.layoutWidthRaw, 'default');
+  warnOnInvalidConfig('herocta-imgmax', config.imageMaxWidthRaw, layoutConfig.imageMaxWidth, '2400');
+  if (layoutConfig.sidebarPosition && layoutConfig.layoutWidthRaw === 'full-width') {
+    console.warn('hero-cta: herocta-width "full-width" is ignored when herocta-sidebar is enabled. Using "default".');
+  }
+  if (layoutConfig.sidebarPosition && navRows.length === 0 && hasExplicitConfig.sidebar) {
+    warnOnNoOpConfig(
+      'herocta-sidebar',
+      config.sidebar,
+      'No nav rows are authored (Column 1 must be "nav"), so sidebar cannot render.',
+    );
+  }
+  if (styleConfig.buttonStyle === 'link') {
+    if (hasExplicitConfig.buttonCorner) {
+      warnOnNoOpConfig(
+        'herocta-btncorner',
+        config.buttonCorner,
+        'Link style uses underline treatment and ignores corner radius.',
+      );
+    }
+    if (hasExplicitConfig.buttonBorderWidth) {
+      warnOnNoOpConfig(
+        'herocta-btnborder',
+        config.buttonBorderWidth,
+        'Link style does not render a button border width.',
+      );
+    }
+    if (hasExplicitConfig.buttonBorderColor) {
+      warnOnNoOpConfig(
+        'herocta-btncolor',
+        config.buttonBorderColor,
+        'Link style does not render a button border color.',
+      );
+    }
+    if (hasExplicitConfig.buttonFillColor) {
+      warnOnNoOpConfig(
+        'herocta-btnfill',
+        config.buttonFillColor,
+        'Link style does not render a button fill color.',
+      );
+    }
+  }
+  const maxButtonsPerSlide = Math.max(
+    0,
+    ...[...wrapper.querySelectorAll('.hero-cta-slide')]
+      .map((slide) => slide.querySelectorAll('.hero-cta-actions .button').length),
+  );
+  if (structureConfig.ctaLayout === 'split' && maxButtonsPerSlide < 2 && hasExplicitConfig.ctaLayout) {
+    warnOnNoOpConfig(
+      'herocta-ctalayout',
+      config.ctaLayout,
+      'Split layout needs at least 2 CTA buttons per slide.',
+    );
+  }
+
+  block.dataset.position = layoutConfig.position;
+  block.dataset.size = layoutConfig.size;
   block.dataset.interval = interval;
-  block.dataset.buttonStyle = buttonStyle;
-  block.dataset.buttonCorner = resolvedButtonCorner;
-  block.dataset.buttonWidth = buttonWidth;
-  block.dataset.buttonHoverStyle = buttonHoverStyle;
-  block.dataset.buttonBorderWidth = buttonBorderWidth;
-  block.dataset.density = density;
-  block.dataset.ctaLayout = ctaLayout;
-  block.dataset.ctaGap = ctaGap;
-  block.dataset.ctaTextTransform = ctaTextTransform;
-  block.dataset.ctaFontSize = ctaFontSize;
-  block.dataset.slideTransition = slideTransition;
-  block.dataset.imageFrameStyle = imageFrameStyle;
-  block.dataset.imageMaxWidth = config.imageMaxWidth.toString();
+  block.dataset.buttonStyle = styleConfig.buttonStyle;
+  if (styleConfig.buttonCorner) {
+    block.dataset.buttonCorner = styleConfig.buttonCorner;
+  } else {
+    delete block.dataset.buttonCorner;
+  }
+  block.dataset.buttonWidth = structureConfig.buttonWidth;
+  block.dataset.layoutWidth = layoutConfig.layoutWidth;
+  block.dataset.buttonHoverStyle = motionConfig.buttonHoverStyle;
+  block.dataset.buttonBorderWidth = styleConfig.buttonBorderWidth;
+  block.dataset.overlayInset = layoutConfig.overlayInset;
+  block.dataset.ctaLayout = structureConfig.ctaLayout;
+  block.dataset.ctaGap = structureConfig.ctaGap;
+  block.dataset.ctaTextTransform = structureConfig.ctaTextTransform;
+  block.dataset.ctaFontSize = structureConfig.ctaFontSize;
+  block.dataset.slideTransition = motionConfig.slideTransition;
+  block.dataset.imageFrameStyle = motionConfig.imageFrameStyle;
+  block.dataset.imageMaxWidth = layoutConfig.imageMaxWidth.toString();
 
-  block.style.setProperty('--hero-cta-content-max-width', `${config.contentMaxWidth}px`);
+  block.style.setProperty('--hero-cta-content-max-width', `${layoutConfig.contentMaxWidth}px`);
 
-  const resolvedButtonBaseColor = resolveButtonColor(buttonColor);
-  const resolvedButtonHoverColor = resolveButtonHoverColor(buttonColor, resolvedButtonBaseColor);
-  const resolvedButtonHoverTextColor = resolveButtonTextColor(buttonTextColor);
-  block.style.setProperty('--hero-cta-button-bg', resolvedButtonBaseColor);
-  block.style.setProperty('--hero-cta-button-border', resolvedButtonBaseColor);
-  block.style.setProperty('--hero-cta-button-hover-bg', resolvedButtonHoverColor);
-  block.style.setProperty('--hero-cta-button-hover-border', resolvedButtonHoverColor);
-  block.style.setProperty('--hero-cta-button-hover-text', resolvedButtonHoverTextColor);
-  block.style.setProperty('--hero-cta-button-border-width', `${buttonBorderWidth}px`);
+  block.style.setProperty('--hero-cta-button-bg', resolveSurfaceColor(colorConfig.buttonFillColor));
+  block.style.setProperty('--hero-cta-button-border', resolveSurfaceColor(colorConfig.buttonBorderColor));
+  block.style.setProperty('--hero-cta-button-text-color', resolveButtonTextColor(colorConfig.buttonTextColor));
+  block.style.setProperty('--hero-cta-button-border-width', `${styleConfig.buttonBorderWidth}px`);
 
-  block.dataset.buttonColor = buttonColor;
+  block.dataset.buttonColor = colorConfig.buttonBorderColor;
+  block.dataset.buttonFill = colorConfig.buttonFillColor;
+  block.dataset.buttonTextColor = colorConfig.buttonTextColor;
 
-  delete block.dataset.overlayStyle;
-  delete block.dataset.overlayColor;
-  delete block.dataset.overlayBlur;
-  delete block.dataset.gradientIntensity;
-  delete block.dataset.imageFit;
-  delete block.dataset.focalPoint;
-  delete block.dataset.eyebrowStyle;
-  block.style.removeProperty('--hero-cta-overlay-tint');
-
-  block.dataset.buttonTextColor = buttonTextColor;
-  block.style.setProperty('--hero-cta-button-text-color', resolveButtonTextColor(buttonTextColor));
-
-  if (sidebarPosition) {
-    block.dataset.sidebar = sidebarPosition;
+  if (layoutConfig.sidebarPosition) {
+    block.dataset.sidebar = layoutConfig.sidebarPosition;
   } else {
     delete block.dataset.sidebar;
   }
 
   const slides = [...block.querySelectorAll('.hero-cta-slide')];
   if (slides.length) slides[0].classList.add('is-active');
-  delete block.dataset.autoplay;
   startRotation(slides, interval);
 
   // Remove loading state when first image loads
