@@ -4,7 +4,7 @@ const SEARCH_SCOPE_PREFIX = 'search-bar-block';
 const DEFAULT_MIN_QUERY_LENGTH = 2;
 const MIN_MIN_QUERY_LENGTH = 1;
 const MAX_MIN_QUERY_LENGTH = 5;
-const DEFAULT_DEBOUNCE_MS = 180;
+const DEFAULT_DEBOUNCE_MS = 80;
 const MIN_DEBOUNCE_MS = 0;
 const MAX_DEBOUNCE_MS = 1000;
 const DEFAULT_RESULT_COUNT = 8;
@@ -240,9 +240,35 @@ export default async function decorate(block) {
     applyInputA11y(searchInput, resultsId, isOpen);
   };
 
+  const lockPanelHeight = () => {
+    if (!resultsDiv.classList.contains('is-open')) return;
+    const currentHeight = Math.round(resultsDiv.getBoundingClientRect().height);
+    if (currentHeight > 0) {
+      resultsDiv.style.minHeight = `${currentHeight}px`;
+    }
+    resultsDiv.dataset.loading = 'true';
+  };
+
+  const unlockPanelHeight = () => {
+    resultsDiv.style.removeProperty('min-height');
+    delete resultsDiv.dataset.loading;
+  };
+
+  const syncPanelHeight = () => {
+    if (!resultsDiv.classList.contains('is-open')) return;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const viewportCap = Math.round(window.innerHeight * (isMobile ? 0.68 : 0.7));
+    const contentHeight = Math.ceil(resultsDiv.scrollHeight);
+    const minOpenHeight = 120;
+    const nextMaxHeight = Math.max(minOpenHeight, Math.min(contentHeight, viewportCap));
+    resultsDiv.style.maxHeight = `${nextMaxHeight}px`;
+  };
+
   const closeResults = (announcement = '') => {
     setResultsOpen(false);
     resultsDiv.setAttribute('aria-busy', 'false');
+    resultsDiv.style.removeProperty('max-height');
+    unlockPanelHeight();
     if (announcement) {
       announce(announcement);
       clearAnnouncementSoon();
@@ -276,6 +302,7 @@ export default async function decorate(block) {
     debounceTimer = setTimeout(() => {
       dispatchedPhrase = latestTypedPhrase;
       resultsDiv.setAttribute('aria-busy', 'true');
+      lockPanelHeight();
       search({
         phrase: dispatchedPhrase,
         pageSize: config.resultCount,
@@ -320,6 +347,12 @@ export default async function decorate(block) {
       }
     }
   }, { signal });
+
+  window.addEventListener('resize', () => {
+    if (resultsDiv.classList.contains('is-open')) {
+      syncPanelHeight();
+    }
+  }, { signal, passive: true });
 
   const observerRoot = block.parentElement || block.closest('main') || document.body;
   disconnectionObserver = new MutationObserver(() => {
@@ -369,22 +402,23 @@ export default async function decorate(block) {
       scope: searchScope,
       routeProduct: ({ urlKey, sku }) => getProductLink(urlKey, sku),
       onSearchResult: (results) => {
-        const currentInputValue = searchInput?.value?.trim() || '';
-        if (
-          !currentInputValue
-          || currentInputValue !== latestTypedPhrase
-          || currentInputValue !== dispatchedPhrase
-        ) {
+        if (!dispatchedPhrase || latestTypedPhrase !== dispatchedPhrase) {
           return;
         }
 
         const hasResults = results.length > 0;
         setResultsOpen(hasResults);
         resultsDiv.setAttribute('aria-busy', 'false');
+        resultsDiv.dataset.resultCount = `${results.length}`;
 
         if (hasResults) {
+          requestAnimationFrame(() => {
+            syncPanelHeight();
+            unlockPanelHeight();
+          });
           announce(`${results.length} ${results.length === 1 ? uiText.resultFound : uiText.resultsFound}`);
         } else {
+          unlockPanelHeight();
           announce('');
         }
       },

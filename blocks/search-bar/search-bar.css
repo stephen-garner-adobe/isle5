@@ -217,6 +217,7 @@
   position: absolute;
   right: 0;
   top: calc(100% + 12px);
+  transition: max-height 140ms ease;
   z-index: 11;
 }
 
@@ -236,14 +237,6 @@
   font: var(--type-body-2-default-font);
   letter-spacing: var(--type-body-2-default-letter-spacing);
   margin: var(--spacing-xsmall) 0 0;
-}
-
-.search-bar-form[aria-busy='true'] {
-  opacity: 0.7;
-}
-
-.search-bar-results[aria-busy='true'] {
-  opacity: 0.7;
 }
 
 .search-bar-results .product-discovery-product-list__grid {
