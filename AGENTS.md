@@ -30,6 +30,12 @@ Every new block should include:
 - Do not add legacy aliases unless explicitly required by the task.
 - If aliases are required, document them in README and include a deprecation plan.
 
+### Metadata ownership (required)
+
+- Keep authored content in block rows/cells only (copy, links, media).
+- Keep behavior/layout controls in section metadata only (alignment, columns, result counts, timing, motion toggles, etc.).
+- Do not mix content and behavior in the same authoring surface unless explicitly required.
+
 ### Block-specific metadata naming (required)
 
 - Metadata keys must be block-scoped; never use generic keys like `align`, `size`, `density`.
@@ -67,6 +73,12 @@ Required behavior:
 - Lower tiers may refine visuals but must not silently break higher-tier semantics.
 - If one setting makes another inapplicable, treat it as a no-op and log a clear block-prefixed warning.
 - Avoid hidden coupling. If coupling is intentional, codify it as an explicit rule (for example: full-width disabled when sidebar is enabled).
+
+### Style vs color contract (required)
+
+- Style fields control structure/chrome only (shape, border style, hover motion, layout behavior).
+- Color fields control color only (border/fill/text/overlay colors).
+- A style option must not silently override explicit color metadata unless documented as an intentional rule.
 
 ### DA.live section metadata reads
 
@@ -137,6 +149,7 @@ Minimum allowed URL types:
 - Keep state local to the block instance.
 - Scope queries to `block` whenever possible.
 - Prefer schema-based config resolution for maintainability.
+- Centralize metadata schema in one place (defaults, key map, normalizers, tier/precedence).
 
 ### Loading and lifecycle
 
@@ -181,6 +194,15 @@ Example:
 - Avoid `transition: all`; transition only relevant properties.
 - Avoid `!important` unless strictly necessary and documented.
 
+### Floating/overlay safety (required)
+
+- For absolute/floating UI layers (whiteboxes, overlays, floating CTAs), clamp to parent bounds.
+- Required guardrails:
+  - `box-sizing: border-box`
+  - `max-width: 100%`
+  - parent-aware width clamps for narrow breakpoints
+- Floating elements must not create horizontal overflow or overlap neighboring cards at supported breakpoints.
+
 ## README Requirements
 
 Each block README must include:
@@ -209,6 +231,13 @@ Also include:
 - Section Metadata placement guidance (immediately above block).
 - Supported aliases (only if intentionally implemented).
 
+Section Metadata Reference should be grouped by functional area where relevant:
+- Layout
+- CTA/Button
+- Frame/Image
+- Motion
+- Behavior
+
 ### README must mirror precedence contract
 
 For block creation and first-pass docs, README must include:
@@ -219,6 +248,32 @@ For block creation and first-pass docs, README must include:
   - ignored/no-op fields
   - user-visible effect
 - A **Conflict/No-op Notes** section for common invalid or non-effective combinations.
+- A **Conflict Matrix** for mutually exclusive options (condition, winner, ignored/no-op, effect).
+
+## Removal and Breaking Changes
+
+### Block/capability removal protocol (required)
+
+When removing a custom block or capability, remove all implementation surfaces:
+- block folder/files under `blocks/<block>`
+- model/filter registrations (`component-models.json`, `component-filters.json`)
+- metadata readers/normalizers and dead CSS selectors
+- README references for removed behavior
+
+### Breaking-change policy
+
+- If backward compatibility is not requested, remove legacy keys/aliases entirely.
+- If backward compatibility is requested, explicitly document:
+  - legacy keys retained
+  - canonical replacement
+  - sunset/removal plan
+
+## Responsive Geometry Gate
+
+- Validate layout geometry across representative widths before shipping.
+- Minimum sweep: `360, 390, 414, 480, 768, 1024, 1280, 1440, 1920`.
+- Treat hard geometry leak > `2px` as a defect (card/panel/button overflow or clipping).
+- Separate true geometry failures from visual-only effects (e.g., box-shadow overflow).
 
 ## DA.live JSON Config
 
@@ -254,3 +309,5 @@ Follow project conventions (line length, quotes, trailing commas, selector order
 8. Motion respects `prefers-reduced-motion` and timers are lifecycle-safe.
 9. Mobile and desktop layouts are verified, including `44x44` tap targets.
 10. README and `_block-name.json` match implemented behavior.
+11. Responsive geometry gate passes across required widths (no hard leak > `2px`).
+12. Floating/absolute UI layers are clamped and do not overflow/clip at small screens.

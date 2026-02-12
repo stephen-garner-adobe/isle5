@@ -77,24 +77,6 @@
     "components": []
   },
   {
-    "id": "slider-accordion",
-    "components": [
-      "slider-accordion-slide"
-    ]
-  },
-  {
-    "id": "slider-accordion-slide",
-    "components": []
-  },
-  {
-    "id": "slider-accordion-cell",
-    "components": [
-      "text",
-      "image",
-      "button"
-    ]
-  },
-  {
     "id": "store-locator",
     "components": [
       "store-locator-item"
@@ -108,24 +90,6 @@
     "id": "store-locator-cell",
     "components": [
       "text"
-    ]
-  },
-  {
-    "id": "three-boxes",
-    "components": [
-      "three-boxes-row"
-    ]
-  },
-  {
-    "id": "three-boxes-row",
-    "components": []
-  },
-  {
-    "id": "three-boxes-cell",
-    "components": [
-      "text",
-      "image",
-      "button"
     ]
   }
 ]

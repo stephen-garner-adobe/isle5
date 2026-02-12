@@ -938,33 +938,6 @@
     ]
   },
   {
-    "id": "slider-accordion",
-    "fields": [
-      {
-        "component": "number",
-        "valueType": "number",
-        "name": "slides",
-        "label": "Number of Slides",
-        "description": "Maximum number of slides to display (1-5)",
-        "value": 5,
-        "required": false,
-        "validation": {
-          "numberMin": 1,
-          "numberMax": 5
-        }
-      },
-      {
-        "component": "boolean",
-        "valueType": "boolean",
-        "name": "autoplay",
-        "label": "Enable Autoplay",
-        "description": "Automatically cycle through slides every 5 seconds",
-        "value": true,
-        "required": false
-      }
-    ]
-  },
-  {
     "id": "store-locator",
     "fields": [
       {
@@ -1246,34 +1219,6 @@
         "name": "div:nth-child(4)>div:nth-child(2)>p:nth-child(1)",
         "label": "Fragment",
         "valueType": "string"
-      }
-    ]
-  },
-  {
-    "id": "three-boxes",
-    "fields": [
-      {
-        "component": "select",
-        "valueType": "string",
-        "name": "alignment",
-        "label": "Box Alignment",
-        "description": "Horizontal alignment of the three boxes",
-        "value": "center",
-        "required": false,
-        "options": [
-          {
-            "name": "Left",
-            "value": "left"
-          },
-          {
-            "name": "Center",
-            "value": "center"
-          },
-          {
-            "name": "Right",
-            "value": "right"
-          }
-        ]
       }
     ]
   },

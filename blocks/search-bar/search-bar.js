@@ -1,25 +1,16 @@
 import { getProductLink, rootLink, fetchPlaceholders } from '../../scripts/commerce.js';
 
-const SEARCH_SCOPE = 'search-bar-block';
-const MIN_QUERY_LENGTH = 1;
+const SEARCH_SCOPE_PREFIX = 'search-bar-block';
+const DEFAULT_MIN_QUERY_LENGTH = 2;
+const MIN_MIN_QUERY_LENGTH = 1;
+const MAX_MIN_QUERY_LENGTH = 5;
+const DEFAULT_DEBOUNCE_MS = 180;
+const MIN_DEBOUNCE_MS = 0;
+const MAX_DEBOUNCE_MS = 1000;
 const DEFAULT_RESULT_COUNT = 8;
 const MIN_RESULT_COUNT = 2;
 const MAX_RESULT_COUNT = 20;
-const DEFAULT_STYLE = 'default';
-const STYLE_OPTIONS = [
-  'default',
-  'minimal',
-  'elevated',
-  'glass',
-  'outline',
-  'soft',
-  'clean',
-  'contrast',
-  'premium-light',
-  'utility',
-  'editorial',
-  'campaign',
-];
+const DEFAULT_PLACEHOLDER = 'Search products...';
 let searchBarInstanceCounter = 0;
 
 function getUniqueId(prefix) {
@@ -30,86 +21,141 @@ function getUniqueId(prefix) {
   return `${prefix}-${searchBarInstanceCounter}`;
 }
 
-function sanitizeResultCount(value) {
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed)) return DEFAULT_RESULT_COUNT;
-  return Math.min(MAX_RESULT_COUNT, Math.max(MIN_RESULT_COUNT, parsed));
-}
-
-function normalizeStyle(value, fallback = DEFAULT_STYLE) {
-  const val = (value || '').toString().trim().toLowerCase();
-  return STYLE_OPTIONS.includes(val) ? val : fallback;
-}
-
-function getStyleValue(block) {
-  const sectionData = block.closest('.section')?.dataset || {};
-  const rawStyle = (
-    block.dataset.style
-    || sectionData.dataStyle
-    || sectionData.dataDataStyle
-    || DEFAULT_STYLE
-  );
-  const style = normalizeStyle(rawStyle, DEFAULT_STYLE);
-  if ((rawStyle || '').toString().trim() && style !== rawStyle.toString().trim().toLowerCase()) {
-    // eslint-disable-next-line no-console
-    console.warn(`search-bar: invalid data-style "${rawStyle}". Using "${DEFAULT_STYLE}".`);
+function getConfigValue(blockValue, sectionData, keys, fallback) {
+  if (typeof blockValue === 'string' && blockValue.trim()) return blockValue;
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    if (typeof sectionData?.[key] === 'string' && sectionData[key].trim()) return sectionData[key];
   }
-  return style;
+  return fallback;
 }
 
-/**
- * Parse block configuration from DA.live
- */
+function sanitizeInteger(value, fallback, min, max) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, parsed));
+}
+
+function normalizeAlignment(value, fallback = 'center') {
+  const normalized = (value || '').toString().trim().toLowerCase();
+  if (normalized === 'full') return 'wide';
+  return ['left', 'center', 'right', 'wide'].includes(normalized) ? normalized : fallback;
+}
+
 function parseBlockConfig(block) {
   const rows = [...block.children];
-  const placeholder = rows[0]?.textContent.trim() || 'Search products...';
-  const validPositions = ['left', 'center', 'right'];
-  const rawPosition = rows[1]?.textContent.trim().toLowerCase();
-  const position = validPositions.includes(rawPosition) ? rawPosition : 'center';
-  const resultCount = sanitizeResultCount(rows[2]?.textContent.trim());
+  const sectionData = block.closest('.section')?.dataset || {};
+  const placeholder = rows[0]?.textContent.trim() || DEFAULT_PLACEHOLDER;
+  const position = normalizeAlignment(
+    getConfigValue(
+      block.dataset.searchbarAlign,
+      sectionData,
+      ['searchbarAlign', 'dataSearchbarAlign'],
+      'center',
+    ),
+    'center',
+  );
+  const resultCount = sanitizeInteger(
+    getConfigValue(
+      block.dataset.searchbarResults,
+      sectionData,
+      [
+        'searchbarResults',
+        'dataSearchbarResults',
+        'searchbarResultcount',
+        'dataSearchbarResultcount',
+      ],
+      `${DEFAULT_RESULT_COUNT}`,
+    ),
+    DEFAULT_RESULT_COUNT,
+    MIN_RESULT_COUNT,
+    MAX_RESULT_COUNT,
+  );
+  const minQueryLength = sanitizeInteger(
+    getConfigValue(
+      block.dataset.searchbarMinquery,
+      sectionData,
+      ['searchbarMinquery', 'dataSearchbarMinquery'],
+      `${DEFAULT_MIN_QUERY_LENGTH}`,
+    ),
+    DEFAULT_MIN_QUERY_LENGTH,
+    MIN_MIN_QUERY_LENGTH,
+    MAX_MIN_QUERY_LENGTH,
+  );
+  const debounceMs = sanitizeInteger(
+    getConfigValue(
+      block.dataset.searchbarDebounce,
+      sectionData,
+      ['searchbarDebounce', 'dataSearchbarDebounce'],
+      `${DEFAULT_DEBOUNCE_MS}`,
+    ),
+    DEFAULT_DEBOUNCE_MS,
+    MIN_DEBOUNCE_MS,
+    MAX_DEBOUNCE_MS,
+  );
+
+  const rawStyle = getConfigValue(
+    block.dataset.searchbarStyle || block.dataset.style,
+    sectionData,
+    ['searchbarStyle', 'dataSearchbarStyle', 'style', 'dataStyle', 'dataDataStyle'],
+    '',
+  );
+  if (rawStyle && rawStyle.toString().trim().toLowerCase() !== 'default') {
+    // eslint-disable-next-line no-console
+    console.warn(`search-bar: style preset "${rawStyle}" is deprecated. Using default style.`);
+  }
 
   return {
     placeholder,
     position,
     resultCount,
+    minQueryLength,
+    debounceMs,
   };
 }
 
+function applyInputA11y(input, resultsId, expanded) {
+  if (!input) return;
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-autocomplete', 'list');
+  input.setAttribute('aria-haspopup', 'listbox');
+  input.setAttribute('aria-controls', resultsId);
+  input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('spellcheck', 'false');
+}
+
 /**
- * Decorates the search bar block
- * @param {Element} block The search bar block element
+ * Decorates the search bar block.
+ * @param {Element} block The search bar block element.
  */
 export default async function decorate(block) {
   const config = parseBlockConfig(block);
-  const style = getStyleValue(block);
   const eventsController = new AbortController();
   const { signal } = eventsController;
+  const instanceId = getUniqueId('searchbar');
   const resultsId = getUniqueId('search-results');
-  block.dataset.style = style;
+  const searchScope = `${SEARCH_SCOPE_PREFIX}-${instanceId}`;
 
-  // Create search bar container
+  block.dataset.searchbarStyle = 'default';
+
   const searchBarContainer = document.createElement('div');
-  // Ensure position is valid (safety check)
-  const validPosition = ['left', 'center', 'right'].includes(config.position)
-    ? config.position
-    : 'center';
-  searchBarContainer.classList.add('search-bar-container', `search-bar--${validPosition}`);
-  searchBarContainer.dataset.style = style;
+  searchBarContainer.classList.add('search-bar-container', `search-bar--${config.position}`);
   searchBarContainer.setAttribute('aria-expanded', 'false');
+  searchBarContainer.dataset.searchStatus = 'initializing';
 
-  // Create form with search icon button
   const form = document.createElement('form');
   form.classList.add('search-bar-form');
   form.setAttribute('role', 'search');
   form.setAttribute('aria-controls', resultsId);
+  form.setAttribute('aria-busy', 'true');
 
-  // Add search icon button
   const searchIconButton = document.createElement('button');
   searchIconButton.type = 'submit';
   searchIconButton.classList.add('search-bar-icon');
   searchIconButton.setAttribute('aria-label', 'Search');
   searchIconButton.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
@@ -118,207 +164,284 @@ export default async function decorate(block) {
   const inputWrapper = document.createElement('div');
   inputWrapper.classList.add('search-bar-input-wrapper');
 
-  // Create results container
+  const fallbackInput = document.createElement('input');
+  fallbackInput.type = 'search';
+  fallbackInput.name = 'search';
+  fallbackInput.placeholder = config.placeholder;
+  inputWrapper.append(fallbackInput);
+
   const resultsDiv = document.createElement('div');
   resultsDiv.classList.add('search-bar-results');
   resultsDiv.setAttribute('id', resultsId);
-  resultsDiv.setAttribute('role', 'region');
+  resultsDiv.setAttribute('role', 'listbox');
   resultsDiv.setAttribute('aria-label', 'Search results');
   resultsDiv.setAttribute('aria-hidden', 'true');
+  resultsDiv.setAttribute('aria-busy', 'false');
 
-  // Create live region for screen reader announcements
   const liveRegion = document.createElement('div');
   liveRegion.classList.add('search-bar-sr-only');
   liveRegion.setAttribute('role', 'status');
   liveRegion.setAttribute('aria-live', 'polite');
   liveRegion.setAttribute('aria-atomic', 'true');
 
-  searchBarContainer.append(form, resultsDiv, liveRegion);
+  const fallbackNote = document.createElement('p');
+  fallbackNote.classList.add('search-bar-fallback-note');
+  fallbackNote.hidden = true;
 
-  // Initialize search drop-in (reuse existing initializer)
-  await import('../../scripts/initializers/search.js');
+  form.append(inputWrapper, searchIconButton);
+  searchBarContainer.append(form, resultsDiv, fallbackNote, liveRegion);
+  block.replaceChildren(searchBarContainer);
 
-  // Load search components
-  const [
-    { search },
-    { render },
-    { SearchResults },
-    { provider: UI, Input, Button },
-  ] = await Promise.all([
-    import('@dropins/storefront-product-discovery/api.js'),
-    import('@dropins/storefront-product-discovery/render.js'),
-    import('@dropins/storefront-product-discovery/containers/SearchResults.js'),
-    import('@dropins/tools/components.js'),
-  ]);
+  let searchInput = fallbackInput;
+  applyInputA11y(searchInput, resultsId, false);
 
-  // Fetch labels
-  const labels = await fetchPlaceholders();
-  const uiText = {
-    search: labels.Global?.Search || 'Search',
-    searchResults: labels.Global?.SearchResults || 'Search results',
-    searchViewAll: labels.Global?.SearchViewAll || 'View All Results',
-    resultFound: labels.Global?.SearchResultFound || 'result found',
-    resultsFound: labels.Global?.SearchResultsFound || 'results found',
-    resultsClosed: labels.Global?.SearchResultsClosed || 'Search results closed',
+  let dropinsAvailable = false;
+  let search;
+  let clearAnnouncementTimer;
+  let debounceTimer;
+  let disconnectionObserver;
+  let latestTypedPhrase = '';
+  let dispatchedPhrase = '';
+
+  const clearTimers = () => {
+    if (clearAnnouncementTimer) {
+      clearTimeout(clearAnnouncementTimer);
+      clearAnnouncementTimer = undefined;
+    }
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
   };
-  searchIconButton.setAttribute('aria-label', uiText.search);
-  resultsDiv.setAttribute('aria-label', uiText.searchResults);
+
+  signal.addEventListener('abort', () => {
+    clearTimers();
+    if (disconnectionObserver) {
+      disconnectionObserver.disconnect();
+      disconnectionObserver = undefined;
+    }
+  }, { once: true });
+
+  const announce = (text) => {
+    liveRegion.textContent = text;
+  };
+
+  const clearAnnouncementSoon = () => {
+    if (clearAnnouncementTimer) clearTimeout(clearAnnouncementTimer);
+    clearAnnouncementTimer = setTimeout(() => {
+      liveRegion.textContent = '';
+    }, 1000);
+  };
 
   const setResultsOpen = (isOpen) => {
     resultsDiv.classList.toggle('is-open', isOpen);
     resultsDiv.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     searchBarContainer.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    applyInputA11y(searchInput, resultsId, isOpen);
   };
 
-  // Render SearchResults component
-  render.render(SearchResults, {
-    skeletonCount: config.resultCount,
-    scope: 'search-bar-block', // Unique scope - won't conflict with header search
-    routeProduct: ({ urlKey, sku }) => getProductLink(urlKey, sku),
-    onSearchResult: (results) => {
-      const hasResults = results.length > 0;
-      setResultsOpen(hasResults);
+  const closeResults = (announcement = '') => {
+    setResultsOpen(false);
+    resultsDiv.setAttribute('aria-busy', 'false');
+    if (announcement) {
+      announce(announcement);
+      clearAnnouncementSoon();
+    }
+  };
 
-      // Announce results to screen readers
-      if (hasResults) {
-        liveRegion.textContent = `${results.length} ${results.length === 1 ? uiText.resultFound : uiText.resultsFound}`;
-      } else {
-        liveRegion.textContent = '';
-      }
-    },
-    slots: {
-      Footer: async (ctx) => {
-        // View all results button
-        const viewAllResultsWrapper = document.createElement('div');
-        viewAllResultsWrapper.classList.add('search-bar-view-all');
+  const performSearch = (phrase) => {
+    latestTypedPhrase = phrase.trim();
 
-        const viewAllResultsButton = await UI.render(Button, {
-          children: uiText.searchViewAll,
-          variant: 'secondary',
-          href: rootLink('/search'),
-        })(viewAllResultsWrapper);
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
 
-        ctx.appendChild(viewAllResultsWrapper);
+    if (!dropinsAvailable || !search) {
+      closeResults();
+      return;
+    }
 
-        ctx.onChange((next) => {
-          viewAllResultsButton?.setProps((prev) => ({
-            ...prev,
-            href: `${rootLink('/search')}?q=${encodeURIComponent(next.variables?.phrase || '')}`,
-          }));
-        });
-      },
-    },
-  })(resultsDiv);
+    if (!latestTypedPhrase) {
+      search(null, { scope: searchScope });
+      closeResults();
+      return;
+    }
 
-  // Handle form submission
+    if (latestTypedPhrase.length < config.minQueryLength) {
+      closeResults();
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      dispatchedPhrase = latestTypedPhrase;
+      resultsDiv.setAttribute('aria-busy', 'true');
+      search({
+        phrase: dispatchedPhrase,
+        pageSize: config.resultCount,
+        filter: [
+          { attribute: 'visibility', in: ['Search', 'Catalog, Search'] },
+        ],
+      }, { scope: searchScope });
+    }, config.debounceMs);
+  };
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const query = e.target?.search?.value?.trim() || '';
+    const query = searchInput?.value?.trim() || '';
     if (query.length > 0) {
       window.location.href = `${rootLink('/search')}?q=${encodeURIComponent(query)}`;
     }
   }, { signal });
 
-  // Function to trigger search
-  const performSearch = (phrase) => {
-    if (!phrase) {
-      search(null, { scope: SEARCH_SCOPE });
-      setResultsOpen(false);
-      return;
-    }
-
-    if (phrase.length < MIN_QUERY_LENGTH) {
-      return;
-    }
-
-    search({
-      phrase,
-      pageSize: config.resultCount,
-      filter: [
-        { attribute: 'visibility', in: ['Search', 'Catalog, Search'] },
-      ],
-    }, { scope: SEARCH_SCOPE });
-  };
-
-  // Render search input into wrapper
-  UI.render(Input, {
-    name: 'search',
-    placeholder: config.placeholder,
-    onValue: (phrase) => {
-      performSearch(phrase);
-    },
-  })(inputWrapper);
-
-  // Append input wrapper and search icon to form
-  form.appendChild(inputWrapper);
-  form.appendChild(searchIconButton);
-
-  // Replace block content
-  block.replaceChildren(searchBarContainer);
-
-  // Use event delegation on the form for focus events
   form.addEventListener('focusin', (e) => {
     if (e.target.tagName === 'INPUT') {
       const currentValue = e.target.value.trim();
-      // If there's a valid search term and results are hidden, re-trigger search
-      if (currentValue
-        && currentValue.length >= MIN_QUERY_LENGTH
-        && !resultsDiv.classList.contains('is-open')) {
+      if (currentValue.length >= config.minQueryLength && !resultsDiv.classList.contains('is-open')) {
         performSearch(currentValue);
-        // Note: ARIA states will be updated by onSearchResult callback
       }
     }
   }, { signal });
 
-  // Close results when clicking outside the search bar
-  const handleClickOutside = (e) => {
-    // Check if click is outside the search bar container
+  document.addEventListener('click', (e) => {
     if (!searchBarContainer.contains(e.target) && resultsDiv.classList.contains('is-open')) {
-      setResultsOpen(false);
-      liveRegion.textContent = uiText.resultsClosed;
-
-      // Force blur on any input inside the form
-      setTimeout(() => {
-        const input = form.querySelector('input');
-        if (input && document.activeElement === input) {
-          input.blur();
-        }
-        // Clear announcement after a brief delay
-        setTimeout(() => {
-          liveRegion.textContent = '';
-        }, 1000);
-      }, 0);
-    }
-  };
-
-  document.addEventListener('click', handleClickOutside, { signal });
-
-  // Close results when pressing ESC key
-  const handleEscKey = (e) => {
-    if (e.key === 'Escape' && resultsDiv.classList.contains('is-open')) {
-      setResultsOpen(false);
-      liveRegion.textContent = uiText.resultsClosed;
-
-      // Blur the input field
-      const input = form.querySelector('input');
-      if (input) {
-        input.blur();
+      closeResults('Search results closed');
+      if (searchInput && document.activeElement === searchInput) {
+        searchInput.blur();
       }
-
-      // Clear announcement after a brief delay
-      setTimeout(() => {
-        liveRegion.textContent = '';
-      }, 1000);
     }
-  };
+  }, { signal });
 
-  document.addEventListener('keydown', handleEscKey, { signal });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && resultsDiv.classList.contains('is-open')) {
+      closeResults('Search results closed');
+      if (searchInput) {
+        searchInput.blur();
+      }
+    }
+  }, { signal });
 
-  const observer = new MutationObserver(() => {
-    if (!document.body.contains(block)) {
+  const observerRoot = block.parentElement || block.closest('main') || document.body;
+  disconnectionObserver = new MutationObserver(() => {
+    if (!block.isConnected) {
       eventsController.abort();
-      observer.disconnect();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  disconnectionObserver.observe(observerRoot, {
+    childList: true,
+    subtree: observerRoot === document.body,
+  });
+
+  try {
+    await import('../../scripts/initializers/search.js');
+
+    const [
+      { search: searchApi },
+      { render },
+      { SearchResults },
+      { provider: UI, Input, Button },
+      labels,
+    ] = await Promise.all([
+      import('@dropins/storefront-product-discovery/api.js'),
+      import('@dropins/storefront-product-discovery/render.js'),
+      import('@dropins/storefront-product-discovery/containers/SearchResults.js'),
+      import('@dropins/tools/components.js'),
+      fetchPlaceholders().catch(() => ({})),
+    ]);
+
+    search = searchApi;
+    const uiText = {
+      search: labels.Global?.Search || 'Search',
+      searchResults: labels.Global?.SearchResults || 'Search results',
+      searchViewAll: labels.Global?.SearchViewAll || 'View All Results',
+      resultFound: labels.Global?.SearchResultFound || 'result found',
+      resultsFound: labels.Global?.SearchResultsFound || 'results found',
+      resultsClosed: labels.Global?.SearchResultsClosed || 'Search results closed',
+      fallbackInlineUnavailable: labels.Global?.SearchInlineUnavailable
+        || 'Inline suggestions unavailable. Press Enter to search.',
+    };
+
+    searchIconButton.setAttribute('aria-label', uiText.search);
+    resultsDiv.setAttribute('aria-label', uiText.searchResults);
+
+    render.render(SearchResults, {
+      skeletonCount: config.resultCount,
+      scope: searchScope,
+      routeProduct: ({ urlKey, sku }) => getProductLink(urlKey, sku),
+      onSearchResult: (results) => {
+        const currentInputValue = searchInput?.value?.trim() || '';
+        if (
+          !currentInputValue
+          || currentInputValue !== latestTypedPhrase
+          || currentInputValue !== dispatchedPhrase
+        ) {
+          return;
+        }
+
+        const hasResults = results.length > 0;
+        setResultsOpen(hasResults);
+        resultsDiv.setAttribute('aria-busy', 'false');
+
+        if (hasResults) {
+          announce(`${results.length} ${results.length === 1 ? uiText.resultFound : uiText.resultsFound}`);
+        } else {
+          announce('');
+        }
+      },
+      slots: {
+        Footer: async (ctx) => {
+          const viewAllResultsWrapper = document.createElement('div');
+          viewAllResultsWrapper.classList.add('search-bar-view-all');
+
+          const viewAllResultsButton = await UI.render(Button, {
+            children: uiText.searchViewAll,
+            variant: 'secondary',
+            href: rootLink('/search'),
+          })(viewAllResultsWrapper);
+
+          ctx.appendChild(viewAllResultsWrapper);
+
+          ctx.onChange((next) => {
+            viewAllResultsButton?.setProps((prev) => ({
+              ...prev,
+              href: `${rootLink('/search')}?q=${encodeURIComponent(next.variables?.phrase || '')}`,
+            }));
+          });
+        },
+      },
+    })(resultsDiv);
+
+    inputWrapper.replaceChildren();
+    UI.render(Input, {
+      name: 'search',
+      placeholder: config.placeholder,
+      onValue: (phrase) => {
+        performSearch(phrase);
+      },
+    })(inputWrapper);
+
+    searchInput = inputWrapper.querySelector('input[name="search"]') || inputWrapper.querySelector('input') || fallbackInput;
+    if (searchInput && fallbackInput.value) {
+      searchInput.value = fallbackInput.value;
+    }
+    applyInputA11y(searchInput, resultsId, false);
+
+    dropinsAvailable = true;
+    searchBarContainer.dataset.searchStatus = 'ready';
+    form.setAttribute('aria-busy', 'false');
+    fallbackNote.hidden = true;
+
+    const initialValue = searchInput?.value?.trim() || '';
+    if (initialValue.length >= config.minQueryLength) {
+      performSearch(initialValue);
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('search-bar: inline search unavailable. Falling back to submit-only mode.', error);
+    searchBarContainer.dataset.searchStatus = 'fallback';
+    form.setAttribute('aria-busy', 'false');
+    closeResults();
+    fallbackNote.textContent = 'Inline suggestions are currently unavailable. Press Enter to search.';
+    fallbackNote.hidden = false;
+  }
 }

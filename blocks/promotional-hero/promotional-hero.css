@@ -1,29 +1,39 @@
 .promotional-hero {
   --promotional-hero-background: transparent;
-  --promotional-hero-card-width: 500px;
-  --promotional-hero-card-min-height: 500px;
+  --promotional-hero-layout-scale: 1;
+  --promotional-hero-linear-max-cols: 4;
+  --promotional-hero-card-width-base: 500px;
+  --promotional-hero-card-min-height-base: 500px;
+  --promotional-hero-card-width: calc(var(--promotional-hero-card-width-base) * var(--promotional-hero-layout-scale));
+  --promotional-hero-card-min-height: calc(var(--promotional-hero-card-min-height-base) * var(--promotional-hero-layout-scale));
   --promotional-hero-card-radius: 16px;
-  --promotional-hero-card-gap: var(--spacing-large);
-  --promotional-hero-band-padding-y: var(--spacing-xbig);
-  --promotional-hero-band-padding-x: 0;
+  --promotional-hero-card-gap-base: var(--spacing-large);
+  --promotional-hero-card-gap: calc(var(--promotional-hero-card-gap-base) * var(--promotional-hero-layout-scale));
+  --promotional-hero-band-padding-y-base: var(--spacing-xbig);
+  --promotional-hero-band-padding-y: calc(var(--promotional-hero-band-padding-y-base) * var(--promotional-hero-layout-scale));
+  --promotional-hero-band-padding-x: var(--spacing-medium);
   --promotional-hero-content-bg: var(--color-neutral-50);
   --promotional-hero-content-color: var(--color-neutral-900);
   --promotional-hero-content-border-color: transparent;
   --promotional-hero-content-border-width: 0;
-  --promotional-hero-content-padding-y: var(--spacing-small);
-  --promotional-hero-content-padding-x: var(--spacing-medium);
-  --promotional-hero-content-offset: -20px;
+  --promotional-hero-content-padding-y-base: var(--spacing-small);
+  --promotional-hero-content-padding-x-base: var(--spacing-medium);
+  --promotional-hero-content-padding-y: calc(var(--promotional-hero-content-padding-y-base) * var(--promotional-hero-layout-scale));
+  --promotional-hero-content-padding-x: calc(var(--promotional-hero-content-padding-x-base) * var(--promotional-hero-layout-scale));
+  --promotional-hero-content-offset-base: -20px;
+  --promotional-hero-content-offset: calc(var(--promotional-hero-content-offset-base) * var(--promotional-hero-layout-scale));
   --promotional-hero-content-max-width: 86%;
-  --promotional-hero-content-min-width: 280px;
+  --promotional-hero-content-min-width-base: 280px;
+  --promotional-hero-content-min-width: calc(var(--promotional-hero-content-min-width-base) * var(--promotional-hero-layout-scale));
   --promotional-hero-content-radius: 6px;
   --promotional-hero-content-shadow: 0 4px 20px rgb(0 0 0 / 15%);
   --promotional-hero-grid-max-width: none;
-  --promotional-hero-button-bg: var(--color-brand-500);
+  --promotional-hero-button-bg: transparent;
   --promotional-hero-button-text: var(--color-neutral-50);
-  --promotional-hero-button-border: var(--color-brand-500);
+  --promotional-hero-button-border: var(--color-neutral-50);
   --promotional-hero-button-border-width: var(--shape-border-width-3);
-  --promotional-hero-button-hover-bg: var(--color-brand-600);
-  --promotional-hero-button-hover-border: var(--color-brand-600);
+  --promotional-hero-button-hover-bg: transparent;
+  --promotional-hero-button-hover-border: var(--color-neutral-50);
   --promotional-hero-button-hover-text: var(--color-neutral-50);
   --promotional-hero-button-transform: none;
   --promotional-hero-button-font-size: 1rem;
@@ -44,7 +54,7 @@
   border-radius: var(--shape-border-radius-2);
   box-sizing: border-box;
   display: block;
-  overflow: hidden;
+  overflow: visible;
   padding: var(--promotional-hero-band-padding-y) var(--promotional-hero-band-padding-x);
   width: 100%;
 }
@@ -54,44 +64,44 @@
 }
 
 .promotional-hero[data-density='compact'] {
-  --promotional-hero-card-gap: var(--spacing-medium);
-  --promotional-hero-band-padding-y: var(--spacing-large);
-  --promotional-hero-content-padding-y: var(--spacing-xsmall);
-  --promotional-hero-content-padding-x: var(--spacing-small);
+  --promotional-hero-card-gap-base: var(--spacing-medium);
+  --promotional-hero-band-padding-y-base: var(--spacing-large);
+  --promotional-hero-content-padding-y-base: var(--spacing-xsmall);
+  --promotional-hero-content-padding-x-base: var(--spacing-small);
 }
 
 .promotional-hero[data-density='spacious'] {
-  --promotional-hero-card-gap: var(--spacing-xbig);
-  --promotional-hero-band-padding-y: calc(var(--spacing-xbig) * 1.4);
-  --promotional-hero-content-padding-y: var(--spacing-medium);
-  --promotional-hero-content-padding-x: var(--spacing-large);
+  --promotional-hero-card-gap-base: var(--spacing-xbig);
+  --promotional-hero-band-padding-y-base: calc(var(--spacing-xbig) * 1.4);
+  --promotional-hero-content-padding-y-base: var(--spacing-medium);
+  --promotional-hero-content-padding-x-base: var(--spacing-large);
 }
 
 .promotional-hero[data-gap='small'] {
-  --promotional-hero-card-gap: var(--spacing-medium);
+  --promotional-hero-card-gap-base: var(--spacing-medium);
 }
 
 .promotional-hero[data-gap='medium'] {
-  --promotional-hero-card-gap: var(--spacing-large);
+  --promotional-hero-card-gap-base: var(--spacing-large);
 }
 
 .promotional-hero[data-gap='large'] {
-  --promotional-hero-card-gap: var(--spacing-xbig);
+  --promotional-hero-card-gap-base: var(--spacing-xbig);
 }
 
 .promotional-hero[data-card-width='small'] {
-  --promotional-hero-card-width: 360px;
-  --promotional-hero-card-min-height: 420px;
+  --promotional-hero-card-width-base: 360px;
+  --promotional-hero-card-min-height-base: 420px;
 }
 
 .promotional-hero[data-card-width='medium'] {
-  --promotional-hero-card-width: 500px;
-  --promotional-hero-card-min-height: 500px;
+  --promotional-hero-card-width-base: 500px;
+  --promotional-hero-card-min-height-base: 500px;
 }
 
 .promotional-hero[data-card-width='large'] {
-  --promotional-hero-card-width: 620px;
-  --promotional-hero-card-min-height: 560px;
+  --promotional-hero-card-width-base: 620px;
+  --promotional-hero-card-min-height-base: 560px;
 }
 
 .promotional-hero[data-card-height='auto'] {
@@ -99,18 +109,18 @@
 }
 
 .promotional-hero[data-card-height='short'] {
-  --promotional-hero-card-min-height: 380px;
-  --promotional-hero-content-offset: -14px;
+  --promotional-hero-card-min-height-base: 380px;
+  --promotional-hero-content-offset-base: -14px;
 }
 
 .promotional-hero[data-card-height='medium'] {
-  --promotional-hero-card-min-height: 500px;
-  --promotional-hero-content-offset: -20px;
+  --promotional-hero-card-min-height-base: 500px;
+  --promotional-hero-content-offset-base: -20px;
 }
 
 .promotional-hero[data-card-height='tall'] {
-  --promotional-hero-card-min-height: 620px;
-  --promotional-hero-content-offset: -24px;
+  --promotional-hero-card-min-height-base: 620px;
+  --promotional-hero-content-offset-base: -24px;
 }
 
 .promotional-hero[data-image-ratio='portrait'] {
@@ -124,13 +134,16 @@
 .promotional-hero[data-image-ratio='landscape'] {
   --promotional-hero-image-ratio: 16 / 9;
   --promotional-hero-content-max-width: 90%;
-  --promotional-hero-content-min-width: 220px;
-  --promotional-hero-content-offset: -10px;
-  --promotional-hero-content-padding-y: var(--spacing-xsmall);
-  --promotional-hero-content-padding-x: var(--spacing-small);
+  --promotional-hero-content-min-width-base: 220px;
+  --promotional-hero-content-offset-base: -10px;
+  --promotional-hero-content-padding-y-base: var(--spacing-xsmall);
+  --promotional-hero-content-padding-x-base: var(--spacing-small);
 }
 
 .promotional-hero-container {
+  --promotional-hero-columns-count: 1;
+
+  align-items: start;
   display: grid;
   gap: var(--promotional-hero-card-gap);
   grid-template-columns: repeat(
@@ -139,19 +152,67 @@
   );
   justify-content: center;
   max-width: var(--promotional-hero-grid-max-width);
+  overflow: visible;
   width: 100%;
 }
 
 .promotional-hero[data-columns='1'] .promotional-hero-container {
-  grid-template-columns: minmax(0, var(--promotional-hero-card-width));
+  --promotional-hero-columns-count: 1;
+
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  max-width: min(100%, var(--promotional-hero-card-width));
 }
 
 .promotional-hero[data-columns='2'] .promotional-hero-container {
-  grid-template-columns: repeat(2, minmax(0, var(--promotional-hero-card-width)));
+  --promotional-hero-columns-count: 2;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: min(
+    100%,
+    calc((var(--promotional-hero-card-width) * 2) + var(--promotional-hero-card-gap))
+  );
 }
 
 .promotional-hero[data-columns='3'] .promotional-hero-container {
-  grid-template-columns: repeat(3, minmax(0, var(--promotional-hero-card-width)));
+  --promotional-hero-columns-count: 3;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: min(
+    100%,
+    calc((var(--promotional-hero-card-width) * 3) + (var(--promotional-hero-card-gap) * 2))
+  );
+}
+
+.promotional-hero[data-columns='4'] .promotional-hero-container {
+  --promotional-hero-columns-count: 4;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: min(
+    100%,
+    calc((var(--promotional-hero-card-width) * 4) + (var(--promotional-hero-card-gap) * 3))
+  );
+}
+
+@media (min-width: 901px) {
+  .promotional-hero[data-layout='honeycomb'] .promotional-hero-container {
+    grid-template-columns: repeat(2, minmax(0, var(--promotional-hero-card-width)));
+    justify-content: center;
+  }
+
+  .promotional-hero[data-layout='honeycomb'] .promotional-hero-card {
+    width: var(--promotional-hero-card-width);
+  }
+
+  .promotional-hero[data-layout='honeycomb'] .promotional-hero-card:nth-child(3n) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, calc(var(--promotional-hero-card-width) * 0.92));
+  }
+
+  .promotional-hero[data-layout='honeycomb'] .promotional-hero-card:only-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
 }
 
 .promotional-hero[data-align='left'] .promotional-hero-container {
@@ -166,12 +227,38 @@
   justify-content: end;
 }
 
+.promotional-hero[data-layout='linear'][data-columns='auto'] .promotional-hero-container {
+  max-width: min(
+    100%,
+    calc((var(--promotional-hero-card-width) * var(--promotional-hero-linear-max-cols)) + (var(--promotional-hero-card-gap) * 3))
+  );
+}
+
+.promotional-hero[data-layout='linear'][data-linear-columns='1'][data-columns='auto'] .promotional-hero-container {
+  max-width: var(--promotional-hero-card-width);
+}
+
+.promotional-hero[data-layout='linear'][data-linear-columns='2'][data-columns='auto'] .promotional-hero-container {
+  max-width: calc((var(--promotional-hero-card-width) * 2) + var(--promotional-hero-card-gap));
+}
+
+.promotional-hero[data-layout='linear'][data-linear-columns='3'][data-columns='auto'] .promotional-hero-container {
+  max-width: calc((var(--promotional-hero-card-width) * 3) + (var(--promotional-hero-card-gap) * 2));
+}
+
+.promotional-hero[data-layout='linear'][data-linear-columns='4'][data-columns='auto'] .promotional-hero-container {
+  max-width: calc((var(--promotional-hero-card-width) * 4) + (var(--promotional-hero-card-gap) * 3));
+}
+
 .promotional-hero-card {
   aspect-ratio: var(--promotional-hero-image-ratio);
   border: var(--promotional-hero-card-border-width) solid var(--promotional-hero-card-border-color);
   border-radius: var(--promotional-hero-card-radius);
   box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
   min-height: var(--promotional-hero-card-min-height);
+  min-width: 0;
   overflow: visible;
   position: relative;
 }
@@ -247,8 +334,8 @@
   box-sizing: border-box;
   color: var(--promotional-hero-content-color);
   left: 50%;
-  max-width: var(--promotional-hero-content-max-width);
-  min-width: var(--promotional-hero-content-min-width);
+  max-width: min(var(--promotional-hero-content-max-width), calc(100% - (var(--spacing-small) * 2)));
+  min-width: min(var(--promotional-hero-content-min-width), calc(100% - (var(--spacing-small) * 2)));
   padding: var(--promotional-hero-content-padding-y) var(--promotional-hero-content-padding-x);
   position: absolute;
   text-align: center;
@@ -488,20 +575,31 @@
   background-color: var(--promotional-hero-button-bg);
   border: var(--promotional-hero-button-border-width) solid var(--promotional-hero-button-border);
   border-radius: var(--shape-border-radius-2);
+  box-sizing: border-box;
   color: var(--promotional-hero-button-text);
   display: inline-grid;
   font: var(--type-button-2-font);
-  font-size: var(--promotional-hero-button-font-size);
+  font-size: clamp(
+    0.9375rem,
+    calc(var(--promotional-hero-button-font-size) * var(--promotional-hero-layout-scale)),
+    var(--promotional-hero-button-font-size)
+  );
   font-weight: var(--promotional-hero-button-font-weight);
   height: 44px;
   place-items: center;
   letter-spacing: var(--type-button-2-letter-spacing);
   line-height: 1;
   min-width: 44px;
-  padding: 0 24px;
+  max-width: 100%;
+  padding: 0 calc(24px * var(--promotional-hero-layout-scale));
   text-decoration: none;
   text-transform: var(--promotional-hero-button-transform);
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
   box-shadow: var(--promotional-hero-button-shadow);
 }
 
@@ -526,63 +624,43 @@
   color: var(--promotional-hero-button-hover-text);
 }
 
-.promotional-hero[data-button-style='default'] .promotional-hero-button {
-  border-radius: var(--shape-border-radius-2);
-}
-
-.promotional-hero[data-button-style='pill'] .promotional-hero-button {
-  border-radius: 999px;
-  padding: 0 28px;
-}
-
-.promotional-hero[data-button-style='sharp'] .promotional-hero-button {
-  border-radius: 0;
-}
-
-.promotional-hero[data-button-style='soft'] .promotional-hero-button {
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 92%, #fff);
-  border-radius: 12px;
-}
-
-.promotional-hero[data-button-style='rounded-lg'] .promotional-hero-button {
-  border-radius: 20px;
-  padding: 0 30px;
-}
-
 .promotional-hero[data-button-style='outline'] .promotional-hero-button {
   background-color: transparent;
   border-color: var(--promotional-hero-button-border);
   color: var(--promotional-hero-button-border);
 }
 
+.promotional-hero[data-button-style='solid'] .promotional-hero-button {
+  border-radius: 0;
+}
+
 .promotional-hero[data-button-style='ghost'] .promotional-hero-button {
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 16%, transparent);
-  border-color: color-mix(in srgb, var(--promotional-hero-button-bg) 42%, transparent);
+  border-style: dashed;
 }
 
 .promotional-hero[data-button-style='elevated'] .promotional-hero-button {
-  box-shadow: 0 8px 22px rgb(0 0 0 / 24%);
-}
-
-.promotional-hero[data-button-style='minimal'] .promotional-hero-button {
-  background-color: transparent;
-  border-color: color-mix(in srgb, var(--promotional-hero-button-border) 42%, transparent);
-  border-width: 1px;
+  border-radius: 10px;
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 30px rgb(0 0 0 / 36%),
+    0 4px 10px rgb(0 0 0 / 24%);
 }
 
 .promotional-hero[data-button-style='glass'] .promotional-hero-button {
-  backdrop-filter: blur(6px);
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 22%, transparent);
-  border-color: color-mix(in srgb, var(--promotional-hero-button-border) 50%, transparent);
+  backdrop-filter: blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 28%),
+    0 0 0 1px rgb(255 255 255 / 14%);
 }
 
-.promotional-hero[data-button-style='gradient'] .promotional-hero-button {
-  background-image: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--promotional-hero-button-bg) 88%, #fff),
-    color-mix(in srgb, var(--promotional-hero-button-bg) 78%, #000)
-  );
-  border-color: color-mix(in srgb, var(--promotional-hero-button-border) 86%, #000);
+.promotional-hero[data-button-style='soft'] .promotional-hero-button {
+  border-radius: 14px;
+  border-width: 2px;
+}
+
+.promotional-hero[data-button-style='pill'] .promotional-hero-button {
+  border-radius: 999px;
+  padding: 0 calc(28px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-button-style='link'] .promotional-hero-button {
@@ -594,6 +672,56 @@
   min-width: auto;
   padding: 0;
   text-decoration: underline;
+}
+
+.promotional-hero[data-button-style='inset'] .promotional-hero-button {
+  border-style: double;
+  box-shadow:
+    inset 0 2px 8px rgb(0 0 0 / 35%),
+    inset 0 -1px 0 rgb(255 255 255 / 24%);
+}
+
+.promotional-hero[data-button-style='underline'] .promotional-hero-button {
+  border-radius: 0;
+  border-width: 0 0 var(--promotional-hero-button-border-width);
+}
+
+.promotional-hero[data-button-style='quiet'] .promotional-hero-button {
+  border-width: 1px;
+}
+
+.promotional-hero[data-button-style='strong'] .promotional-hero-button {
+  border-width: 4px;
+  font-weight: 700;
+}
+
+.promotional-hero[data-button-style='halo'] .promotional-hero-button {
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 20%),
+    0 10px 20px rgb(0 0 0 / 20%);
+}
+
+.promotional-hero[data-button-style='bevel'] .promotional-hero-button {
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.promotional-hero[data-button-style='tab'] .promotional-hero-button {
+  border-radius: 14px 14px 0 0;
+}
+
+.promotional-hero[data-button-style='rail'] .promotional-hero-button {
+  border-left-width: calc(var(--promotional-hero-button-border-width) + 2px);
+  border-right-width: calc(var(--promotional-hero-button-border-width) + 2px);
+}
+
+.promotional-hero[data-button-style='outline-double'] .promotional-hero-button {
+  border-style: double;
+}
+
+.promotional-hero[data-button-style='compact'] .promotional-hero-button {
+  letter-spacing: 0.02em;
+  padding-inline: 20px;
 }
 
 /* Independent corner system (overrides legacy shape encoded in button-style) */
@@ -618,87 +746,113 @@
 }
 
 .promotional-hero[data-button-width='auto'] .promotional-hero-button {
-  min-width: 140px;
+  min-width: calc(140px * var(--promotional-hero-layout-scale));
   width: auto;
 }
 
 .promotional-hero[data-button-width='narrow'] .promotional-hero-button {
-  padding: 0 24px;
-  width: 180px;
+  padding: 0 calc(24px * var(--promotional-hero-layout-scale));
+  width: calc(180px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-button-width='medium'] .promotional-hero-button {
-  padding: 0 28px;
-  width: 200px;
+  padding: 0 calc(28px * var(--promotional-hero-layout-scale));
+  width: calc(200px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-button-width='wide'] .promotional-hero-button {
-  padding: 0 36px;
-  width: 260px;
+  padding: 0 calc(36px * var(--promotional-hero-layout-scale));
+  width: calc(260px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-button-width='fluid'] .promotional-hero-button {
-  max-width: 420px;
+  max-width: calc(420px * var(--promotional-hero-layout-scale));
   width: 100%;
 }
 
 .promotional-hero[data-image-ratio='landscape'] .promotional-hero-button {
-  min-width: 132px;
-  padding: 0 18px;
+  min-width: calc(132px * var(--promotional-hero-layout-scale));
+  padding: 0 calc(18px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-image-ratio='landscape'][data-button-width='narrow'] .promotional-hero-button {
-  width: 160px;
+  width: calc(160px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-image-ratio='landscape'][data-button-width='medium'] .promotional-hero-button {
-  width: 180px;
+  width: calc(180px * var(--promotional-hero-layout-scale));
 }
 
 .promotional-hero[data-image-ratio='landscape'][data-button-width='wide'] .promotional-hero-button {
-  width: 220px;
+  width: calc(220px * var(--promotional-hero-layout-scale));
 }
 
-.promotional-hero[data-button-style='outline'] .promotional-hero-button:hover {
+.promotional-hero[data-button-hover-color='none'] .promotional-hero-button:hover {
+  background-color: var(--promotional-hero-button-bg);
+  border-color: var(--promotional-hero-button-border);
+  color: var(--promotional-hero-button-text);
+}
+
+.promotional-hero[data-button-hover-color='inverse'] .promotional-hero-button:hover {
+  background-color: var(--promotional-hero-button-text);
+  border-color: var(--promotional-hero-button-text);
+  color: var(--promotional-hero-button-bg);
+}
+
+.promotional-hero[data-button-hover-color='darken'] .promotional-hero-button:hover {
   background-color: var(--promotional-hero-button-hover-bg);
   border-color: var(--promotional-hero-button-hover-border);
   color: var(--promotional-hero-button-hover-text);
 }
 
-.promotional-hero[data-button-style='ghost'] .promotional-hero-button:hover {
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 28%, transparent);
-  border-color: color-mix(in srgb, var(--promotional-hero-button-bg) 60%, transparent);
+.promotional-hero[data-button-hover-motion='none'] .promotional-hero-button:hover {
+  transform: none;
 }
 
-.promotional-hero[data-button-style='elevated'] .promotional-hero-button:hover {
-  box-shadow: 0 12px 28px rgb(0 0 0 / 30%);
+.promotional-hero[data-button-hover-motion='lift'] .promotional-hero-button:hover {
   transform: translateY(-2px);
 }
 
-.promotional-hero[data-button-style='minimal'] .promotional-hero-button:hover {
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 10%, transparent);
-  border-color: color-mix(in srgb, var(--promotional-hero-button-border) 65%, transparent);
+.promotional-hero[data-button-hover-motion='press'] .promotional-hero-button:hover {
+  transform: translateY(1px) scale(0.98);
 }
 
-.promotional-hero[data-button-style='glass'] .promotional-hero-button:hover {
-  background-color: color-mix(in srgb, var(--promotional-hero-button-bg) 34%, transparent);
-  border-color: color-mix(in srgb, var(--promotional-hero-button-border) 68%, transparent);
+.promotional-hero[data-button-hover-motion='pop'] .promotional-hero-button:hover {
+  transform: scale(1.04);
 }
 
-.promotional-hero[data-button-style='gradient'] .promotional-hero-button:hover {
-  background-image: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--promotional-hero-button-hover-bg) 90%, #fff),
-    color-mix(in srgb, var(--promotional-hero-button-hover-bg) 80%, #000)
-  );
-  border-color: color-mix(in srgb, var(--promotional-hero-button-hover-border) 88%, #000);
+.promotional-hero[data-button-hover-motion='nudge'] .promotional-hero-button:hover {
+  transform: translateX(4px);
 }
 
-.promotional-hero[data-button-style='link'] .promotional-hero-button:hover {
+.promotional-hero[data-button-hover-motion='tilt'] .promotional-hero-button:hover {
+  transform: rotate(-1.5deg);
+}
+
+.promotional-hero[data-button-hover-color='style'][data-button-style='outline'] .promotional-hero-button:hover {
+  background-color: var(--promotional-hero-button-hover-bg);
+  border-color: var(--promotional-hero-button-hover-border);
+  color: var(--promotional-hero-button-hover-text);
+}
+
+.promotional-hero[data-button-hover-color='style'][data-button-style='ghost'] .promotional-hero-button:hover {
+  border-style: dashed;
+}
+
+.promotional-hero[data-button-hover-color='style'][data-button-style='elevated'] .promotional-hero-button:hover {
+  box-shadow: 0 12px 28px rgb(0 0 0 / 30%);
+}
+
+.promotional-hero[data-button-hover-color='style'][data-button-style='glass'] .promotional-hero-button:hover {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 34%),
+    0 0 0 1px rgb(255 255 255 / 18%);
+}
+
+.promotional-hero[data-button-hover-color='style'][data-button-style='link'] .promotional-hero-button:hover {
   background-color: transparent;
   border-color: transparent;
   text-decoration-thickness: 2px;
-  transform: none;
 }
 
 .promotional-hero[data-button-font-size='sm'] {
@@ -745,43 +899,6 @@
   --promotional-hero-button-shadow: 0 8px 24px rgb(0 0 0 / 30%);
 }
 
-.promotional-hero[data-button-hover-style='none'] .promotional-hero-button:hover {
-  background-color: var(--promotional-hero-button-bg);
-  border-color: var(--promotional-hero-button-border);
-  color: var(--promotional-hero-button-text);
-  transform: none;
-}
-
-.promotional-hero[data-button-hover-style='inverse'] .promotional-hero-button:hover {
-  background-color: var(--promotional-hero-button-text);
-  border-color: var(--promotional-hero-button-text);
-  color: var(--promotional-hero-button-bg);
-}
-
-.promotional-hero[data-button-hover-style='darken'] .promotional-hero-button:hover {
-  background-color: var(--promotional-hero-button-hover-bg);
-  border-color: var(--promotional-hero-button-hover-border);
-  color: var(--promotional-hero-button-hover-text);
-}
-
-.promotional-hero[data-button-hover-style='lift'] .promotional-hero-button:hover {
-  background-color: var(--promotional-hero-button-hover-bg);
-  border-color: var(--promotional-hero-button-hover-border);
-  color: var(--promotional-hero-button-hover-text);
-  transform: translateY(-2px);
-}
-
-.promotional-hero[data-button-hover-style='lift-only'] .promotional-hero-button:hover {
-  background-color: var(--promotional-hero-button-bg);
-  border-color: var(--promotional-hero-button-border);
-  color: var(--promotional-hero-button-text);
-  transform: translateY(-2px);
-}
-
-.promotional-hero[data-button-style='outline'][data-button-hover-style='lift-only'] .promotional-hero-button:hover {
-  background-color: transparent;
-}
-
 .promotional-hero[data-button-text-transform='none'] {
   --promotional-hero-button-transform: none;
 }
@@ -792,6 +909,16 @@
 
 .promotional-hero[data-button-text-transform='capitalize'] {
   --promotional-hero-button-transform: capitalize;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promotional-hero .promotional-hero-button {
+    transition: none;
+  }
+
+  .promotional-hero .promotional-hero-button:hover {
+    transform: none;
+  }
 }
 
 .promotional-hero[data-loading] {
@@ -867,7 +994,11 @@
 
 @media (max-width: 1100px) {
   .promotional-hero[data-columns='3'] .promotional-hero-container {
-    grid-template-columns: repeat(2, minmax(0, var(--promotional-hero-card-width)));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: min(
+      100%,
+      calc((var(--promotional-hero-card-width) * 2) + var(--promotional-hero-card-gap))
+    );
   }
 }
 
@@ -926,6 +1057,8 @@
 
   .promotional-hero-button {
     font-size: 0.8125rem;
+    max-width: 100%;
     padding: 9px 18px;
+    width: min(100%, calc(260px * var(--promotional-hero-layout-scale)));
   }
 }
