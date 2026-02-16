@@ -1,151 +1,151 @@
 # Promotional Hero Block
 
 ## Overview
-The `promotional-hero` block renders one or more campaign cards with:
-- an image,
-- short supporting copy,
-- one CTA per card.
 
-The block is metadata-driven and now uses a canonical section-metadata API with `promotionalhero-*` keys.
+The `promotional-hero` block renders a responsive campaign card grid with image-first cards, optional description copy, and one CTA per card.
+
+It uses section metadata for layout, panel treatment, CTA styling, color channels, and motion behavior.
 
 ## DA.live Integration and Authoring Structure
 
-### Authoring Table
-Use a 3-column `promotional-hero` table.
+Author using a **3-column** `promotional-hero` table.
 
-| Column | Purpose | Required | Notes |
-|---|---|---|---|
-| 1 | Image | Yes | Image, image URL, or linked image source. |
-| 2 | Description | No | Paragraphs or line-based text. |
-| 3 | CTA | No | Link or `Label|URL` format. |
+### Authoring Table Model
 
-### Metadata Placement
-Place section metadata immediately above the block.
+| Column | Purpose | Required |
+|---|---|---|
+| Col 1 | Image/media source | Yes |
+| Col 2 | Description copy | No |
+| Col 3 | CTA | No |
 
-### DA.live Model Options
-| Field | Value |
-|---|---|
-| Block model fields | Not used for config. Runtime behavior is driven by section metadata. |
+### Authoring Notes
 
-### Metadata Naming Contract
-Use canonical block-scoped keys only:
-- `promotionalhero-*`
-- no generic `data-*` keys
-- no `colour` aliases
+- Col 1 accepts image, image link, or image URL.
+- Col 2 supports paragraph/line-based copy.
+- Col 3 supports authored links and `Label|URL` fallback syntax.
 
 ## Configuration Options
 
-### Metadata Precedence
-Metadata is resolved in deterministic tiers:
+### DA.live Model Options
 
-1. Layout tier: structure, sizing, placement, density, and block width.
-2. Structure tier: CTA sizing strategy.
-3. Style tier: shape, border, shadow, typography style controls.
-4. Color tier: border/fill/text/surface color channels.
-5. Motion tier: hover motion, hover color behavior, image/card motion overlays.
-
-Lower tiers can refine visual behavior but do not override core layout semantics.
-
-### Override Rules
-| Condition | Winner | Ignored/No-op | User-visible effect |
-|---|---|---|---|
-| `promotionalhero-btnstyle=link` with `promotionalhero-btncorner` | `btnstyle` | `btncorner` | Corner radius controls are ignored for link-style CTA and a warning is logged. |
-| `promotionalhero-btnstyle=link` with `promotionalhero-btnborder` | `btnstyle` | `btnborder` | Border width control has no effect in link-style CTA and a warning is logged. |
-| `promotionalhero-btnstyle=link` with `promotionalhero-btncolor` | `btnstyle` | `btncolor` | Border color control has no effect in link-style CTA and a warning is logged. |
-| `promotionalhero-btnstyle=link` with `promotionalhero-btnfill` | `btnstyle` | `btnfill` | Fill/surface color control has no effect in link-style CTA and a warning is logged. |
-| `promotionalhero-imageratio=landscape` without explicit `promotionalhero-btnwidth` | Layout tier | implicit button width behavior | CTA width resolves to `medium` for better landscape fit. |
+| Option | Value |
+|---|---|
+| Block columns | `3` |
+| Card source | One row per promotional card |
+| Runtime config source | Section metadata only |
 
 ### Section Metadata Reference
 
+Place section metadata immediately above the block.
+
 #### Layout
+
 | Key | Possible Values | Effect |
 |---|---|---|
-| `promotionalhero-align` | `left`, `center`, `right` | Default: `center`. Controls horizontal alignment of the card grid inside the section container. |
-| `promotionalhero-columns` | `auto`, `1`, `2`, `3` | Default: `2`. Sets explicit desktop card columns, or auto-fit behavior when `auto` is used. |
-| `promotionalhero-cardwidth` | `small`, `medium`, `large` | Default: `medium`. Controls card base width and therefore visual density per row. |
-| `promotionalhero-cardheight` | `auto`, `short`, `medium`, `tall` | Default: `auto`. Controls minimum vertical card scale and whitebox offset rhythm. |
-| `promotionalhero-imageratio` | `portrait`, `square`, `landscape` | Default: `portrait`. Defines image aspect ratio and overall visual proportion of each card. |
-| `promotionalhero-imagefit` | `cover`, `contain` | Default: `cover`. Defines crop behavior of card imagery. |
-| `promotionalhero-gap` | `small`, `medium`, `large` | Default: `medium`. Sets spacing between cards. |
-| `promotionalhero-density` | `compact`, `comfortable`, `spacious` | Default: `comfortable`. Scales internal spacing/padding of the block for tighter or looser layouts. |
-| `promotionalhero-width` | `default`, `full-width` | Default: `default`. `full-width` removes block corner radius and enables edge-to-edge band treatment. |
-| `promotionalhero-gridmaxwidth` | `none`, `1200`, `1400`, `1600`, `1800` | Default: `none`. Caps overall card grid width on very wide screens. |
-| `promotionalhero-mobilelayout` | `stack`, `carousel`, `snap-scroll` | Default: `stack`. Controls small-screen card flow pattern. |
+| `promohero-align` | `left`, `center`, `right` | Default: `center`. Controls horizontal alignment of the card grid. |
+| `promohero-columns` | `auto`, `1`, `2`, `3`, `4` | Default: `2`. Controls desktop card columns in linear layout. |
+| `promohero-layout` | `linear`, `honeycomb`, `on`, `off` | Default: `linear`. `on` maps to `honeycomb`, `off` maps to `linear`. |
+| `promohero-cardwidth` | `small`, `medium`, `large` | Default: `medium`. Controls base card width profile. |
+| `promohero-cardheight` | `auto`, `short`, `medium`, `tall` | Default: `auto`. Controls minimum card height profile. |
+| `promohero-imageratio` | `portrait`, `square`, `landscape` | Default: `portrait`. Controls card media aspect ratio. |
+| `promohero-imagefit` | `cover`, `contain` | Default: `cover`. Controls media crop behavior. |
+| `promohero-gap` | `small`, `medium`, `large` | Default: `medium`. Controls spacing between cards. |
+| `promohero-density` | `compact`, `comfortable`, `spacious` | Default: `comfortable`. Scales internal spacing rhythm. |
+| `promohero-width` | `default`, `full-width` | Default: `default`. `full-width` enables edge-to-edge block treatment. |
+| `promohero-gridmaxwidth` | `none`, `1200`, `1400`, `1600`, `1800` | Default: `none`. Caps maximum grid width on large screens. |
+| `promohero-mobilelayout` | `stack`, `carousel`, `snap-scroll` | Default: `stack`. Controls mobile card flow behavior. |
 
 #### Content Panel
-| Key | Possible Values | Effect |
-|---|---|---|
-| `promotionalhero-contentstyle` | `floating`, `flush`, `inset` | Default: `floating`. Controls whitebox placement relative to the image edge. |
-| `promotionalhero-contentalign` | `left`, `center`, `right` | Default: `center`. Sets text alignment inside the whitebox content area. |
-| `promotionalhero-panelwidth` | `compact`, `standard`, `wide` | Default: `standard`. Controls whitebox width profile and copy measure. |
-| `promotionalhero-paneloffset` | `none`, `small`, `medium`, `large`, `xlarge` | Default: `medium`. Sets vertical overlap distance for floating panel effect. |
-| `promotionalhero-contentborderstyle` | `none`, `subtle`, `strong`, `brand` | Default: `none`. Applies panel border treatment intensity. |
-| `promotionalhero-contentshadow` | `none`, `soft`, `medium`, `strong` | Default: `soft`. Controls whitebox elevation/shadow depth. |
-| `promotionalhero-contentradius` | `sharp`, `soft`, `default`, `rounded-lg`, `pill` | Default: `default`. Controls whitebox corner geometry. |
-| `promotionalhero-contentbg` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `white`. Panel background color channel. |
-| `promotionalhero-contenttext` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `dark`. Panel text color channel. |
-| `promotionalhero-contentbordercolor` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: empty. Explicit panel border color channel when border style is enabled. |
 
-#### Card Frame and Media
 | Key | Possible Values | Effect |
 |---|---|---|
-| `promotionalhero-cardradius` | `sharp`, `soft`, `default`, `rounded-lg` | Default: `default`. Card corner shape for image/card shell. |
-| `promotionalhero-cardborderstyle` | `none`, `subtle`, `strong`, `brand` | Default: `none`. Card frame border style preset. |
-| `promotionalhero-cardborderwidth` | `0`, `1`, `2`, `3`, `4`, `6` | Default: `0`. Card frame border thickness. |
-| `promotionalhero-cardbordercolor` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: empty. Explicit card border color channel. |
-| `promotionalhero-imageshadow` | `none`, `soft`, `strong` | Default: `soft`. Image elevation depth level. |
-| `promotionalhero-imageposition` | `left`, `center`, `right`, `top`, `bottom` | Default: `center`. Sets object-position to preserve subject focus. |
-| `promotionalhero-imageoverlay` | `none`, `light`, `medium`, `strong`, `brand-tint` | Default: `none`. Overlay intensity style for image readability and brand mood. |
-| `promotionalhero-imageoverlaycolor` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `dark`. Overlay color channel used by image overlay style. |
+| `promohero-contentstyle` | `floating`, `flush`, `inset` | Default: `floating`. Controls panel placement relative to media. |
+| `promohero-contentalign` | `left`, `center`, `right` | Default: `center`. Controls text alignment within panel. |
+| `promohero-panelwidth` | `compact`, `standard`, `wide` | Default: `standard`. Controls panel width envelope. |
+| `promohero-paneloffset` | `none`, `small`, `medium`, `large`, `xlarge` | Default: `medium`. Controls floating panel vertical offset. |
+| `promohero-contentborderstyle` | `none`, `outline`, `solid`, `elevated`, `glass`, `soft`, `soft-glow`, `neo`, `ribbon`, `stamp`, `link`, `inset`, `underline`, `quiet`, `strong`, `halo`, `bevel`, `tab`, `rail`, `outline-double`, `compact`, `corner-pins`, `ticket`, `capsule-cut`, `brace`, `double-notch`, `frame-gap`, `split-edge`, `fold`, `badge`, `pixel-step` | Default: `none`. Controls panel border structure/chrome only, using the same style vocabulary as CTA buttons. |
+| `promohero-contentshadow` | `none`, `soft`, `medium`, `strong` | Default: `soft`. Controls panel elevation depth. |
+| `promohero-contentradius` | `sharp`, `soft`, `default`, `rounded-lg`, `pill` | Default: `default`. Controls panel corner geometry. |
+| `promohero-contentbg` | token values (`transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`) or color literals (`#hex`, `rgb(...)`, `rgba(...)`) | Default: `white`. Controls panel background color only. |
+| `promohero-contenttext` | token values (`transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`) or color literals | Default: `dark`. Controls panel text color only. |
+| `promohero-contentbordercolor` | token values or color literals | Default: unset. Explicit panel border color override. |
 
-#### CTA Style and Typography
-| Key | Possible Values | Effect |
-|---|---|---|
-| `promotionalhero-btnstyle` | `default`, `pill`, `sharp`, `soft`, `rounded-lg`, `outline`, `ghost`, `elevated`, `minimal`, `glass`, `gradient`, `link` | Default: `pill`. Primary CTA shell style preset. |
-| `promotionalhero-btncorner` | `sharp`, `default`, `soft`, `rounded-lg`, `pill` | Default: unset. Explicit corner override for CTA shell; omitted means style-native corners. |
-| `promotionalhero-btnwidth` | `auto`, `narrow`, `medium`, `wide`, `fluid` | Default: `auto`. CTA width strategy. |
-| `promotionalhero-btncase` | `none`, `uppercase`, `capitalize` | Default: `none`. CTA text casing transform. |
-| `promotionalhero-btnborder` | `1`, `2`, `3`, `4` | Default: `3`. CTA border thickness. |
-| `promotionalhero-btnshadow` | `none`, `soft`, `medium`, `strong` | Default: `none`. CTA shadow elevation level. |
-| `promotionalhero-btnsize` | `sm`, `md`, `lg` | Default: `md`. CTA text size preset. |
-| `promotionalhero-btnweight` | `400`, `500`, `600`, `700` | Default: `600`. CTA text weight preset. |
+#### Card and Image
 
-#### CTA Color and Hover Channels
 | Key | Possible Values | Effect |
 |---|---|---|
-| `promotionalhero-btncolor` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `brand`. CTA border color channel only. |
-| `promotionalhero-btnfill` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `brand`. CTA fill/background color channel only. |
-| `promotionalhero-btntext` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `white`. CTA text color channel only. |
-| `promotionalhero-btnhovercolor` | `style`, `none`, `inverse`, `darken` | Default: `style`. Controls hover color behavior independently from motion. |
-| `promotionalhero-btnhovermotion` | `none`, `lift`, `press`, `pop`, `nudge`, `tilt` | Default: `lift`. Controls hover motion independently from color behavior. |
+| `promohero-cardradius` | `sharp`, `soft`, `default`, `rounded-lg` | Default: `default`. Controls card shell corner shape. |
+| `promohero-cardborderstyle` | `none`, `subtle`, `strong`, `brand` | Default: `none`. Controls card border style preset. |
+| `promohero-cardborderwidth` | `0`, `1`, `2`, `3`, `4`, `6` | Default: `0`. Controls card border width in px. |
+| `promohero-cardbordercolor` | token values or color literals | Default: unset. Explicit card border color override. |
+| `promohero-imageshadow` | `none`, `soft`, `strong` | Default: `soft`. Controls card media elevation. |
+| `promohero-imageposition` | `left`, `center`, `right`, `top`, `bottom` | Default: `center`. Controls media object-position. |
+| `promohero-imageoverlay` | `none`, `light`, `medium`, `strong`, `brand-tint` | Default: `none`. Controls image overlay intensity/style. |
+| `promohero-imageoverlaycolor` | token values or color literals | Default: `dark`. Controls overlay color channel. |
+| `promohero-bgcolor` | token values or color literals | Default: `transparent`. Controls block background surface. |
 
-#### Description and Background
+#### CTA and Description
+
 | Key | Possible Values | Effect |
 |---|---|---|
-| `promotionalhero-descmaxlines` | `2`, `3`, `4`, `5`, `none` | Default: `none`. Optional line clamp for description consistency across cards. |
-| `promotionalhero-descstyle` | `body`, `headline`, `eyebrow`, `muted` | Default: `body`. Description typography preset. |
-| `promotionalhero-bgcolor` | `transparent`, `light`, `neutral`, `dark`, `brand`, `accent`, `white`, `black`, `#RGB`, `#RRGGBB`, `rgb(...)`, `rgba(...)` | Default: `transparent`. Block background surface color. |
-| `promotionalhero-hovereffect` | `none`, `subtle`, `lift` | Default: `subtle`. Card/image hover behavior intensity. |
+| `promohero-btnstyle` | `outline`, `solid`, `elevated`, `glass`, `soft`, `soft-glow`, `neo`, `ribbon`, `stamp`, `link`, `inset`, `underline`, `quiet`, `strong`, `halo`, `bevel`, `tab`, `rail`, `outline-double`, `compact`, `corner-pins`, `ticket`, `capsule-cut`, `brace`, `double-notch`, `frame-gap`, `split-edge`, `fold`, `badge`, `pixel-step` | Default: `outline`. Controls CTA structure/chrome only. |
+| `promohero-btncorner` | `sharp`, `default`, `soft`, `rounded-lg`, `pill` | Default: unset. Optional explicit corner override. |
+| `promohero-btnwidth` | `auto`, `narrow`, `medium`, `wide`, `fluid` | Default: `medium`. Controls CTA width behavior. |
+| `promohero-btncase` | `none`, `uppercase`, `capitalize` | Default: `none`. Controls CTA text transform. |
+| `promohero-btnborder` | `1`, `2`, `3`, `4` | Default: `3`. Controls CTA border width in px. |
+| `promohero-btnshadow` | `none`, `soft`, `medium`, `strong` | Default: `none`. Controls CTA shadow depth. |
+| `promohero-btnsize` | `sm`, `md`, `lg` | Default: `md`. Controls CTA font size preset. |
+| `promohero-btnweight` | `400`, `500`, `600`, `700` | Default: `600`. Controls CTA font weight. |
+| `promohero-btncolor` | token values or color literals | Default: `white`. Controls CTA border color only. |
+| `promohero-btnfill` | token values or color literals | Default: `transparent`. Controls CTA fill color only. |
+| `promohero-btntext` | token values or color literals | Default: `white`. Controls CTA text color only. |
+| `promohero-btnhovermotion` | `none`, `lift`, `press`, `pop`, `nudge`, `tilt` | Default: `lift`. Motion-only hover behavior. |
+| `promohero-btnhovercolor` | `style`, `none`, `inverse`, `darken` | Default: `none`. Hover color behavior layer. |
+| `promohero-descmaxlines` | `2`, `3`, `4`, `5`, `none` | Default: `none`. Optional description line clamp. |
+| `promohero-descstyle` | `body`, `headline`, `eyebrow`, `muted` | Default: `body`. Description text style preset. |
 
 ## Behavior Patterns
-- First card image is eager-loaded; subsequent images are lazy-loaded.
-- CTA links are sanitized before assignment.
-- Unsafe links are converted to disabled placeholders and logged.
-- Runtime always uses normalized metadata values (`block.dataset.*`) after resolution.
+
+### Metadata Precedence
+
+The block resolves configuration in this order:
+1. Layout tier (`align`, `columns`, `layout`, card/media geometry, spacing, width)
+2. Content/structure tier (`button width` and card row structure)
+3. Style/shape tier (`button style`, corners, border widths, shadows, panel/card shell style)
+4. Color/explicit overrides tier (panel/card/button/overlay/background color channels)
+5. Media/motion tier (`hover effect`, `button hover motion`, `button hover color`, image overlay behavior)
+
+### Override Rules
+
+| Condition | Winner | Ignored/No-op | User-visible effect |
+|---|---|---|---|
+| `promohero-btnstyle=link` with `promohero-btncorner` | `btnstyle` | `btncorner` | Link CTA ignores corner radius and logs warning. |
+| `promohero-btnstyle=link` with `promohero-btnborder` | `btnstyle` | `btnborder` | Link CTA ignores border width and logs warning. |
+| `promohero-btnstyle=link` with `promohero-btncolor` | `btnstyle` | `btncolor` | Link CTA ignores border color and logs warning. |
+| `promohero-btnstyle=link` with `promohero-btnfill` | `btnstyle` | `btnfill` | Link CTA ignores fill color and logs warning. |
+| `promohero-imageratio=landscape` with no explicit `promohero-btnwidth` | layout/structure rule | implicit width assumption | CTA width resolves to `medium` for stable card geometry. |
+| `promohero-layout=honeycomb` with explicit `promohero-columns` | layout pattern | explicit columns | Honeycomb pattern manages placement and ignores manual column count. |
+
+### Conflict/No-op Notes
+
+- Invalid metadata values normalize to safe defaults with block-prefixed warnings.
+- CTA color channels are independent from `promohero-btnstyle` except `link` no-op rules above.
+- Only safe URLs are rendered as clickable links; invalid URLs are disabled.
 
 ## Accessibility Notes
-- CTA remains semantic `<a>` navigation.
-- Keyboard focus-visible styles are present.
-- Unsafe links are marked `aria-disabled` and removed from tab order.
-- `_blank` links always include `rel="noopener noreferrer"`.
+
+- CTA actions are semantic links.
+- Invalid/unsafe links are marked `aria-disabled` and removed from tab order.
+- Focus-visible states are present for keyboard navigation.
+- `_blank` links always enforce `rel="noopener noreferrer"`.
 - Reduced-motion users get transform-free hover behavior.
 
 ## Troubleshooting
+
 | Symptom | Likely Cause | Resolution |
 |---|---|---|
-| Metadata appears ignored | Non-canonical key names used | Use canonical `promotionalhero-*` keys only. |
-| Link CTA is disabled | URL failed sanitization | Use `https`, `http`, `mailto`, `tel`, `/relative`, `./relative`, `../relative`, `#anchor`, or `?query`. |
-| Button corner/border/fill does not apply | `promotionalhero-btnstyle=link` | Use a non-link button style for shell-based controls. |
-| Hover motion too strong | Motion channel enabled | Set `promotionalhero-btnhovermotion=none`. |
-| Hover colors unexpected | Hover color channel set to `style` | Use `promotionalhero-btnhovercolor=none` (or `inverse` / `darken`) for explicit behavior. |
-| Full-width not visible | Width not set or section constraints dominate | Set `promotionalhero-width=full-width` and verify section/container constraints. |
+| CTA style value does not apply | Unsupported `promohero-btnstyle` value | Use one of the documented canonical style values. |
+| CTA corner/border/fill appears ignored | `promohero-btnstyle=link` | Switch to a shell style (for example `outline`, `elevated`, `soft`). |
+| Card layout not respecting explicit columns | `promohero-layout=honeycomb` | Use `promohero-layout=linear` for manual column control. |
+| CTA link renders disabled | URL failed sanitization | Use `https`, `http`, `mailto`, `tel`, `/relative`, `./relative`, `../relative`, `#anchor`, or `?query`. |
+| Full-width not visually edge-to-edge | Section/container constraints | Keep `promohero-width=full-width` and verify parent section/container layout constraints. |

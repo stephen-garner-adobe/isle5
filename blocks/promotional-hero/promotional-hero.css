@@ -413,19 +413,306 @@
   --promotional-hero-content-border-width: 0;
 }
 
-.promotional-hero[data-content-border-style='subtle'] {
-  --promotional-hero-content-border-color: color-mix(in srgb, var(--promotional-hero-content-color) 18%, transparent);
+.promotional-hero[data-content-border-style='outline'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-style: solid;
+  box-shadow: var(--promotional-hero-content-shadow);
+  clip-path: none;
+}
+
+.promotional-hero[data-content-border-style='solid'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  border-style: solid;
+}
+
+.promotional-hero[data-content-border-style='elevated'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 10px;
+  box-shadow:
+    0 16px 30px rgb(0 0 0 / 24%),
+    0 4px 10px rgb(0 0 0 / 16%);
+}
+
+.promotional-hero[data-content-border-style='glass'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 1px;
+
+  backdrop-filter: blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 22%),
+    0 0 0 1px rgb(255 255 255 / 12%);
+}
+
+.promotional-hero[data-content-border-style='soft'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 14px;
+  box-shadow:
+    0 8px 16px rgb(0 0 0 / 14%),
+    inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
+.promotional-hero[data-content-border-style='soft-glow'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 24%),
+    0 0 24px rgb(255 255 255 / 20%);
+}
+
+.promotional-hero[data-content-border-style='neo'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 1px;
+
+  border-radius: 14px;
+  box-shadow:
+    8px 8px 16px rgb(0 0 0 / 18%),
+    -6px -6px 14px rgb(255 255 255 / 8%);
+}
+
+.promotional-hero[data-content-border-style='ribbon'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 10px 50%);
+}
+
+.promotional-hero[data-content-border-style='stamp'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 3px;
+
+  border-radius: 4px;
+  border-style: double;
+}
+
+.promotional-hero[data-content-border-style='link'] .promotional-hero-whitebox,
+.promotional-hero[data-content-border-style='underline'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  border-width: 0 0 var(--promotional-hero-content-border-width);
+  box-shadow: none;
+}
+
+.promotional-hero[data-content-border-style='inset'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-style: double;
+  box-shadow:
+    inset 0 2px 8px rgb(0 0 0 / 22%),
+    inset 0 -1px 0 rgb(255 255 255 / 24%);
+}
+
+.promotional-hero[data-content-border-style='quiet'] .promotional-hero-whitebox {
   --promotional-hero-content-border-width: 1px;
 }
 
-.promotional-hero[data-content-border-style='strong'] {
-  --promotional-hero-content-border-color: color-mix(in srgb, var(--promotional-hero-content-color) 55%, transparent);
-  --promotional-hero-content-border-width: 2px;
+.promotional-hero[data-content-border-style='strong'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 4px;
 }
 
-.promotional-hero[data-content-border-style='brand'] {
-  --promotional-hero-content-border-color: var(--color-brand-500);
+.promotional-hero[data-content-border-style='halo'] .promotional-hero-whitebox {
   --promotional-hero-content-border-width: 2px;
+
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 20%),
+    0 10px 20px rgb(0 0 0 / 16%);
+}
+
+.promotional-hero[data-content-border-style='bevel'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.promotional-hero[data-content-border-style='tab'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 14px 14px 0 0;
+}
+
+.promotional-hero[data-content-border-style='rail'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-left-width: calc(var(--promotional-hero-content-border-width) + 2px);
+  border-right-width: calc(var(--promotional-hero-content-border-width) + 2px);
+}
+
+.promotional-hero[data-content-border-style='outline-double'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 3px;
+
+  border-style: double;
+}
+
+.promotional-hero[data-content-border-style='compact'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 1px;
+
+  padding: calc(var(--promotional-hero-content-padding-y) * 0.82) calc(var(--promotional-hero-content-padding-x) * 0.82);
+}
+
+.promotional-hero[data-content-border-style='corner-pins'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-color: transparent;
+  border-radius: 10px;
+  background:
+    linear-gradient(var(--promotional-hero-content-bg), var(--promotional-hero-content-bg)) padding-box,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) left top /
+      18px var(--promotional-hero-content-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) left top /
+      var(--promotional-hero-content-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) right top /
+      18px var(--promotional-hero-content-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) right top /
+      var(--promotional-hero-content-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) left bottom /
+      18px var(--promotional-hero-content-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) left bottom /
+      var(--promotional-hero-content-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) right bottom /
+      18px var(--promotional-hero-content-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-content-border-color), var(--promotional-hero-content-border-color)) right bottom /
+      var(--promotional-hero-content-border-width) 18px no-repeat;
+}
+
+.promotional-hero[data-content-border-style='ticket'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 12px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 38%,
+    calc(100% - 10px) 50%,
+    100% 62%,
+    100% 100%,
+    0 100%,
+    0 62%,
+    10px 50%,
+    0 38%
+  );
+}
+
+.promotional-hero[data-content-border-style='capsule-cut'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 999px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+}
+
+.promotional-hero[data-content-border-style='brace'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-color: transparent;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.promotional-hero[data-content-border-style='brace'] .promotional-hero-whitebox::before {
+  border-left: calc(var(--promotional-hero-content-border-width) + 1px) solid var(--promotional-hero-content-border-color);
+  border-right: calc(var(--promotional-hero-content-border-width) + 1px) solid var(--promotional-hero-content-border-color);
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 8px;
+  content: '';
+  inset: 4px 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.promotional-hero[data-content-border-style='double-notch'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  clip-path: polygon(
+    0 0,
+    calc(50% - 10px) 0,
+    50% 9px,
+    calc(50% + 10px) 0,
+    100% 0,
+    100% 100%,
+    calc(50% + 10px) 100%,
+    50% calc(100% - 9px),
+    calc(50% - 10px) 100%,
+    0 100%
+  );
+}
+
+.promotional-hero[data-content-border-style='frame-gap'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-style: solid;
+  border-radius: 10px;
+  outline: 1px solid var(--promotional-hero-content-border-color);
+  outline-offset: -6px;
+}
+
+.promotional-hero[data-content-border-style='frame-gap'] .promotional-hero-whitebox::after {
+  background: var(--promotional-hero-content-bg);
+  border-radius: 999px;
+  content: '';
+  height: calc(var(--promotional-hero-content-border-width) + 2px);
+  position: absolute;
+  right: 16px;
+  top: calc(var(--promotional-hero-content-border-width) * -1);
+  width: 28px;
+}
+
+.promotional-hero[data-content-border-style='split-edge'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-left-style: solid;
+  border-left-width: calc(var(--promotional-hero-content-border-width) + 2px);
+  border-right-style: dashed;
+  border-right-width: calc(var(--promotional-hero-content-border-width) + 2px);
+  border-radius: 10px;
+}
+
+.promotional-hero[data-content-border-style='fold'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 10px;
+}
+
+.promotional-hero[data-content-border-style='fold'] .promotional-hero-whitebox::after {
+  background: color-mix(in srgb, var(--promotional-hero-content-border-color) 55%, transparent);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  content: '';
+  height: 12px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 12px;
+}
+
+.promotional-hero[data-content-border-style='badge'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 5% 50%);
+}
+
+.promotional-hero[data-content-border-style='pixel-step'] .promotional-hero-whitebox {
+  --promotional-hero-content-border-width: 2px;
+
+  border-radius: 0;
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
 }
 
 .promotional-hero[data-content-shadow='none'] {
@@ -625,17 +912,13 @@
 }
 
 .promotional-hero[data-button-style='outline'] .promotional-hero-button {
-  background-color: transparent;
-  border-color: var(--promotional-hero-button-border);
-  color: var(--promotional-hero-button-border);
+  backdrop-filter: none;
+  border-style: solid;
+  box-shadow: none;
 }
 
 .promotional-hero[data-button-style='solid'] .promotional-hero-button {
   border-radius: 0;
-}
-
-.promotional-hero[data-button-style='ghost'] .promotional-hero-button {
-  border-style: dashed;
 }
 
 .promotional-hero[data-button-style='elevated'] .promotional-hero-button {
@@ -656,22 +939,52 @@
 .promotional-hero[data-button-style='soft'] .promotional-hero-button {
   border-radius: 14px;
   border-width: 2px;
+  box-shadow:
+    0 8px 16px rgb(0 0 0 / 18%),
+    inset 0 1px 0 rgb(255 255 255 / 20%);
 }
 
-.promotional-hero[data-button-style='pill'] .promotional-hero-button {
-  border-radius: 999px;
-  padding: 0 calc(28px * var(--promotional-hero-layout-scale));
+.promotional-hero[data-button-style='soft-glow'] .promotional-hero-button {
+  border-radius: 16px;
+  border-width: 2px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 24%),
+    0 0 24px rgb(255 255 255 / 22%);
+}
+
+.promotional-hero[data-button-style='neo'] .promotional-hero-button {
+  border-radius: 14px;
+  border-width: 1px;
+  box-shadow:
+    8px 8px 16px rgb(0 0 0 / 28%),
+    -6px -6px 14px rgb(255 255 255 / 10%);
+}
+
+.promotional-hero[data-button-style='ribbon'] .promotional-hero-button {
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 10px 50%);
+}
+
+.promotional-hero[data-button-style='stamp'] .promotional-hero-button {
+  border-radius: 4px;
+  border-style: double;
+  border-width: calc(var(--promotional-hero-button-border-width) + 1px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-1deg);
 }
 
 .promotional-hero[data-button-style='link'] .promotional-hero-button {
-  background-color: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  display: inline-flex;
   height: auto;
+  min-height: 44px;
   min-width: auto;
   padding: 0;
   text-decoration: underline;
+  width: auto;
 }
 
 .promotional-hero[data-button-style='inset'] .promotional-hero-button {
@@ -722,6 +1035,152 @@
 .promotional-hero[data-button-style='compact'] .promotional-hero-button {
   letter-spacing: 0.02em;
   padding-inline: 20px;
+}
+
+.promotional-hero[data-button-style='corner-pins'] .promotional-hero-button {
+  border-color: transparent;
+  border-radius: 10px;
+  background:
+    linear-gradient(var(--promotional-hero-button-bg), var(--promotional-hero-button-bg)) padding-box,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) left top /
+      18px var(--promotional-hero-button-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) left top /
+      var(--promotional-hero-button-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) right top /
+      18px var(--promotional-hero-button-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) right top /
+      var(--promotional-hero-button-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) left bottom /
+      18px var(--promotional-hero-button-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) left bottom /
+      var(--promotional-hero-button-border-width) 18px no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) right bottom /
+      18px var(--promotional-hero-button-border-width) no-repeat,
+    linear-gradient(var(--promotional-hero-button-border), var(--promotional-hero-button-border)) right bottom /
+      var(--promotional-hero-button-border-width) 18px no-repeat;
+}
+
+.promotional-hero[data-button-style='ticket'] .promotional-hero-button {
+  border-radius: 12px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 38%,
+    calc(100% - 10px) 50%,
+    100% 62%,
+    100% 100%,
+    0 100%,
+    0 62%,
+    10px 50%,
+    0 38%
+  );
+}
+
+.promotional-hero[data-button-style='capsule-cut'] .promotional-hero-button {
+  border-radius: 999px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+}
+
+.promotional-hero[data-button-style='brace'] .promotional-hero-button {
+  border-color: transparent;
+  border-radius: 10px;
+  box-shadow: none;
+  position: relative;
+}
+
+.promotional-hero[data-button-style='brace'] .promotional-hero-button::before {
+  border-left: calc(var(--promotional-hero-button-border-width) + 1px) solid var(--promotional-hero-button-border);
+  border-right: calc(var(--promotional-hero-button-border-width) + 1px) solid var(--promotional-hero-button-border);
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 8px;
+  content: '';
+  inset: 4px 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.promotional-hero[data-button-style='double-notch'] .promotional-hero-button {
+  border-radius: 0;
+  clip-path: polygon(
+    0 0,
+    calc(50% - 10px) 0,
+    50% 9px,
+    calc(50% + 10px) 0,
+    100% 0,
+    100% 100%,
+    calc(50% + 10px) 100%,
+    50% calc(100% - 9px),
+    calc(50% - 10px) 100%,
+    0 100%
+  );
+}
+
+.promotional-hero[data-button-style='frame-gap'] .promotional-hero-button {
+  border-style: solid;
+  border-width: var(--promotional-hero-button-border-width);
+  border-radius: 10px;
+  outline: 1px solid var(--promotional-hero-button-border);
+  outline-offset: -6px;
+  position: relative;
+}
+
+.promotional-hero[data-button-style='frame-gap'] .promotional-hero-button::after {
+  background: var(--promotional-hero-button-bg);
+  border-radius: 999px;
+  content: '';
+  height: calc(var(--promotional-hero-button-border-width) + 2px);
+  position: absolute;
+  right: 16px;
+  top: calc(var(--promotional-hero-button-border-width) * -1);
+  width: 28px;
+}
+
+.promotional-hero[data-button-style='split-edge'] .promotional-hero-button {
+  border-left-style: solid;
+  border-left-width: calc(var(--promotional-hero-button-border-width) + 2px);
+  border-right-style: dashed;
+  border-right-width: calc(var(--promotional-hero-button-border-width) + 2px);
+  border-radius: 10px;
+}
+
+.promotional-hero[data-button-style='fold'] .promotional-hero-button {
+  border-radius: 10px;
+  position: relative;
+}
+
+.promotional-hero[data-button-style='fold'] .promotional-hero-button::after {
+  background: color-mix(in srgb, var(--promotional-hero-button-border) 55%, transparent);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  content: '';
+  height: 12px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 12px;
+}
+
+.promotional-hero[data-button-style='badge'] .promotional-hero-button {
+  border-radius: 0;
+  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 5% 50%);
+}
+
+.promotional-hero[data-button-style='pixel-step'] .promotional-hero-button {
+  border-radius: 0;
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
 }
 
 /* Independent corner system (overrides legacy shape encoded in button-style) */
@@ -833,10 +1292,6 @@
   background-color: var(--promotional-hero-button-hover-bg);
   border-color: var(--promotional-hero-button-hover-border);
   color: var(--promotional-hero-button-hover-text);
-}
-
-.promotional-hero[data-button-hover-color='style'][data-button-style='ghost'] .promotional-hero-button:hover {
-  border-style: dashed;
 }
 
 .promotional-hero[data-button-hover-color='style'][data-button-style='elevated'] .promotional-hero-button:hover {

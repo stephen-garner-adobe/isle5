@@ -392,6 +392,7 @@ export default function decorate(block) {
   const sectionData = section?.dataset || {};
   const hasButtonWidthOverride = hasPromotionalConfig(block, sectionData, 'Btnwidth');
   const hasExplicitConfig = {
+    contentBorderColor: hasPromotionalConfig(block, sectionData, 'Contentbordercolor'),
     buttonCorner: hasPromotionalConfig(block, sectionData, 'Btncorner'),
     buttonBorderWidth: hasPromotionalConfig(block, sectionData, 'Btnborder'),
     buttonBorderColor: hasPromotionalConfig(block, sectionData, 'Btncolor'),
@@ -476,7 +477,43 @@ export default function decorate(block) {
   };
 
   const styleConfig = {
-    contentBorderStyle: normalizeToken(raw.contentBorderStyle, ['none', 'subtle', 'strong', 'brand'], DEFAULTS.contentBorderStyle),
+    contentBorderStyle: normalizeToken(
+      raw.contentBorderStyle,
+      [
+        'none',
+        'outline',
+        'solid',
+        'elevated',
+        'glass',
+        'soft',
+        'soft-glow',
+        'neo',
+        'ribbon',
+        'stamp',
+        'link',
+        'inset',
+        'underline',
+        'quiet',
+        'strong',
+        'halo',
+        'bevel',
+        'tab',
+        'rail',
+        'outline-double',
+        'compact',
+        'corner-pins',
+        'ticket',
+        'capsule-cut',
+        'brace',
+        'double-notch',
+        'frame-gap',
+        'split-edge',
+        'fold',
+        'badge',
+        'pixel-step',
+      ],
+      DEFAULTS.contentBorderStyle,
+    ),
     contentShadow: normalizeToken(raw.contentShadow, ['none', 'soft', 'medium', 'strong'], DEFAULTS.contentShadow),
     contentRadius: normalizeToken(raw.contentRadius, ['sharp', 'soft', 'default', 'rounded-lg', 'pill'], DEFAULTS.contentRadius),
     cardBorderStyle: normalizeToken(raw.cardBorderStyle, ['none', 'subtle', 'strong', 'brand'], DEFAULTS.cardBorderStyle),
@@ -490,11 +527,13 @@ export default function decorate(block) {
       [
         'outline',
         'solid',
-        'ghost',
         'elevated',
         'glass',
         'soft',
-        'pill',
+        'soft-glow',
+        'neo',
+        'ribbon',
+        'stamp',
         'link',
         'inset',
         'underline',
@@ -506,6 +545,16 @@ export default function decorate(block) {
         'rail',
         'outline-double',
         'compact',
+        'corner-pins',
+        'ticket',
+        'capsule-cut',
+        'brace',
+        'double-notch',
+        'frame-gap',
+        'split-edge',
+        'fold',
+        'badge',
+        'pixel-step',
       ],
       DEFAULTS.buttonStyle,
     ),
@@ -547,6 +596,14 @@ export default function decorate(block) {
   ) {
     colorConfig.buttonBorderColor = 'dark';
     colorConfig.buttonTextColor = 'dark';
+  }
+
+  if (
+    styleConfig.contentBorderStyle !== 'none'
+    && !hasExplicitConfig.contentBorderColor
+    && !colorConfig.contentBorderColor
+  ) {
+    colorConfig.contentBorderColor = panelIsLight ? 'dark' : 'white';
   }
 
   const motionConfig = {
