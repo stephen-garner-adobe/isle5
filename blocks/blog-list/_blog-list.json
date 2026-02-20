@@ -1,0 +1,22 @@
+{
+  "definitions": [
+    {
+      "title": "Blog List",
+      "id": "blog-list",
+      "plugins": {
+        "da": {
+          "name": "blog-list",
+          "rows": 1,
+          "columns": 1
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "blog-list",
+      "fields": []
+    }
+  ],
+  "filters": []
+}

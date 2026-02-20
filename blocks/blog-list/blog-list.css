@@ -1,0 +1,126 @@
+.blog-list {
+  max-width: 100%;
+}
+
+.blog-list-wrap {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: min(100%, 1200px);
+  padding: 0 var(--spacing-small) var(--spacing-medium);
+  width: 100%;
+}
+
+.blog-list-intro {
+  margin-bottom: var(--spacing-medium);
+  max-width: 78ch;
+}
+
+.blog-list-intro-part + .blog-list-intro-part {
+  margin-top: var(--spacing-small);
+}
+
+.blog-list-grid {
+  display: grid;
+  gap: var(--spacing-big);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.blog-list-card {
+  background: var(--color-neutral-50);
+  border: var(--shape-border-width-1) solid var(--color-neutral-300);
+  border-radius: var(--shape-border-radius-2);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.blog-list-card-link {
+  color: inherit;
+  display: grid;
+  min-height: 100%;
+  text-decoration: none;
+}
+
+.blog-list-card-link:focus-visible {
+  outline: var(--shape-border-width-2) solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+.blog-list-card-media {
+  aspect-ratio: 16 / 9;
+  background: var(--color-neutral-200);
+}
+
+.blog-list-card-media picture,
+.blog-list-card-media img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.blog-list-card-body {
+  display: grid;
+  gap: var(--spacing-xsmall);
+  padding: var(--spacing-small);
+}
+
+.blog-list-card-date,
+.blog-list-card-title,
+.blog-list-card-description {
+  margin: 0;
+}
+
+.blog-list-card-date {
+  color: var(--color-neutral-700);
+  font: var(--type-details-caption-2-font);
+  letter-spacing: var(--type-details-caption-2-letter-spacing);
+  text-transform: uppercase;
+}
+
+.blog-list-card-title {
+  color: var(--color-neutral-900);
+  font: var(--type-headline-1-font);
+  letter-spacing: var(--type-headline-1-letter-spacing);
+}
+
+.blog-list-card-link:hover .blog-list-card-title {
+  text-decoration: underline;
+}
+
+.blog-list-card-description {
+  color: var(--color-neutral-700);
+  font: var(--type-body-2-default-font);
+  letter-spacing: var(--type-body-2-default-letter-spacing);
+}
+
+.blog-list-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-large);
+}
+
+.blog-list-loadmore.button {
+  margin: 0;
+  min-height: 44px;
+}
+
+.blog-list-empty {
+  color: var(--color-neutral-700);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .blog-list-wrap {
+    padding-inline: var(--spacing-xsmall);
+  }
+
+  .blog-list-grid {
+    gap: var(--spacing-medium);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-list-card-link {
+    transition: none;
+  }
+}
