@@ -14,6 +14,8 @@ Use official Adobe Commerce Storefront documentation as source of truth:
 
 ## Required Block Structure
 
+Block JS and CSS are loaded by the EDS pipeline from `blocks/<blockName>/<blockName>.js` and `blocks/<blockName>/<blockName>.css` (see `loadBlock` in `scripts/aem.js`). Auto-blocks (e.g. fragments) are built in `buildAutoBlocks` in `scripts/scripts.js`.
+
 Every new block must include:
 - `block-name.js` -- block logic with a single default export `decorate(block)`.
 - `block-name.css` -- block styles.
@@ -44,6 +46,7 @@ critical for performance.
 
 - Third-party scripts: analytics, consent management, chat widgets, tag managers.
 - Must start **at least 3 seconds after LCP** to avoid impacting the user experience.
+- This project loads delayed scripts via `scripts/scripts.js` with a 3s delay (`setTimeout(..., 3000)`). Do not reduce this delay without a documented reason.
 - Handled in `delayed.js`; move scripts here if they cause TBT issues.
 - Ideally, remove blocking time from scripts entirely and promote them to lazy.
 
@@ -115,6 +118,8 @@ Required behavior:
 
 ### DA.live section metadata reads
 
+Author-facing metadata keys use kebab-case (`<blockprefix>-<field>`). In JavaScript, read from `section.dataset` using the camelCase form (e.g. `heroctaAlign`, `dataHeroctaAlign`), as DA.live normalizes keys to camelCase in the DOM.
+
 Section metadata may appear with double-prefix keys. Always read robustly from both:
 - `section.dataset.<blockprefixX>`
 - `section.dataset.data<blockprefixX>`
@@ -131,7 +136,7 @@ function getConfigValue(blockValue, sectionData, keys, fallback) {
 }
 ```
 
-Example key resolution for `herocta-align`:
+Example key resolution for author key `herocta-align` (in JS use camelCase):
 - `section.dataset.heroctaAlign`
 - `section.dataset.dataHeroctaAlign`
 
@@ -245,6 +250,8 @@ Minimum allowed URL types:
 - root-relative (`/path`)
 - relative (`./path`, `../path`)
 - hash anchors (`#id`)
+
+Use a canonical pattern or helper for validating/sanitizing authored URLs (e.g. try `new URL(url, base)`, check `protocol` against the list above, return `href` or a safe fallback). Optionally centralize this in a shared utility (e.g. `scripts/utils.js`) so blocks do not duplicate logic; if the project prefers block-local helpers, implement the same protocol checks and document the pattern in the block README.
 
 ### HTML injection safety
 
@@ -380,7 +387,7 @@ const picture = createOptimizedPicture(
 
 - Use block-scoped selectors with a block prefix for all classes (e.g., `.hero-cta-content`, `.hero-cta-actions`). Avoid generic names like `.content` or `.button`.
 - Keep selector specificity low-to-high (stylelint-friendly ordering).
-- Prefer design tokens and custom properties over hardcoded values.
+- Prefer design tokens and custom properties over hardcoded values. Design tokens are defined in `styles/styles.css` (e.g. `--color-*`, `--shape-*`, `--spacing-*`, `--grid-*`); use these instead of hardcoded values.
 - Prefer modern color notation (`rgb(0 0 0 / 55%)`).
 - Avoid `transition: all`; transition only relevant properties.
 - Avoid `!important` unless strictly necessary and documented.
@@ -389,7 +396,7 @@ const picture = createOptimizedPicture(
 ```css
 /* GOOD -- design tokens */
 .button {
-  background-color: var(--color-brand-primary);
+  background-color: var(--color-brand-500);
   border-radius: var(--shape-border-radius-2);
   padding: var(--spacing-3) var(--spacing-4);
 }
@@ -430,7 +437,7 @@ Always style `:focus-visible` for keyboard users. Never remove focus outlines wi
 ```css
 /* GOOD */
 .hero-cta-actions .button:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
+  outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
 }
 
@@ -484,7 +491,7 @@ Include both:
 - **Section Metadata Reference**
 
 Section Metadata Reference must use a **3-column table**:
-- key/field
+- key/field (the author-facing key, e.g. `herocta-align`)
 - possible values
 - effect (plain-language, outcome-focused, extensive)
 
@@ -504,15 +511,12 @@ Section Metadata Reference should be grouped by functional area where relevant:
 
 ### README must mirror precedence contract
 
-For block creation and first-pass docs, README must include:
-- A **Metadata Precedence** section using the same tier order implemented in code.
-- A concise **Override Rules** table:
-  - condition
-  - winner
-  - ignored/no-op fields
-  - user-visible effect
+For block creation and first-pass docs, README must include a **Metadata Precedence** section using the same tier order implemented in code. When the block has multiple metadata options, mutually exclusive choices, or a non-trivial precedence order, also include:
+- A concise **Override Rules** table (condition, winner, ignored/no-op fields, user-visible effect).
 - A **Conflict/No-op Notes** section for common invalid or non-effective combinations.
 - A **Conflict Matrix** for mutually exclusive options (condition, winner, ignored/no-op, effect).
+
+For very simple blocks (one or two metadata keys, no real precedence), a short note that precedence is N/A or a single sentence may suffice.
 
 ## DA.live JSON Config
 
@@ -613,6 +617,10 @@ An empty `components` array means no child components are filtered.
 - `component-definition.json` aggregates all block definitions.
 - Keep `_block-name.json` aligned with actual authoring shape; avoid stale model fields that no longer map to behavior.
 
+### Registering a new block
+
+Definitions are sourced from `models/_component-definition.json`, which references block folders via globs (e.g. `../blocks/hero/_*.json#/definitions`, `../blocks/product-*/_*.json#/definitions`). For a new block to appear in the DA.live authoring UI, either add an entry in the appropriate group in `models/_component-definition.json` pointing to `../blocks/<block-name>/_*.json#/definitions`, or place the block in a folder that already matches an existing glob (e.g. `product-*`). After changing any `_*.json` under `blocks/` or any file under `models/`, run `npm run build:json` so `component-definition.json`, `component-models.json`, and `component-filters.json` are updated (the pre-commit hook stages these built files).
+
 ## Removal and Breaking Changes
 
 ### Block/capability removal protocol (required)
@@ -634,7 +642,7 @@ When removing a custom block or capability, remove all implementation surfaces:
 ## Responsive Geometry Gate
 
 - Validate layout geometry across representative widths before shipping.
-- Minimum sweep: `360, 390, 414, 480, 768, 1024, 1280, 1440, 1920`.
+- Minimum sweep: `360, 390, 414, 480, 768, 1024, 1280, 1440, 1920` (or the project's defined viewport list if one exists).
 - Treat hard geometry leak > `2px` as a defect (card/panel/button overflow or clipping).
 - Separate true geometry failures from visual-only effects (e.g., box-shadow overflow).
 
@@ -653,7 +661,7 @@ npm run lint:css
 ```
 
 Follow project conventions:
-- Keep lines under 100 characters.
+- Respect project ESLint and Stylelint rules (including line length, e.g. 100 characters).
 - Use single quotes in JS.
 - Add trailing commas.
 - Remove trailing spaces.
@@ -675,3 +683,4 @@ Follow project conventions:
 12. Floating/absolute UI layers are clamped and do not overflow/clip at small screens.
 13. Drop-in components (if used) are scoped, initialized correctly, and handle render errors gracefully.
 14. Block works correctly in both Eager and Lazy loading phases as appropriate.
+15. If the change affects critical user paths, run or extend project tests (e.g. Cypress) where applicable.

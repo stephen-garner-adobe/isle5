@@ -23,10 +23,11 @@ Add a standard page `metadata` table near the top of the document:
 | `description` | Article excerpt/subtitle |
 | `image` | Hero image URL/path |
 | `author` | Author display name |
-| `publishdate` | `YYYY-MM-DD` preferred |
 | `category` | Category label |
 | `authorimage` | Optional avatar image URL/path |
 | `tags` | Optional tags (currently informational) |
+
+Published date in the author area is sourced from DA.live index data for the current path (`query-index`/`sitemap`), not from authored page metadata.
 
 ### Block Authoring
 - Insert `blog-post` block.
@@ -67,6 +68,7 @@ Supported section dataset key reads:
 | key | possible values | effect |
 | --- | --- | --- |
 | `blogpost-style` | `editorial`, `minimal` | Default: `editorial`. Controls presentation treatment for typography and header composition while preserving layout semantics. |
+| `blogpost-tocstyle` | `editorial`, `minimal`, `contrast`, `outline` | Default: `editorial`. Controls TOC rail chrome only (surface, border, active-state treatment) without changing heading structure or scroll behavior. |
 
 ### Media
 | key | possible values | effect |
@@ -87,6 +89,7 @@ The block resolves and applies metadata in this order:
 
 3. Style/shape tier
 - `blogpost-style`
+- `blogpost-tocstyle`
 
 4. Color/explicit overrides tier
 - none currently (no direct color metadata fields)
@@ -117,6 +120,10 @@ The block resolves and applies metadata in this order:
 ## Behavior Patterns
 - Metadata normalization
   - All section metadata values are normalized and validated before rendering.
+- Published date sourcing
+  - Author-area published timestamp resolves from DA.live index entries for the current page path.
+  - The block checks `published`/`publishDate`/`publishdate`/`publicationdate` and falls back to `lastModified` variants from the matched entry.
+  - Rendered text is derived automatically from the DA.live value (including epoch timestamps), with raw text fallback only when parsing fails.
 - TOC generation
   - Extracts heading tree from authored body (`h2` root, nested `h3`, nested `h4`).
   - Creates deterministic unique heading IDs for anchor links.
@@ -141,6 +148,7 @@ The block resolves and applies metadata in this order:
 | symptom | likely cause | fix |
 | --- | --- | --- |
 | TOC does not appear | No `h2/h3/h4` headings in body content | Add at least one `H2` (or `H3/H4`) in authored body. |
+| Published date missing under author | No matching DA.live index entry or missing index timestamp field | Verify page path appears in `/query-index.json` (or sitemap endpoints) with `published` or `lastModified` data. |
 | Hero not shown | Missing `image` metadata or `blogpost-showhero=false` | Add `image` metadata and/or set `blogpost-showhero=true`. |
 | Heading jump sits under nav | Cached CSS/JS or non-standard nav offset | Hard refresh and verify `scroll-margin-top` application on body headings. |
 | Metadata value not taking effect | Invalid token spelling | Use allowed values exactly; check console for `blog-post:` warnings. |

@@ -4,11 +4,13 @@ const DEFAULTS = {
   layout: 'classic',
   width: 'default',
   style: 'editorial',
+  tocstyle: 'editorial',
   showdescription: true,
   showmeta: true,
   showhero: true,
   heroratio: 'wide',
 };
+const TOC_STYLES = ['editorial', 'minimal', 'contrast', 'outline'];
 
 function warnInvalid(key, rawValue, fallback) {
   if (!rawValue || !rawValue.toString().trim()) return;
@@ -69,33 +71,147 @@ function sanitizeUrl(url) {
   }
 }
 
-function normalizePublishDate(value) {
-  const raw = (value || '').toString().trim();
+function normalizePath(rawPath) {
+  const raw = (rawPath || '').toString().trim();
   if (!raw) return '';
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    warnInvalid('publishdate', value, 'YYYY-MM-DD');
-    return '';
+  if (raw.startsWith('/')) {
+    const withoutQuery = raw.split(/[?#]/)[0];
+    const withoutTrailingSlash = (
+      withoutQuery.length > 1 && withoutQuery.endsWith('/')
+        ? withoutQuery.slice(0, -1)
+        : withoutQuery
+    );
+    return withoutTrailingSlash.endsWith('.html')
+      ? withoutTrailingSlash.slice(0, -5)
+      : withoutTrailingSlash;
   }
 
-  const iso = parsed.toISOString().slice(0, 10);
-  warnInvalid('publishdate', value, iso);
-  return iso;
+  try {
+    const parsed = new URL(raw, window.location.origin);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+    return normalizePath(parsed.pathname);
+  } catch {
+    return '';
+  }
 }
 
-function formatPublishDate(value) {
-  if (!value) return '';
-  const parsed = new Date(`${value}T12:00:00Z`);
-  if (Number.isNaN(parsed.getTime())) return '';
+function resolveEntryPath(entry) {
+  const candidates = [entry.path, entry.url, entry.href, entry.permalink, entry.slug];
+  for (let i = 0; i < candidates.length; i += 1) {
+    const normalized = normalizePath(candidates[i]);
+    if (normalized) return normalized;
+  }
+  return '';
+}
 
-  return new Intl.DateTimeFormat('en-US', {
+function normalizeIndexData(json) {
+  if (!json) return [];
+  if (Array.isArray(json?.data)) return json.data;
+  if (Array.isArray(json)) return json;
+  return [];
+}
+
+async function fetchDaIndexEntries() {
+  const candidates = [
+    '/query-index.json',
+    '/blog/query-index.json',
+    '/sitemap.json',
+    '/blog/sitemap.json',
+  ];
+
+  const responses = await Promise.all(candidates.map(async (candidate) => {
+    try {
+      const response = await fetch(candidate, { cache: 'no-store' });
+      if (!response.ok) return [];
+      return normalizeIndexData(await response.json());
+    } catch {
+      return [];
+    }
+  }));
+
+  return responses.flat();
+}
+
+function parseDaPublishedDate(rawValue) {
+  const raw = (rawValue || '').toString().trim();
+  if (!raw) return null;
+
+  if (/^\d+$/.test(raw)) {
+    const numeric = Number.parseInt(raw, 10);
+    if (Number.isNaN(numeric)) return null;
+    const epochMs = raw.length <= 10 ? numeric * 1000 : numeric;
+    const parsedEpoch = new Date(epochMs);
+    return Number.isNaN(parsedEpoch.getTime()) ? null : parsedEpoch;
+  }
+
+  let candidate = raw;
+  if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}(:\d{2})?$/.test(raw)) {
+    candidate = raw.replace(' ', 'T');
+  }
+
+  const parsed = new Date(candidate);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+}
+
+function formatDaPublishedDate(parsedDate) {
+  if (!(parsedDate instanceof Date) || Number.isNaN(parsedDate.getTime())) return '';
+
+  const dateText = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(parsed);
+  }).format(parsedDate);
+  const timeText = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(parsedDate);
+  return `${dateText} ${timeText}`;
+}
+
+async function resolveDaPublishedMeta() {
+  const currentPath = normalizePath(window.location.pathname);
+  if (!currentPath) return null;
+
+  const entries = await fetchDaIndexEntries();
+  if (!entries.length) {
+    // eslint-disable-next-line no-console
+    console.warn('blog-post: no DA.live index entries returned from query/sitemap endpoints.');
+    return null;
+  }
+
+  const matchingEntry = entries.find((entry) => resolveEntryPath(entry) === currentPath);
+  if (!matchingEntry) {
+    // eslint-disable-next-line no-console
+    console.warn(`blog-post: no DA.live index entry matched path "${currentPath}".`);
+    return null;
+  }
+
+  const rawPublished = (
+    matchingEntry.published
+    || matchingEntry.publishDate
+    || matchingEntry.publishdate
+    || matchingEntry.publicationdate
+    || matchingEntry.lastModified
+    || matchingEntry.lastmodified
+    || matchingEntry.lastmod
+    || ''
+  );
+
+  const text = (rawPublished || '').toString().trim();
+  if (!text) {
+    // eslint-disable-next-line no-console
+    console.warn('blog-post: matched DA.live entry has no published timestamp value.');
+    return null;
+  }
+
+  const parsed = parseDaPublishedDate(text);
+  return {
+    dateTime: parsed ? parsed.toISOString() : '',
+    text: parsed ? formatDaPublishedDate(parsed) : text,
+  };
 }
 
 function readConfig(block) {
@@ -124,6 +240,12 @@ function readConfig(block) {
       getConfigValue(block.dataset.blogpostStyle, sectionData, ['blogpostStyle', 'dataBlogpostStyle'], DEFAULTS.style),
       ['editorial', 'minimal'],
       DEFAULTS.style,
+    ),
+    tocstyle: normalizeToken(
+      'blogpost-tocstyle',
+      getConfigValue(block.dataset.blogpostTocstyle, sectionData, ['blogpostTocstyle', 'dataBlogpostTocstyle'], DEFAULTS.tocstyle),
+      TOC_STYLES,
+      DEFAULTS.tocstyle,
     ),
     showdescription: normalizeBoolean(
       'blogpost-showdescription',
@@ -171,14 +293,12 @@ function readPostMetadata() {
     author: (getMetadata('author') || '').trim(),
     category: (getMetadata('category') || '').trim(),
     tags: (getMetadata('tags') || '').trim(),
-    publishdate: normalizePublishDate(getMetadata('publishdate') || ''),
   };
 
   if (!meta.title) warnMissingMetadata('title');
   if (!meta.description) warnMissingMetadata('description');
   if (!meta.author) warnMissingMetadata('author');
   if (!meta.category) warnMissingMetadata('category');
-  if (!meta.publishdate) warnMissingMetadata('publishdate');
 
   return meta;
 }
@@ -237,7 +357,7 @@ function createAuthorArea(meta) {
     if (author.children.length) aside.append(author);
   }
 
-  if (meta.publishdate) {
+  if (meta.published?.text) {
     const date = document.createElement('p');
     date.className = 'blog-post-date';
 
@@ -247,8 +367,8 @@ function createAuthorArea(meta) {
 
     const value = document.createElement('time');
     value.className = 'blog-post-date-value';
-    value.dateTime = meta.publishdate;
-    value.textContent = formatPublishDate(meta.publishdate);
+    if (meta.published.dateTime) value.dateTime = meta.published.dateTime;
+    value.textContent = meta.published.text;
 
     date.append(label, value);
     aside.append(date);
@@ -517,14 +637,16 @@ function initTocBehavior(block) {
   onScrollLike();
 }
 
-export default function decorate(block) {
+export default async function decorate(block) {
   const config = readConfig(block);
   const meta = readPostMetadata();
+  meta.published = await resolveDaPublishedMeta();
   const authoredBody = extractAuthoredBody(block);
 
   block.dataset.blogpostLayout = config.layout;
   block.dataset.blogpostWidth = config.width;
   block.dataset.blogpostStyle = config.style;
+  block.dataset.blogpostTocstyle = config.tocstyle;
   block.dataset.blogpostShowdescription = config.showdescription ? 'true' : 'false';
   block.dataset.blogpostShowmeta = config.showmeta ? 'true' : 'false';
   block.dataset.blogpostShowhero = config.showhero ? 'true' : 'false';
@@ -588,7 +710,10 @@ export default function decorate(block) {
     content.append(authoredBody);
 
     const toc = createToc(authoredBody);
-    if (toc) content.append(toc);
+    if (toc) {
+      toc.dataset.blogpostTocstyle = config.tocstyle;
+      content.append(toc);
+    }
 
     wrapper.append(content);
   }
