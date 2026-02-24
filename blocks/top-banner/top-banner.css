@@ -282,22 +282,6 @@
   white-space: nowrap;
 }
 
-.top-banner-ticker-toggle {
-  background: transparent;
-  border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
-  border-radius: var(--shape-border-radius-1);
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
-  min-height: 28px;
-  padding: 0 8px;
-}
-
-.top-banner-ticker-toggle:focus-visible {
-  outline: 2px solid currentcolor;
-  outline-offset: 2px;
-}
-
 @keyframes top-banner-ticker-scroll {
   from {
     transform: translateX(var(--top-banner-track-start));
