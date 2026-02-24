@@ -185,6 +185,18 @@ function normalizeBoolean(value, fallback = false) {
   return fallback;
 }
 
+function getConfigValue(blockValue, sectionData, keys, fallback) {
+  if (typeof blockValue === 'string' && blockValue.trim()) return blockValue;
+  if (typeof blockValue === 'boolean') return blockValue;
+
+  for (let i = 0; i < keys.length; i += 1) {
+    const value = sectionData?.[keys[i]];
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+
+  return fallback;
+}
+
 function isSafeUrl(url) {
   if (!url) return false;
   const trimmed = url.trim();
@@ -310,85 +322,99 @@ function parseConfig(block) {
 
   const config = {
     align: normalizeAlign(
-      sectionData.dataAlign
-      || sectionData.dataDataAlign
-      || block.dataset.align
-      || 'center',
+      getConfigValue(
+        block.dataset.align,
+        sectionData,
+        ['newsletterAlign', 'dataNewsletterAlign'],
+        'center',
+      ),
     ),
     buttonStyle: normalizeButtonStyle(
-      sectionData.dataButtonStyle
-      || sectionData.dataDataButtonStyle
-      || block.dataset.buttonStyle
-      || 'default',
+      getConfigValue(
+        block.dataset.buttonStyle,
+        sectionData,
+        ['newsletterButtonStyle', 'dataNewsletterButtonStyle'],
+        'default',
+      ),
     ),
     buttonWidth: normalizeButtonWidth(
-      sectionData.dataButtonWidth
-      || sectionData.dataDataButtonWidth
-      || block.dataset.buttonWidth
-      || 'medium',
+      getConfigValue(
+        block.dataset.buttonWidth,
+        sectionData,
+        ['newsletterButtonWidth', 'dataNewsletterButtonWidth'],
+        'medium',
+      ),
     ),
     buttonColorEmpty: normalizeButtonColor(
-      sectionData.dataButtonColorEmpty
-      || sectionData.dataDataButtonColorEmpty
-      || sectionData.dataButtonColourEmpty
-      || sectionData.dataDataButtonColourEmpty
-      || block.dataset.buttonColorEmpty
-      || 'muted',
+      getConfigValue(
+        block.dataset.buttonColorEmpty,
+        sectionData,
+        ['newsletterButtonColorEmpty', 'dataNewsletterButtonColorEmpty'],
+        'muted',
+      ),
     ),
     buttonColorFilled: normalizeButtonColor(
-      sectionData.dataButtonColorFilled
-      || sectionData.dataDataButtonColorFilled
-      || sectionData.dataButtonColourFilled
-      || sectionData.dataDataButtonColourFilled
-      || block.dataset.buttonColorFilled
-      || 'dark',
+      getConfigValue(
+        block.dataset.buttonColorFilled,
+        sectionData,
+        ['newsletterButtonColorFilled', 'dataNewsletterButtonColorFilled'],
+        'dark',
+      ),
     ),
     backgroundColor: normalizeBackgroundColor(
-      sectionData.dataBackgroundColor
-      || sectionData.dataDataBackgroundColor
-      || sectionData.dataBackgroundColour
-      || sectionData.dataDataBackgroundColour
-      || block.dataset.backgroundColor
-      || 'neutral',
+      getConfigValue(
+        block.dataset.backgroundColor,
+        sectionData,
+        ['newsletterBackgroundColor', 'dataNewsletterBackgroundColor'],
+        'neutral',
+      ),
     ),
     backgroundStyle: normalizeBackgroundStyle(
-      sectionData.dataBackgroundStyle
-      || sectionData.dataDataBackgroundStyle
-      || block.dataset.backgroundStyle
-      || 'solid',
+      getConfigValue(
+        block.dataset.backgroundStyle,
+        sectionData,
+        ['newsletterBackgroundStyle', 'dataNewsletterBackgroundStyle'],
+        'solid',
+      ),
     ),
-    backgroundImage: (
-      sectionData.dataBackgroundImage
-      || sectionData.dataDataBackgroundImage
-      || block.dataset.backgroundImage
-      || ''
+    backgroundImage: getConfigValue(
+      block.dataset.backgroundImage,
+      sectionData,
+      ['newsletterBackgroundImage', 'dataNewsletterBackgroundImage'],
+      '',
     ).trim(),
     emailStyle: normalizeEmailStyle(
-      sectionData.dataEmailStyle
-      || sectionData.dataDataEmailStyle
-      || block.dataset.emailStyle
-      || 'outlined',
+      getConfigValue(
+        block.dataset.emailStyle,
+        sectionData,
+        ['newsletterEmailStyle', 'dataNewsletterEmailStyle'],
+        'outlined',
+      ),
     ),
     density: normalizeDensity(
-      sectionData.dataDensity
-      || sectionData.dataDataDensity
-      || sectionData.density
-      || sectionData.dataDensitiy
-      || sectionData.dataDataDensitiy
-      || block.dataset.density
-      || 'comfortable',
+      getConfigValue(
+        block.dataset.density,
+        sectionData,
+        ['newsletterDensity', 'dataNewsletterDensity'],
+        'comfortable',
+      ),
     ),
     formGap: normalizeFormGap(
-      sectionData.dataFormGap
-      || sectionData.dataDataFormGap
-      || block.dataset.formGap
-      || 'auto',
+      getConfigValue(
+        block.dataset.formGap,
+        sectionData,
+        ['newsletterFormGap', 'dataNewsletterFormGap'],
+        'auto',
+      ),
     ),
     fullWidth: normalizeBoolean(
-      sectionData.dataFullWidth
-      || sectionData.dataDataFullWidth
-      || block.dataset.fullWidth
-      || false,
+      getConfigValue(
+        block.dataset.fullWidth,
+        sectionData,
+        ['newsletterFullWidth', 'dataNewsletterFullWidth'],
+        false,
+      ),
+      false,
     ),
   };
 
