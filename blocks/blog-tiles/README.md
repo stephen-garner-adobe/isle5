@@ -104,9 +104,12 @@ The block resolves metadata in this order:
 ## Behavior Patterns
 - Uses `getConfigValue` helper for deterministic metadata resolution.
 - Validates and normalizes all supported metadata values.
-- Fetches index endpoints with cache-busting parameters and `no-store` policy.
-- Derives featured/post card content from index fields (`title`, `description`, `image`, `author`,
-  `authorimage`, `category`, publish timestamp).
+- Fetches index endpoints with cache-busting parameters and `no-store` policy to discover blog
+  post paths and baseline timestamps.
+- Fetches each discovered post page and derives card content from page metadata (`title`,
+  `description`, `image`/`og:image`, `author`, `authorimage`, `category`, publish timestamp
+  variants).
+- Uses index timestamp data as fallback when post-level publish metadata is not present.
 - Refreshes tiles on visibility/focus and optional polling interval.
 
 ## Accessibility Notes
