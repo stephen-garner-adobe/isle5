@@ -179,10 +179,6 @@
     ]
   },
   {
-    "id": "blog-list",
-    "fields": []
-  },
-  {
     "id": "blog-post",
     "fields": []
   },

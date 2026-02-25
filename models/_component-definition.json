@@ -44,9 +44,6 @@
           "...": "../blocks/hero/_*.json#/definitions"
         },
         {
-          "...": "../blocks/blog-list/_*.json#/definitions"
-        },
-        {
           "...": "../blocks/blog-tiles/_*.json#/definitions"
         },
         {
