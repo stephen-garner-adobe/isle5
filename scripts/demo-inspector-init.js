@@ -9,6 +9,7 @@
  * Level 2: Per-block sub-container tagging is done in individual block decorators.
  */
 
+// eslint-disable-next-line import/no-unresolved, import/no-absolute-path -- AEM runtime path
 import { tagMeshSource } from '/scripts/demo-inspector-sdk/mesh.js';
 
 // Block name → primary API Mesh data source
