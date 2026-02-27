@@ -42,7 +42,9 @@ fs.readdirSync('node_modules/@dropins', { withFileTypes: true }).forEach((file) 
   { from: '@demo-inspector/sdk/src/eds.js', to: 'demo-inspector-sdk/eds.js' },
   { from: '@demo-inspector/sdk/src/tracking.js', to: 'demo-inspector-sdk/tracking.js' },
 ].forEach((file) => {
-  fs.copyFileSync(path.resolve(__dirname, 'node_modules', file.from), path.resolve(__dirname, 'scripts', file.to));
+  const dest = path.resolve(__dirname, 'scripts', file.to);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(path.resolve(__dirname, 'node_modules', file.from), dest);
 });
 
 function checkPackageLockForArtifactory() {
