@@ -115,6 +115,14 @@ critical for performance.
 - Keep behavior/layout controls in section metadata only (alignment, columns, result counts, timing, motion toggles, etc.).
 - Do not mix content and behavior in the same authoring surface unless explicitly required.
 
+### Adobe native vs custom section metadata
+
+- Distinguish **Adobe native section metadata** from **custom block-specific metadata**.
+- Adobe native section metadata keeps its documented author-facing names (for example `Style`, `Padding`, `Margin`, `Column Width`, `Gap`) when supported by the project.
+- Custom section metadata added for a specific block must use the block-scoped format `<blockprefix>-<field>`.
+- Do not rename Adobe native keys into block-prefixed forms unless the project has an explicit compatibility layer and the README documents it.
+- If a block depends on both native section metadata and custom block metadata, document them separately in the README so authors do not confuse section container styling with block behavior.
+
 ### Block-specific metadata naming (required)
 
 - Metadata keys must be block-scoped; never use generic keys like `align`, `size`, `density`.
@@ -187,6 +195,17 @@ Do not use inline `||` chaining for config reads; always use a `getConfigValue` 
 so key resolution order is explicit and testable.
 - Prefer one shared helper signature across blocks to reduce drift. If a shared utility is unavailable,
   use the same local helper signature shown above.
+
+### Page metadata and route requirements
+
+- For blocks on route-critical pages (cart, checkout, account, order confirmation, wishlists, authenticated areas), verify whether page metadata is required in addition to block and section configuration.
+- Keep page-level concerns in the page `metadata` table, not in the block table or section metadata.
+- When a block is primarily intended for a specific route type, its README must document any required or recommended page metadata and route assumptions.
+- At minimum, document page metadata requirements for:
+  - indexing/search behavior (`Robots`)
+  - caching behavior (`Cache Control`)
+  - page title/social fields when the block changes page semantics
+- If a block only behaves correctly on a specific template, route, or backend page type, state that limitation explicitly in the README and troubleshooting section.
 
 ### Normalize and persist
 
@@ -313,6 +332,8 @@ Use a canonical pattern or helper for validating/sanitizing authored URLs (e.g. 
 - Scope queries to `block` whenever possible (`block.querySelector(...)`, not `document.querySelector(...)`).
 - Prefer schema-based config resolution for maintainability.
 - Centralize metadata schema in one place (defaults, key map, normalizers, tier/precedence).
+- `decorate(block)` must be idempotent. If called twice, it must not duplicate listeners, duplicate rendered UI, or re-wrap already processed markup.
+- Do not remove or overwrite authored fallback content until replacement UI is ready. If enhancement fails, preserve usable authored content where possible.
 
 ```js
 // GOOD -- scoped query, single export
@@ -334,6 +355,7 @@ document.querySelectorAll('.my-block a');
 - Pause autoplay/timers when page is hidden (`visibilitychange`).
 - Prefer one delegated listener on the block over many individual listeners on children.
 - If listeners are attached to `document` or `window`, use an `AbortController` signal and abort on disconnect.
+- When a block mounts asynchronous UI, guard against race conditions if the block is re-decorated, moved, or removed before the async work finishes.
 
 ```js
 block.dataset.loading = 'true';
@@ -353,6 +375,8 @@ setTimeout(() => {
 - If content or config is missing, render a safe fallback (hide section or show placeholder). Do not throw.
 - Use `console.warn` with a block-name prefix for invalid metadata or missing content.
 - Never fail silently with a bare `return` -- always warn so authors can debug.
+- Prefer a consistent warning shape: `blockname: invalid <key>="<value>"; expected <allowed>; using "<fallback>"`.
+- Warnings should identify the author-facing key where possible, not only internal variable names.
 
 ```js
 // GOOD
@@ -394,6 +418,19 @@ const picture = createOptimizedPicture(
 - Avoid scanning the full document; scope to block or section.
 - Consider `contain: layout paint` on isolated blocks for rendering performance.
 - Use shorthand CSS properties where stylelint expects them.
+
+### Block scaffold contract
+
+For new blocks and first-pass rewrites, prefer one predictable internal scaffold:
+
+- `CONFIG_SCHEMA` (or equivalent) for defaults, dataset keys, allowed values, and tier ownership
+- `getConfigValue()` helper for deterministic block/section resolution
+- dedicated normalizers per author-facing option
+- `warnInvalid()` helper for block-prefixed, actionable warnings
+- `sanitizeUrl()` helper for authored links/media
+- resolved config persisted to `block.dataset.*`
+
+If a shared utility exists for any of these concerns, use it consistently. If not, keep the local helper names and signatures stable across blocks.
 
 ## HTML and Semantics
 
@@ -528,6 +565,7 @@ Each block README must include:
 4. Behavior patterns
 5. Accessibility notes
 6. Troubleshooting
+7. Document authoring example(s)
 
 ### README tables are required
 
@@ -546,6 +584,8 @@ Default behavior must still be documented, but include it inside the effect text
 Also include:
 - Section Metadata placement guidance (immediately above block).
 - Supported aliases (only if intentionally implemented).
+- At least one literal authoring example that shows the exact block table authors should paste/use.
+- When route-specific behavior matters, an additional example that includes both the block table and any required `metadata` or `section-metadata` table.
 
 Section Metadata Reference should be grouped by functional area where relevant:
 - Layout
@@ -561,6 +601,7 @@ For block creation and first-pass docs, README must include a **Metadata Precede
 - A **Conflict/No-op Notes** section for common invalid or non-effective combinations.
 - A **Conflict Matrix** for mutually exclusive options (condition, winner, ignored/no-op, effect).
 - Keep tier names and order identical to the **Metadata precedence contract** section above; do not rename tiers in README.
+- If the block also depends on Adobe native section metadata, document native section keys separately from block-specific metadata keys.
 
 For very simple blocks (one or two metadata keys, no real precedence), a short note that precedence is N/A or a single sentence may suffice.
 
@@ -708,6 +749,22 @@ All block creation changes must pass:
 - ESLint (JS)
 - Stylelint (CSS)
 
+### Risk-based testing expectations
+
+- Content-only or presentational blocks:
+  - lint
+  - responsive geometry sweep
+  - manual authoring verification in preview
+- Metadata-heavy blocks with non-trivial precedence/normalization:
+  - lint
+  - geometry sweep
+  - targeted automated tests for config resolution/normalizers when the project has a suitable test harness
+- Drop-in, auth, cart, checkout, account, or other critical-path commerce blocks:
+  - lint
+  - geometry sweep where applicable
+  - route-level smoke test in preview or automated end-to-end coverage for the primary user flow
+- If automated coverage is not added for a high-risk block, note the manual scenarios exercised in PR/commit notes.
+
 Typical commands:
 
 ```bash
@@ -740,3 +797,5 @@ Follow project conventions:
 13. Drop-in components (if used) are scoped, initialized correctly, and handle render errors gracefully.
 14. Block works correctly in both Eager and Lazy loading phases as appropriate.
 15. If the change affects critical user paths, run or extend project tests (e.g. Cypress) where applicable.
+16. `decorate(block)` is safe to re-run and does not duplicate markup, listeners, or timers.
+17. Route/page metadata requirements are documented for route-specific blocks.
