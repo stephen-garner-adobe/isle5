@@ -128,16 +128,33 @@ export function getSearchStateFromUrl(url) {
 export function applySearchStateToUrl(url, request) {
   if (request?.phrase) {
     url.searchParams.set('q', request.phrase);
+  } else {
+    url.searchParams.delete('q');
   }
+
   if (request?.currentPage) {
     url.searchParams.set('page', String(request.currentPage));
+  } else {
+    url.searchParams.delete('page');
   }
+
   if (request?.sort != null) {
-    url.searchParams.set('sort', serializeSort(request.sort));
+    const sort = serializeSort(request.sort);
+    if (sort) {
+      url.searchParams.set('sort', sort);
+    } else {
+      url.searchParams.delete('sort');
+    }
   }
+
   if (request?.filter != null) {
     // Don't add visibility filter to the URL, since we always add it in product-list-page.js
     const urlFilters = request.filter.filter((f) => f.attribute !== 'visibility');
-    url.searchParams.set('filter', serializeFilter(urlFilters));
+    const filter = serializeFilter(urlFilters);
+    if (filter) {
+      url.searchParams.set('filter', filter);
+    } else {
+      url.searchParams.delete('filter');
+    }
   }
 }
