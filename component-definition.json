@@ -7,22 +7,12 @@
         {
           "title": "Text",
           "id": "text",
-          "plugins": {
-            "da": {
-              "name": "text",
-              "type": "text"
-            }
-          }
+          "plugins": { "da": { "name": "text", "type": "text" } }
         },
         {
           "title": "Image",
           "id": "image",
-          "plugins": {
-            "da": {
-              "name": "image",
-              "type": "image"
-            }
-          }
+          "plugins": { "da": { "name": "image", "type": "image" } }
         }
       ]
     },
@@ -33,13 +23,13 @@
         {
           "title": "Section",
           "id": "section",
+          "filter": "section",
+          "model": "section",
           "plugins": {
             "da": {
               "unsafeHTML": "<div></div>"
             }
-          },
-          "filter": "section",
-          "model": "section"
+          }
         }
       ]
     },
@@ -56,7 +46,8 @@
             "da": {
               "name": "accordion",
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"accordion\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -70,15 +61,29 @@
               "rows": 2,
               "columns": 0,
               "fields": [
-                {
-                  "name": "summary",
-                  "selector": "div:nth-child(1)"
-                },
-                {
-                  "name": "text",
-                  "selector": "div:nth-child(2)"
-                }
-              ]
+                { "name": "summary", "selector": "div:nth-child(1)" },
+                { "name": "text", "selector": "div:nth-child(2)" }
+              ],
+              "unsafeHTML": "<div class=\"accordion-item\"><div><div>Summary</div></div><div><div>Text content</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Blog Post",
+          "id": "blog-post",
+          "model": "blog-post",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div class=\"blog-post\"><div><div><h1>Blog Post Title</h1></div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Blog Tiles",
+          "id": "blog-tiles",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div class=\"blog-tiles\"><div><div><p>Category</p></div></div></div>"
             }
           }
         },
@@ -90,7 +95,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"cards\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -103,19 +109,22 @@
               "rows": 1,
               "columns": 2,
               "fields": [
-                {
-                  "name": "image",
-                  "selector": "div:nth-child(1)>picture>img[src]"
-                },
-                {
-                  "name": "imageAlt",
-                  "selector": "div:nth-child(1)>picture>img[alt]"
-                },
-                {
-                  "name": "text",
-                  "selector": "div:nth-child(2)"
-                }
-              ]
+                { "name": "image", "selector": "div:nth-child(1)>picture>img[src]" },
+                { "name": "imageAlt", "selector": "div:nth-child(1)>picture>img[alt]" },
+                { "name": "text", "selector": "div:nth-child(2)" }
+              ],
+              "unsafeHTML": "<div class=\"card\"><div><div>Image</div><div>Text</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Cards List",
+          "id": "cards-list",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "unsafeHTML": "<div class=\"cards-list\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -127,7 +136,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"carousel\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -140,19 +150,22 @@
               "rows": 1,
               "columns": 2,
               "fields": [
-                {
-                  "name": "backgroundImage",
-                  "selector": "div:nth-child(1)>picture>img[src]"
-                },
-                {
-                  "name": "backgroundImageAlt",
-                  "selector": "div:nth-child(1)>picture>img[alt]"
-                },
-                {
-                  "name": "text",
-                  "selector": "div:nth-child(2)"
-                }
-              ]
+                { "name": "backgroundImage", "selector": "div:nth-child(1)>picture>img[src]" },
+                { "name": "backgroundImageAlt", "selector": "div:nth-child(1)>picture>img[alt]" },
+                { "name": "text", "selector": "div:nth-child(2)" }
+              ],
+              "unsafeHTML": "<div class=\"carousel-item\"><div><div>Background Image</div><div>Text</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Circle Carousel",
+          "id": "circle-carousel",
+          "model": "circle-carousel",
+          "plugins": {
+            "da": {
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"circle-carousel\"><div><div>alignment</div><div>center</div></div><div><div>autoplay</div><div>true</div></div><div><div>items-desktop</div><div>6</div></div></div>"
             }
           }
         },
@@ -166,7 +179,8 @@
               "name": "columns",
               "rows": 1,
               "columns": 2,
-              "behaviour": "columns"
+              "behaviour": "columns",
+              "unsafeHTML": "<div class=\"columns\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -178,7 +192,8 @@
           "plugins": {
             "da": {
               "name": "columns-row",
-              "behaviour": "columns-row"
+              "behaviour": "columns-row",
+              "unsafeHTML": "<div class=\"columns-row\"><div><div>Content</div></div></div>"
             }
           }
         },
@@ -200,7 +215,8 @@
           "model": "enrichment",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"enrichment\"><div><div>type</div><div>product</div></div><div><div>position</div><div>1</div></div></div>"
             }
           }
         },
@@ -213,15 +229,10 @@
               "rows": 1,
               "columns": 1,
               "fields": [
-                {
-                  "name": "fragmentUrl",
-                  "selector": "div>div>p>a[href]"
-                },
-                {
-                  "name": "fragmentUrlText",
-                  "selector": "div>div>p>a"
-                }
-              ]
+                { "name": "fragmentUrl", "selector": "div>div>p>a[href]" },
+                { "name": "fragmentUrlText", "selector": "div>div>p>a" }
+              ],
+              "unsafeHTML": "<div class=\"fragment\"><div><div><p><a href=\"/path/to/fragment\">Fragment URL</a></p></div></div></div>"
             }
           }
         },
@@ -234,28 +245,79 @@
               "rows": 1,
               "columns": 1,
               "fields": [
-                {
-                  "name": "image",
-                  "selector": "div>div>picture>img[src]"
-                },
-                {
-                  "name": "alt",
-                  "selector": "div>div>picture>img[alt]"
-                },
-                {
-                  "name": "text",
-                  "selector": "div>div>h1"
-                }
-              ]
+                { "name": "image", "selector": "div>div>picture>img[src]" },
+                { "name": "alt", "selector": "div>div>picture>img[alt]" },
+                { "name": "text", "selector": "div>div>h1" }
+              ],
+              "unsafeHTML": "<div class=\"hero\"><div><div><picture></picture><h1>Hero Heading</h1></div></div></div>"
             }
           }
         },
         {
-          "title": "Blog Tiles",
-          "id": "blog-tiles",
+          "title": "Hero CTA",
+          "id": "hero-cta",
+          "model": "hero-cta",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"blog-tiles\"><div><div><p>Category</p></div></div></div>"
+              "rows": 1,
+              "columns": 1,
+              "unsafeHTML": "<div class=\"hero-cta\"><div><div><picture></picture><h1>Hero Title</h1><p><a href=\"#\">CTA Text</a></p></div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Modal",
+          "id": "modal",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 1,
+              "unsafeHTML": "<div class=\"modal\"><div><div>Content</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Newsletter",
+          "id": "newsletter",
+          "model": "newsletter",
+          "plugins": {
+            "da": {
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"newsletter\"><div><div>align</div><div>center</div></div><div><div>background-color</div><div>neutral</div></div><div><div>button-style</div><div>default</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Promotional Hero",
+          "id": "promotional-hero",
+          "model": "promotional-hero",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 1,
+              "unsafeHTML": "<div class=\"promotional-hero\"><div><div><picture></picture><h2>Heading</h2><p>Subheading</p><p><a href=\"#\">CTA</a></p></div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Search Bar",
+          "id": "search-bar",
+          "model": "search-bar",
+          "plugins": {
+            "da": {
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"search-bar\"><div><div>placeholder</div><div>Search Products</div></div><div><div>alignment</div><div>center</div></div><div><div>result-count</div><div>8</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Store Locator",
+          "id": "store-locator",
+          "model": "store-locator",
+          "plugins": {
+            "da": {
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"store-locator\"><div><div>google-maps-api-key</div><div></div></div><div><div>default-view</div><div>split</div></div><div><div>search-radius</div><div>0</div></div></div>"
             }
           }
         },
@@ -265,7 +327,20 @@
           "model": "targeted-block",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"targeted-block\"><div><div>content</div><div></div></div><div><div>customer-groups</div><div></div></div><div><div>type</div><div></div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Top Banner",
+          "id": "top-banner",
+          "model": "top-banner",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 1,
+              "unsafeHTML": "<div class=\"top-banner\"><div><div>Banner content</div></div></div>"
             }
           }
         },
@@ -275,7 +350,8 @@
           "model": "commerce-account-header",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-account-header\"><div><div>title</div><div>My Account</div></div></div>"
             }
           }
         },
@@ -286,7 +362,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-account-sidebar\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -296,7 +373,8 @@
           "model": "commerce-addresses",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-addresses\"><div><div>minified-view</div><div>false</div></div></div>"
             }
           }
         },
@@ -306,18 +384,8 @@
           "model": "commerce-cart",
           "plugins": {
             "da": {
-              "type": "key-value-block"
-            }
-          }
-        },
-        {
-          "title": "Commerce Checkout Success",
-          "id": "commerce-checkout-success",
-          "model": "commerce-checkout-success",
-          "plugins": {
-            "da": {
-              "rows": 1,
-              "columns": 2
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-cart\"><div><div>checkout-url</div><div>/checkout</div></div><div><div>max-items</div><div>10</div></div></div>"
             }
           }
         },
@@ -328,7 +396,20 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-checkout\"><div><div>Content</div><div>Content</div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Commerce Checkout Success",
+          "id": "commerce-checkout-success",
+          "model": "commerce-checkout-success",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-checkout-success\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -339,7 +420,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-confirm-account\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -350,7 +432,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-create-account\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -361,7 +444,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-create-password\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -372,7 +456,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-create-return\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -383,7 +468,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-customer-details\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -394,7 +480,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-customer-information\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -405,7 +492,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-forgot-password\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -416,7 +504,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-gift-options\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -427,7 +516,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-login\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -437,7 +527,8 @@
           "model": "commerce-mini-cart",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-mini-cart\"><div><div>cart-url</div><div>/cart</div></div><div><div>checkout-url</div><div>/checkout</div></div></div>"
             }
           }
         },
@@ -448,7 +539,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-order-cost-summary\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -459,7 +551,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-order-header\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -470,7 +563,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-order-product-list\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -481,7 +575,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-order-returns\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -492,7 +587,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-order-status\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -502,7 +598,8 @@
           "model": "commerce-orders-list",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-orders-list\"><div><div>minified-view</div><div>false</div></div></div>"
             }
           }
         },
@@ -513,7 +610,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-return-header\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -523,7 +621,8 @@
           "model": "commerce-returns-list",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-returns-list\"><div><div>minified-view</div><div>false</div></div></div>"
             }
           }
         },
@@ -534,7 +633,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-search-order\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -545,7 +645,8 @@
           "plugins": {
             "da": {
               "rows": 1,
-              "columns": 2
+              "columns": 2,
+              "unsafeHTML": "<div class=\"commerce-shipping-status\"><div><div>Content</div><div>Content</div></div></div>"
             }
           }
         },
@@ -555,7 +656,8 @@
           "model": "commerce-wishlist",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"commerce-wishlist\"><div><div>start-shopping-url</div><div>/wishlist</div></div></div>"
             }
           }
         }
@@ -571,7 +673,8 @@
           "model": "product-details",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"product-details\"><div><div>default-sku</div><div></div></div></div>"
             }
           }
         },
@@ -581,7 +684,8 @@
           "model": "product-list-page",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"product-list-page\"><div><div>url-path</div><div>/category</div></div><div><div>page-size</div><div>9</div></div></div>"
             }
           }
         },
@@ -591,7 +695,8 @@
           "model": "product-recommendations",
           "plugins": {
             "da": {
-              "type": "key-value-block"
+              "type": "key-value-block",
+              "unsafeHTML": "<div class=\"product-recommendations\"><div><div>rec-id</div><div>homepage-recs</div></div><div><div>current-sku</div><div></div></div></div>"
             }
           }
         }
