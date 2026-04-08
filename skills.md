@@ -151,6 +151,35 @@ Should produce:
 Should avoid:
 - rewriting implementation code when the issue is pure configuration
 
+### `commerce-optimizer-catalog-builder`
+Purpose: Build Adobe Commerce Optimizer catalog-ingestion request sets from the official Data Ingestion schema and emit implementation-ready REST payloads.
+
+Use when:
+- creating Commerce Optimizer ingestion payloads
+- modeling categories, metadata, products, price books, and prices
+- turning a product-domain brief into request-ready sample catalog data
+
+Inspects:
+- official Adobe Commerce Optimizer schema:
+  - `https://developer.adobe.com/commerce/services/rest/data-ingestion-schema-v1.yaml`
+- official Adobe Commerce Optimizer fallback docs when raw schema retrieval is blocked
+
+Should produce:
+- request blocks in a consistent REST template format
+- schema-aligned endpoint paths and payload shapes
+- internally consistent categories, metadata, products, price books, and prices
+- clear assumptions when the user does not fully specify the catalog
+
+Should ask first:
+- what type of products are needed
+- how many price books are needed
+- whether child price books are needed
+
+Should avoid:
+- inventing unsupported fields or enums
+- answering from memory when the official schema can be read
+- producing storefront implementation guidance instead of ingestion payloads
+
 ### `authoring-docs-sync`
 Purpose: Keep authoring documentation, DA.live contracts, and implementation behavior in sync.
 
