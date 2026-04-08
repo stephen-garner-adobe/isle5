@@ -47,7 +47,7 @@
               "name": "accordion",
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"accordion\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"accordion\"><div><div><strong>What is the first question?</strong></div><div><p>The answer to the first question goes here.</p></div></div><div><div><strong>What is the second question?</strong></div><div><p>The answer to the second question goes here.</p></div></div></div>"
             }
           }
         },
@@ -64,7 +64,7 @@
                 { "name": "summary", "selector": "div:nth-child(1)" },
                 { "name": "text", "selector": "div:nth-child(2)" }
               ],
-              "unsafeHTML": "<div class=\"accordion-item\"><div><div>Summary</div></div><div><div>Text content</div></div></div>"
+              "unsafeHTML": "<div class=\"accordion-item\"><div><div>Question or summary heading</div></div><div><div><p>Detailed answer or body content goes here.</p></div></div></div>"
             }
           }
         },
@@ -74,7 +74,7 @@
           "model": "blog-post",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"blog-post\"><div><div><h1>Blog Post Title</h1></div></div></div>"
+              "unsafeHTML": "<div class=\"blog-post\"><div><div><h1>Blog Post Title</h1><p>Author Name - January 1, 2025</p></div></div></div>"
             }
           }
         },
@@ -83,7 +83,7 @@
           "id": "blog-tiles",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"blog-tiles\"><div><div><p>Category</p></div></div></div>"
+              "unsafeHTML": "<div class=\"blog-tiles\"><div><div>blogtiles-limit</div><div>24</div></div><div><div>blogtiles-sort</div><div>newest</div></div><div><div>blogtiles-showdescription</div><div>true</div></div></div>"
             }
           }
         },
@@ -96,7 +96,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"cards\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"cards\"><div><div><picture><img src=\"\" alt=\"Card image\"></picture></div><div><h3>Card Title</h3><p>Card description text.</p><p><a href=\"#\">Learn more</a></p></div></div><div><div><picture><img src=\"\" alt=\"Card image\"></picture></div><div><h3>Card Title</h3><p>Card description text.</p><p><a href=\"#\">Learn more</a></p></div></div></div>"
             }
           }
         },
@@ -113,7 +113,7 @@
                 { "name": "imageAlt", "selector": "div:nth-child(1)>picture>img[alt]" },
                 { "name": "text", "selector": "div:nth-child(2)" }
               ],
-              "unsafeHTML": "<div class=\"card\"><div><div>Image</div><div>Text</div></div></div>"
+              "unsafeHTML": "<div class=\"card\"><div><div><picture><img src=\"\" alt=\"Card image\"></picture></div><div><h3>Card Title</h3><p>Card description text.</p><p><a href=\"#\">Learn more</a></p></div></div></div>"
             }
           }
         },
@@ -124,7 +124,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"cards-list\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"cards-list\"><div><div><picture><img src=\"\" alt=\"\"></picture></div><div><p>Card description</p><p><a href=\"#\">Card link</a></p></div></div><div><div><picture><img src=\"\" alt=\"\"></picture></div><div><p>Card description</p><p><a href=\"#\">Card link</a></p></div></div></div>"
             }
           }
         },
@@ -137,7 +137,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"carousel\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"carousel\"><div><div><picture><img src=\"\" alt=\"Slide background\"></picture></div><div><h2>Slide Heading</h2><p>Slide description text.</p><p><a href=\"#\">CTA Link</a></p></div></div></div>"
             }
           }
         },
@@ -154,7 +154,7 @@
                 { "name": "backgroundImageAlt", "selector": "div:nth-child(1)>picture>img[alt]" },
                 { "name": "text", "selector": "div:nth-child(2)" }
               ],
-              "unsafeHTML": "<div class=\"carousel-item\"><div><div>Background Image</div><div>Text</div></div></div>"
+              "unsafeHTML": "<div class=\"carousel-item\"><div><div><picture><img src=\"\" alt=\"Slide background image\"></picture></div><div><h2>Slide Heading</h2><p>Slide description text.</p><p><a href=\"#\">CTA Link</a></p></div></div></div>"
             }
           }
         },
@@ -180,7 +180,7 @@
               "rows": 1,
               "columns": 2,
               "behaviour": "columns",
-              "unsafeHTML": "<div class=\"columns\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"columns\"><div><div><picture><img src=\"\" alt=\"\"></picture></div><div><h2>Column Heading</h2><p>Column body content goes here.</p><p><a href=\"#\">Link</a></p></div></div></div>"
             }
           }
         },
@@ -249,7 +249,7 @@
                 { "name": "alt", "selector": "div>div>picture>img[alt]" },
                 { "name": "text", "selector": "div>div>h1" }
               ],
-              "unsafeHTML": "<div class=\"hero\"><div><div><picture></picture><h1>Hero Heading</h1></div></div></div>"
+              "unsafeHTML": "<div class=\"hero\"><div><div><picture><img src=\"\" alt=\"Hero banner image\"></picture><h1>Page Title</h1></div></div></div>"
             }
           }
         },
@@ -261,7 +261,7 @@
             "da": {
               "rows": 1,
               "columns": 1,
-              "unsafeHTML": "<div class=\"hero-cta\"><div><div><picture></picture><h1>Hero Title</h1><p><a href=\"#\">CTA Text</a></p></div></div></div>"
+              "unsafeHTML": "<div class=\"hero-cta\"><div><div><picture><img src=\"\" alt=\"Hero background image\"></picture></div><div><h1>Hero Headline</h1><p>Supporting subtitle or description.</p><p><a href=\"/page\">Primary CTA</a></p><p><a href=\"/page2\">Secondary CTA</a></p></div></div><div><div>herocta-height</div><div>tall</div></div><div><div>herocta-cta-anchor</div><div>bottom-left</div></div><div><div>interval</div><div>5000</div></div></div>"
             }
           }
         },
@@ -272,7 +272,7 @@
             "da": {
               "rows": 1,
               "columns": 1,
-              "unsafeHTML": "<div class=\"modal\"><div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"modal\"><div><div><h2>Modal Title</h2><p>Modal body content goes here.</p><p><a href=\"#\">Confirm</a></p></div></div></div>"
             }
           }
         },
@@ -283,7 +283,7 @@
           "plugins": {
             "da": {
               "type": "key-value-block",
-              "unsafeHTML": "<div class=\"newsletter\"><div><div>align</div><div>center</div></div><div><div>background-color</div><div>neutral</div></div><div><div>button-style</div><div>default</div></div></div>"
+              "unsafeHTML": "<div class=\"newsletter\"><div><div>align</div><div>center</div></div><div><div>background</div><div>neutral</div></div><div><div>Sign up for updates</div></div><div><div>Get the latest news and offers.</div></div><div><div>Your email address</div></div><div><div>Subscribe</div></div><div><div>By subscribing you agree to our <a href=\"/privacy\">Privacy Policy</a>.</div></div><div><div>You're subscribed!</div></div><div><div>Thanks for signing up. Check your inbox for a confirmation.</div></div></div>"
             }
           }
         },
@@ -295,7 +295,7 @@
             "da": {
               "rows": 1,
               "columns": 1,
-              "unsafeHTML": "<div class=\"promotional-hero\"><div><div><picture></picture><h2>Heading</h2><p>Subheading</p><p><a href=\"#\">CTA</a></p></div></div></div>"
+              "unsafeHTML": "<div class=\"promotional-hero\"><div><div><picture><img src=\"\" alt=\"Campaign image\"></picture></div><div><p>Campaign description highlighting the promotion.</p></div><div><a href=\"/shop\">Shop now</a></div></div><div><div><picture><img src=\"\" alt=\"Campaign image\"></picture></div><div><p>Campaign description highlighting the promotion.</p></div><div><a href=\"/shop\">Shop now</a></div></div></div>"
             }
           }
         },
@@ -340,7 +340,7 @@
             "da": {
               "rows": 1,
               "columns": 1,
-              "unsafeHTML": "<div class=\"top-banner\"><div><div>Banner content</div></div></div>"
+              "unsafeHTML": "<div class=\"top-banner\"><div><div>Free shipping on orders over $50</div><div></div><div><a href=\"/sale\">Shop the sale</a></div><div><a href=\"/stores\">Find a store</a></div></div></div>"
             }
           }
         },
@@ -363,7 +363,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-account-sidebar\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-account-sidebar\"><div><div>Account navigation sidebar - loads from fragment</div></div></div>"
             }
           }
         },
@@ -397,7 +397,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-checkout\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-checkout\"><div><div>One-page checkout - no content to author</div></div></div>"
             }
           }
         },
@@ -409,7 +409,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-checkout-success\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-checkout-success\"><div><div>Order confirmation - no content to author</div></div></div>"
             }
           }
         },
@@ -421,7 +421,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-confirm-account\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-confirm-account\"><div><div>Account confirmation form - no content to author</div></div></div>"
             }
           }
         },
@@ -433,7 +433,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-create-account\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-create-account\"><div><div>Registration form - no content to author</div></div></div>"
             }
           }
         },
@@ -445,7 +445,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-create-password\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-create-password\"><div><div>Password update form - no content to author</div></div></div>"
             }
           }
         },
@@ -457,7 +457,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-create-return\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-create-return\"><div><div>Return request form - no content to author</div></div></div>"
             }
           }
         },
@@ -469,7 +469,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-customer-details\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-customer-details\"><div><div>Customer details display - no content to author</div></div></div>"
             }
           }
         },
@@ -481,7 +481,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-customer-information\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-customer-information\"><div><div>Customer account information - no content to author</div></div></div>"
             }
           }
         },
@@ -493,7 +493,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-forgot-password\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-forgot-password\"><div><div>Password reset form - no content to author</div></div></div>"
             }
           }
         },
@@ -505,7 +505,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-gift-options\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-gift-options\"><div><div>Gift options display - no content to author</div></div></div>"
             }
           }
         },
@@ -517,7 +517,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-login\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-login\"><div><div>Sign-in form - no content to author</div></div></div>"
             }
           }
         },
@@ -540,7 +540,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-order-cost-summary\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-order-cost-summary\"><div><div>Order cost breakdown - no content to author</div></div></div>"
             }
           }
         },
@@ -552,7 +552,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-order-header\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-order-header\"><div><div>Order page header - no content to author</div></div></div>"
             }
           }
         },
@@ -564,7 +564,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-order-product-list\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-order-product-list\"><div><div>Order product list - no content to author</div></div></div>"
             }
           }
         },
@@ -576,7 +576,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-order-returns\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-order-returns\"><div><div>Return tracking display - no content to author</div></div></div>"
             }
           }
         },
@@ -588,7 +588,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-order-status\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-order-status\"><div><div>Order status display - no content to author</div></div></div>"
             }
           }
         },
@@ -611,7 +611,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-return-header\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-return-header\"><div><div>Return page header - no content to author</div></div></div>"
             }
           }
         },
@@ -634,7 +634,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-search-order\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-search-order\"><div><div>Order search interface - no content to author</div></div></div>"
             }
           }
         },
@@ -646,7 +646,7 @@
             "da": {
               "rows": 1,
               "columns": 2,
-              "unsafeHTML": "<div class=\"commerce-shipping-status\"><div><div>Content</div><div>Content</div></div></div>"
+              "unsafeHTML": "<div class=\"commerce-shipping-status\"><div><div>Shipping status display - no content to author</div></div></div>"
             }
           }
         },
