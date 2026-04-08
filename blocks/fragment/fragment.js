@@ -10,6 +10,108 @@ import {
   loadSections,
 } from '../../scripts/aem.js';
 
+const BLOCKED_TAGS = [
+  'script',
+  'iframe',
+  'object',
+  'embed',
+  'template',
+  'meta',
+  'base',
+];
+
+const URL_ATTRIBUTES = ['href', 'src', 'xlink:href', 'formaction', 'poster'];
+
+function sanitizeUrl(value) {
+  const trimmed = value?.trim();
+  if (!trimmed) return '';
+
+  if (
+    trimmed.startsWith('#')
+    || trimmed.startsWith('/')
+    || trimmed.startsWith('./')
+    || trimmed.startsWith('../')
+  ) {
+    return trimmed;
+  }
+
+  try {
+    const parsed = new URL(trimmed, window.location.href);
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(parsed.protocol) ? trimmed : '';
+  } catch {
+    return '';
+  }
+}
+
+function sanitizeSrcset(value) {
+  return value
+    .split(',')
+    .map((candidate) => {
+      const trimmed = candidate.trim();
+      if (!trimmed) return '';
+
+      const [url, ...rest] = trimmed.split(/\s+/);
+      const safeUrl = sanitizeUrl(url);
+      return safeUrl ? [safeUrl, ...rest].join(' ') : '';
+    })
+    .filter(Boolean)
+    .join(', ');
+}
+
+function sanitizeFragmentMarkup(markup) {
+  const doc = new DOMParser().parseFromString(markup, 'text/html');
+  let removedCount = 0;
+
+  doc.querySelectorAll(BLOCKED_TAGS.join(',')).forEach((node) => {
+    node.remove();
+    removedCount += 1;
+  });
+
+  doc.body.querySelectorAll('*').forEach((element) => {
+    [...element.attributes].forEach((attribute) => {
+      const { name, value } = attribute;
+      const lowerName = name.toLowerCase();
+
+      if (lowerName.startsWith('on')) {
+        element.removeAttribute(name);
+        removedCount += 1;
+        return;
+      }
+
+      if (lowerName === 'srcset') {
+        const safeSrcset = sanitizeSrcset(value);
+        if (safeSrcset) {
+          element.setAttribute(name, safeSrcset);
+        } else {
+          element.removeAttribute(name);
+          removedCount += 1;
+        }
+        return;
+      }
+
+      if (URL_ATTRIBUTES.includes(lowerName)) {
+        const safeUrl = sanitizeUrl(value);
+        if (safeUrl) {
+          element.setAttribute(name, safeUrl);
+        } else {
+          element.removeAttribute(name);
+          removedCount += 1;
+        }
+      }
+    });
+
+    if (element.getAttribute('target') === '_blank') {
+      element.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+
+  if (removedCount > 0) {
+    console.warn(`fragment: removed ${removedCount} unsafe HTML value(s) while loading fragment.`);
+  }
+
+  return doc.body;
+}
+
 /**
  * Loads a fragment.
  * @param {string} path The path to the fragment
@@ -22,7 +124,8 @@ export async function loadFragment(path) {
     const resp = await fetch(url);
     if (resp.ok) {
       const main = document.createElement('main');
-      main.innerHTML = await resp.text();
+      const sanitizedBody = sanitizeFragmentMarkup(await resp.text());
+      main.append(...sanitizedBody.childNodes);
 
       // reset base path for media to fragment base
       const resetAttributeBase = (tag, attr) => {

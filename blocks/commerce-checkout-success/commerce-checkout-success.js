@@ -80,29 +80,6 @@ function createOrderConfirmationFragment() {
   `);
 }
 
-function createOrderConfirmationFooter(supportPath) {
-  return `
-    <div class="order-confirmation-footer__continue-button"></div>
-    <div class="order-confirmation-footer__contact-support">
-      <p>
-        Need help?
-        <a
-          href="${supportPath}"
-          rel="noreferrer"
-          class="order-confirmation-footer__contact-support-link"
-          data-testid="order-confirmation-footer__contact-support-link"
-        >
-          Contact us
-        </a>
-      </p>
-    </div>
-  `;
-}
-
-// ----------------------------------------------------------------------------
-// Local utility slots (swatch and modal)
-// ----------------------------------------------------------------------------
-
 function swatchImageSlot(ctx) {
   const { imageSwatchContext, defaultImageProps } = ctx;
   tryRenderAemAssetsImage(ctx, {
@@ -116,19 +93,48 @@ function swatchImageSlot(ctx) {
   });
 }
 
-let signUpModal;
+const renderStates = new WeakMap();
 
-const handleAuthenticated = (authenticated) => {
-  if (authenticated) {
-    window.location.reload();
-  }
-};
+function cleanupRenderState(container) {
+  const state = renderStates.get(container);
+  if (!state) return;
+
+  state.authSubscription?.off?.();
+  state.signUpModal?.removeModal?.();
+  renderStates.delete(container);
+}
+
+function createOrderConfirmationFooter(supportPath) {
+  const footer = document.createDocumentFragment();
+  const continueButton = document.createElement('div');
+  continueButton.className = 'order-confirmation-footer__continue-button';
+
+  const contactSupport = document.createElement('div');
+  contactSupport.className = 'order-confirmation-footer__contact-support';
+
+  const paragraph = document.createElement('p');
+  paragraph.append('Need help? ');
+
+  const link = document.createElement('a');
+  link.href = supportPath;
+  link.rel = 'noopener noreferrer';
+  link.className = 'order-confirmation-footer__contact-support-link';
+  link.dataset.testid = 'order-confirmation-footer__contact-support-link';
+  link.textContent = 'Contact us';
+
+  paragraph.append(link);
+  contactSupport.append(paragraph);
+
+  footer.append(continueButton, contactSupport);
+
+  return footer;
+}
 
 // ----------------------------------------------------------------------------
 // Local renderers (order confirmation only)
 // ----------------------------------------------------------------------------
 
-async function renderOrderHeader(container, options = {}) {
+async function renderOrderHeader(container, state, options = {}) {
   const handleSignUpClick = async ({ inputsDefaultValueSet, addressesData }) => {
     const signUpForm = document.createElement('div');
     AuthProvider.render(SignUp, {
@@ -138,8 +144,9 @@ async function renderOrderHeader(container, options = {}) {
       routeRedirectOnEmailConfirmationClose: () => rootLink('/customer/account'),
       slots: { ...authPrivacyPolicyConsentSlot },
     })(signUpForm);
-    signUpModal = await createModal([signUpForm]);
-    signUpModal.showModal();
+    state.signUpModal?.removeModal?.();
+    state.signUpModal = await createModal([signUpForm]);
+    state.signUpModal.showModal();
   };
 
   return OrderProvider.render(OrderHeader, {
@@ -221,8 +228,19 @@ async function renderOrderConfirmationFooterButton(container) {
 }
 
 async function renderCheckoutSuccessContent(container, { orderData } = {}) {
-  // Register event handler for authenticated event
-  events.on('authenticated', handleAuthenticated);
+  cleanupRenderState(container);
+  const state = {
+    authSubscription: null,
+    signUpModal: null,
+  };
+  renderStates.set(container, state);
+
+  state.authSubscription = events.on('authenticated', (authenticated) => {
+    if (authenticated) {
+      cleanupRenderState(container);
+      window.location.reload();
+    }
+  });
 
   // Scroll to top on success view
   window.scrollTo(0, 0);
@@ -253,7 +271,7 @@ async function renderCheckoutSuccessContent(container, { orderData } = {}) {
 
   // Render all order confirmation containers using local renderers
   await Promise.all([
-    renderOrderHeader($orderConfirmationHeader, { orderData }),
+    renderOrderHeader($orderConfirmationHeader, state, { orderData }),
     renderOrderStatus($orderStatus),
     renderShippingStatus($shippingStatus),
     renderCustomerDetails($customerDetails),
@@ -263,7 +281,7 @@ async function renderCheckoutSuccessContent(container, { orderData } = {}) {
   ]);
 
   // Footer content and continue button
-  $orderConfirmationFooter.innerHTML = createOrderConfirmationFooter(rootLink(SUPPORT_PATH));
+  $orderConfirmationFooter.replaceChildren(createOrderConfirmationFooter(rootLink(SUPPORT_PATH)));
   const $continueBtn = $orderConfirmationFooter.querySelector(
     selectors.orderConfirmation.continueButton,
   );

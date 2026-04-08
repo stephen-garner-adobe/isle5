@@ -12,15 +12,10 @@ import { renderAuthDropdown } from './renderAuthDropdown.js';
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
-const labels = await fetchPlaceholders();
-
-const overlay = document.createElement('div');
-overlay.classList.add('overlay');
-document.querySelector('header').insertAdjacentElement('afterbegin', overlay);
-
-function closeOnEscape(e) {
+function closeOnEscape(e, overlay) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
+    if (!nav) return;
     const navSections = nav.querySelector('.nav-sections');
     const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
     if (navSectionExpanded && isDesktop.matches) {
@@ -28,7 +23,7 @@ function closeOnEscape(e) {
       overlay.classList.remove('show');
       navSectionExpanded.focus();
     } else if (!isDesktop.matches) {
-      toggleMenu(nav, navSections);
+      nav.__toggleMenu?.();
       overlay.classList.remove('show');
       nav.querySelector('button').focus();
       const navWrapper = document.querySelector('.nav-wrapper');
@@ -37,7 +32,7 @@ function closeOnEscape(e) {
   }
 }
 
-function closeOnFocusLost(e) {
+function closeOnFocusLost(e, overlay) {
   const nav = e.currentTarget;
   if (!nav.contains(e.relatedTarget)) {
     const navSections = nav.querySelector('.nav-sections');
@@ -46,7 +41,7 @@ function closeOnFocusLost(e) {
       toggleAllNavSections(navSections, false);
       overlay.classList.remove('show');
     } else if (!isDesktop.matches) {
-      toggleMenu(nav, navSections, true);
+      nav.__toggleMenu?.(true);
     }
   }
 }
@@ -63,6 +58,17 @@ function openOnKeydown(e) {
 
 function focusNavSection() {
   document.activeElement.addEventListener('keydown', openOnKeydown);
+}
+
+function getOrCreateOverlay(block) {
+  const header = block.closest('header') || document.querySelector('header');
+  let overlay = header?.querySelector(':scope > .overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+    header?.insertAdjacentElement('afterbegin', overlay);
+  }
+  return overlay;
 }
 
 /**
@@ -82,9 +88,19 @@ function toggleAllNavSections(sections, expanded = false) {
  * Toggles the entire nav
  * @param {Element} nav The container element
  * @param {Element} navSections The nav sections within the container element
+ * @param {Element} overlay The overlay element
+ * @param {Function} onEscape Escape handler
+ * @param {Function} onFocusLost Focus handler
  * @param {*} forceExpanded Optional param to force nav expand behavior when not null
  */
-function toggleMenu(nav, navSections, forceExpanded = null) {
+function toggleMenu(
+  nav,
+  navSections,
+  overlay,
+  onEscape,
+  onFocusLost,
+  forceExpanded = null,
+) {
   const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
   const button = nav.querySelector('.nav-hamburger button');
   document.body.style.overflowY = expanded || isDesktop.matches ? '' : 'hidden';
@@ -111,18 +127,27 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   // enable menu collapse on escape keypress
   if (!expanded || isDesktop.matches) {
     // collapse menu on escape press
-    window.addEventListener('keydown', closeOnEscape);
+    window.addEventListener('keydown', onEscape);
     // collapse menu on focus lost
-    nav.addEventListener('focusout', closeOnFocusLost);
+    nav.addEventListener('focusout', onFocusLost);
   } else {
-    window.removeEventListener('keydown', closeOnEscape);
-    nav.removeEventListener('focusout', closeOnFocusLost);
+    window.removeEventListener('keydown', onEscape);
+    nav.removeEventListener('focusout', onFocusLost);
   }
 }
 
-const subMenuHeader = document.createElement('div');
-subMenuHeader.classList.add('submenu-header');
-subMenuHeader.innerHTML = '<h5 class="back-link">All Categories</h5><hr />';
+function createSubMenuHeader() {
+  const subMenuHeader = document.createElement('div');
+  subMenuHeader.classList.add('submenu-header');
+
+  const backLink = document.createElement('h5');
+  backLink.classList.add('back-link');
+  backLink.textContent = 'All Categories';
+
+  subMenuHeader.append(backLink, document.createElement('hr'));
+
+  return subMenuHeader;
+}
 
 /**
  * Sets up the submenu
@@ -137,7 +162,7 @@ function setupSubmenu(navSection) {
 
     const submenu = navSection.querySelector('ul');
     const wrapper = document.createElement('div');
-    const header = subMenuHeader.cloneNode(true);
+    const header = createSubMenuHeader();
     const title = document.createElement('h6');
     title.classList.add('submenu-title');
     title.textContent = label.textContent;
@@ -157,12 +182,29 @@ function setupSubmenu(navSection) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  block.__headerCleanup?.();
+  const cleanupController = new AbortController();
+  const subscriptions = [];
+  const overlay = getOrCreateOverlay(block);
+  const labels = await fetchPlaceholders();
+
+  block.__headerCleanup = () => {
+    cleanupController.abort();
+    subscriptions.forEach((subscription) => subscription?.off?.());
+    document.body.style.overflowY = '';
+    overlay?.classList.remove('show');
+  };
+
   block.textContent = '';
 
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
   const fragment = await loadFragment(navPath);
+  if (!fragment) {
+    console.warn(`header: failed to load nav fragment "${navPath}".`);
+    return;
+  }
 
   // decorate nav DOM
   const nav = document.createElement('nav');
@@ -245,6 +287,16 @@ export default async function decorate(block) {
   const minicartPanel = navTools.querySelector('.minicart-panel');
 
   const cartButton = navTools.querySelector('.nav-cart-button');
+  const handleEscape = (event) => closeOnEscape(event, overlay);
+  const handleFocusLost = (event) => closeOnFocusLost(event, overlay);
+  nav.__toggleMenu = (forceExpanded = null) => toggleMenu(
+    nav,
+    navSections,
+    overlay,
+    handleEscape,
+    handleFocusLost,
+    forceExpanded,
+  );
 
   if (excludeMiniCartFromPaths.includes(window.location.pathname)) {
     cartButton.style.display = 'none';
@@ -322,7 +374,7 @@ export default async function decorate(block) {
   cartButton.addEventListener('click', () => toggleMiniCart(!minicartPanel.classList.contains('nav-tools-panel--show')));
 
   // Cart Item Counter
-  events.on('cart/data', (data) => {
+  subscriptions.push(events.on('cart/data', (data) => {
     // preload mini cart fragment if user has a cart
     if (data) loadMiniCartFragment();
 
@@ -331,7 +383,7 @@ export default async function decorate(block) {
     } else {
       cartButton.removeAttribute('data-count');
     }
-  }, { eager: true });
+  }, { eager: true }));
 
   /** Search */
   const searchFragment = document.createRange().createContextualFragment(`
@@ -487,7 +539,7 @@ export default async function decorate(block) {
     if (!searchPanel.contains(e.target) && !searchButton.contains(e.target)) {
       toggleSearch(false);
     }
-  });
+  }, { signal: cleanupController.signal });
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
@@ -499,13 +551,13 @@ export default async function decorate(block) {
       toggleAllNavSections(navSections);
       overlay.classList.remove('show');
     }
-  });
+  }, { signal: cleanupController.signal });
 
   window.addEventListener('resize', () => {
     navWrapper.classList.remove('active');
     overlay.classList.remove('show');
-    toggleMenu(nav, navSections, false);
-  });
+    nav.__toggleMenu(false);
+  }, { signal: cleanupController.signal });
 
   // hamburger for mobile
   const hamburger = document.createElement('div');
@@ -516,17 +568,21 @@ export default async function decorate(block) {
   hamburger.addEventListener('click', () => {
     navWrapper.classList.toggle('active');
     overlay.classList.toggle('show');
-    toggleMenu(nav, navSections);
+    nav.__toggleMenu();
   });
   nav.prepend(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+  nav.__toggleMenu(isDesktop.matches);
+  isDesktop.addEventListener(
+    'change',
+    () => nav.__toggleMenu(isDesktop.matches),
+    { signal: cleanupController.signal },
+  );
 
   renderAuthCombine(
     navSections,
-    () => !isDesktop.matches && toggleMenu(nav, navSections, false),
+    () => !isDesktop.matches && nav.__toggleMenu(false),
   );
   renderAuthDropdown(navTools);
 }

@@ -4,6 +4,42 @@
 
 The Commerce Checkout block provides a comprehensive **one-page checkout** experience with dynamic form handling, payment processing, address management, and order placement. It integrates multiple dropin containers for authentication, cart management, payment services, and order processing with dynamic UI state management and validation.
 
+## DA.live integration and authoring structure
+
+The block is authored as a plain block placeholder and does not read author-controlled block rows or section metadata for runtime behavior.
+
+| DA.live Model Options | Value | Effect |
+| --- | --- | --- |
+| N/A | N/A | Default: no sidebar model fields are defined for this block. |
+
+Document authoring example:
+
+| Commerce Checkout |
+| --- |
+
+Place the block on the checkout page template only.
+
+## Section Metadata Reference
+
+This block does not currently use block-specific section metadata.
+
+| key/field | possible values | effect |
+| --- | --- | --- |
+| N/A | N/A | Default: no section metadata is read by this block. |
+
+## Metadata Precedence
+
+Not applicable. There are no author-facing metadata tiers for this block today.
+
+## Page metadata and route requirements
+
+- Intended route: checkout only.
+- Recommended page metadata:
+  - `Robots`: `noindex, nofollow`
+  - `Cache Control`: private or no-store equivalent for authenticated and cart-derived checkout content
+- Do not place this block on general content pages, marketing pages, or indexed route templates.
+- Any page-level title, social, or indexing behavior should be configured in the page `metadata` table, not in the block.
+
 ## Integration
 
 <!-- ### Block Configuration
@@ -61,3 +97,14 @@ No localStorage keys are used by this block. -->
 - **Cart Errors**: Empty cart and out-of-stock item handling
 - **Network Errors**: Graceful handling of network failures with user feedback
 - **Fallback Behavior**: Always falls back to appropriate error states with recovery options
+
+## Accessibility notes
+
+- Checkout forms rely on drop-in components for semantic inputs, validation messaging, and keyboard interactions.
+- Route-specific testing should verify focus movement, error messaging, and keyboard access after drop-in upgrades.
+
+## Troubleshooting
+
+- If the block redirects immediately, verify the cart is not empty and the route is the intended checkout route.
+- If payment methods do not appear, verify checkout and payment-service initializers are loading correctly.
+- If the page is indexed in search results, review page-level `Robots` metadata for the checkout template.

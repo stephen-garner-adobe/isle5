@@ -4,6 +4,41 @@
 
 The Commerce Checkout Success block renders the post-purchase order confirmation experience. It initializes the Storefront Order drop-in, displays order details (status, shipping, customer information, costs, products), includes gift options in a read-only view, and provides a continue shopping action with a contact support link.
 
+## DA.live integration and authoring structure
+
+The block is authored as a plain placeholder and does not expose block rows or section metadata for runtime behavior.
+
+| DA.live Model Options | Value | Effect |
+| --- | --- | --- |
+| N/A | N/A | Default: no sidebar model fields are defined for this block. |
+
+Document authoring example:
+
+| Commerce Checkout Success |
+| --- |
+
+Place the block on the order confirmation route template only.
+
+## Section Metadata Reference
+
+This block does not currently use block-specific section metadata.
+
+| key/field | possible values | effect |
+| --- | --- | --- |
+| N/A | N/A | Default: no section metadata is read by this block. |
+
+## Metadata Precedence
+
+Not applicable. There are no author-facing metadata tiers for this block today.
+
+## Page metadata and route requirements
+
+- Intended route: order confirmation only.
+- Recommended page metadata:
+  - `Robots`: `noindex, nofollow`
+  - `Cache Control`: private or no-store equivalent because content is order-specific
+- Keep page-level indexing, caching, and title behavior in the page `metadata` table rather than block markup.
+
 ## Integration
 
 ### Block Configuration
@@ -125,3 +160,14 @@ The block listens for authentication state changes via `events.on('authenticated
 ## Notes
 
 - This block is read-only from a checkout perspective; cart and payment edits occur in the checkout flow. The success page focuses on confirmation, details, and post-purchase actions.
+
+## Accessibility notes
+
+- The block depends on Order, Cart, and Auth drop-ins for semantic UI and keyboard behavior.
+- Route testing should verify focus order after order placement and after guest sign-up flows.
+
+## Troubleshooting
+
+- If the block renders without order details, verify the order route and available `orderData` context.
+- If guest sign-up does not refresh the page, review the authenticated event flow.
+- If the confirmation page is indexed, review page-level `Robots` metadata for the route template.

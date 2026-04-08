@@ -4,6 +4,30 @@
 
 The Header block provides the main navigation and commerce functionality for the site. It includes responsive navigation with dropdown menus, authentication (sign in/sign out), wishlist access, mini cart with lazy loading, and product search with live results. The block handles both desktop and mobile layouts with hamburger menu support and manages various interactive panels.
 
+## DA.live integration and authoring structure
+
+The header is infrastructure-only. It is not registered in `models/_component-definition.json` and intentionally has no `_header.json` file because it is driven by shared fragments and page metadata.
+
+| DA.live Model Options | Value | Effect |
+| --- | --- | --- |
+| N/A | N/A | Default: the block is configured through page metadata and shared fragments, not DA.live sidebar fields. |
+
+Document authoring example:
+
+This block is typically placed by the site template rather than authored ad hoc in page content.
+
+## Section Metadata Reference
+
+This block does not currently use block-specific section metadata.
+
+| key/field | possible values | effect |
+| --- | --- | --- |
+| N/A | N/A | Default: no section metadata is read by this block. |
+
+## Metadata Precedence
+
+Not applicable. The header is controlled by page-level metadata keys and shared fragment content.
+
 ## Integration
 
 ### Block Configuration
@@ -120,4 +144,3 @@ The header creates three main sections from the nav fragment:
 - `header.css` - Styles for navigation, panels, and responsive layouts
 - `renderAuthCombine.js` - Authentication modal for mobile with sign in/sign up/reset password forms
 - `renderAuthDropdown.js` - Authentication dropdown for desktop with sign in form and user menu
-
