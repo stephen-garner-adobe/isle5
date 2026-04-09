@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "display": "grid",
+    "gridTemplate": "64px / 128px 800px 208px / \"brand sections tools\"",
+    "gridTemplateAreas": "\"brand sections tools\"",
+    "gridTemplateColumns": "128px 800px 208px",
+    "alignItems": "center",
+    "width": 1264,
+    "height": 64
+  },
+  "children": [
+    {
+      "className": "nav-hamburger",
+      "text": "",
+      "display": "none",
+      "top": 0,
+      "left": 0,
+      "width": 0,
+      "height": 0
+    },
+    {
+      "className": "section nav-brand",
+      "text": "",
+      "display": "block",
+      "top": 32.9375,
+      "left": 40,
+      "width": 128,
+      "height": 80.140625
+    },
+    {
+      "className": "section nav-sections",
+      "text": "Womens\n    \n    \n      Mens\n    \n    \n      Accessories\n    \n    \n      What's New\n    \n    \n      Winter Drop\n    \n    \n      Account\n      \n    All Categories\n      \n        Log in\n        Registration\n        My Account\n        Combined Auth\n      \n    \n      Search Order",
+      "display": "block",
+      "top": 53,
+      "left": 200,
+      "width": 800,
+      "height": 40
+    },
+    {
+      "className": "section nav-tools",
+      "text": "Search\n    \n      \n      \n    \n  \n  \n \n    \n      \n          \n          \n          \n        \n    \n      Sign inEmail *Password *Forgot password?Sign in\n      \n         My Account\n          Logout",
+      "display": "flex",
+      "top": 41,
+      "left": 1032,
+      "width": 208,
+      "height": 64
+    }
+  ]
+}

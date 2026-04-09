@@ -41,17 +41,19 @@ header nav[aria-expanded='true'] {
 }
 
 @media (min-width: 900px) {
-  header nav {
-    display: flex;
-    justify-content: space-between;
+  header nav,
+  header nav[aria-expanded='true'] {
+    display: grid;
+    grid-template:
+      'brand sections tools' var(--nav-height)
+      / auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    justify-content: stretch;
     gap: 0 32px;
     max-width: 1264px;
-    padding: 0 32px;
-  }
-
-  header nav[aria-expanded='true'] {
     min-height: 0;
     overflow: visible;
+    padding: 0 32px;
   }
 }
 
@@ -237,7 +239,9 @@ header nav .nav-sections ul > li:empty {
 
   header nav .nav-sections ul {
     display: flex;
+    align-items: center;
     gap: 24px;
+    justify-content: center;
     margin: 0;
   }
 
@@ -253,7 +257,18 @@ header nav .nav-sections ul > li:empty {
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
+    align-items: center;
+    display: flex;
     flex: 0 1 auto;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > p,
+  header nav .nav-sections .default-content-wrapper > ul > li > a,
+  header nav .nav-sections .default-content-wrapper > ul > li > p > a {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 40px;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] .submenu-wrapper {
@@ -305,6 +320,57 @@ header nav .nav-sections ul > li:empty {
   header nav .nav-sections .default-content-wrapper > ul > li:hover,
   header nav .nav-sections .nav-drop[aria-expanded='true'] {
     background-color: var(--color-neutral-200);
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1279px) {
+  header nav {
+    gap: 0 16px;
+    max-width: none;
+    padding: 0 20px;
+  }
+
+  header nav .nav-brand {
+    min-width: 112px;
+  }
+
+  header nav .nav-brand a {
+    flex-basis: 112px;
+  }
+
+  header nav .nav-brand img {
+    width: 112px;
+  }
+
+  header nav .nav-sections {
+    min-width: 0;
+  }
+
+  header nav .nav-sections ul {
+    gap: 12px;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li,
+  header nav .nav-sections .nav-drop {
+    padding: 0 4px;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > p,
+  header nav .nav-sections .default-content-wrapper > ul > li > a,
+  header nav .nav-sections .default-content-wrapper > ul > li > p > a {
+    min-height: 36px;
+  }
+
+  header nav .nav-tools {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+
+  header nav .nav-tools-wrapper > button,
+  .dropdown-wrapper.nav-tools-wrapper .nav-dropdown-button {
+    height: 36px;
+    min-width: 36px;
+    padding: 8px;
   }
 }
 

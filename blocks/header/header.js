@@ -9,7 +9,7 @@ import { fetchPlaceholders, getProductLink, rootLink } from '../../scripts/comme
 import renderAuthCombine from './renderAuthCombine.js';
 import { renderAuthDropdown } from './renderAuthDropdown.js';
 
-// media query match that indicates mobile/tablet width
+// media query match that indicates desktop width
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
 function closeOnEscape(e, overlay) {
