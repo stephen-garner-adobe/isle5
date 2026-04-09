@@ -177,6 +177,20 @@ function setupSubmenu(navSection) {
   }
 }
 
+function normalizeTopLevelNavItem(navSection) {
+  const directParagraph = navSection.querySelector(':scope > p');
+  const directAnchor = navSection.querySelector(':scope > a');
+
+  if (directAnchor || !directParagraph) return;
+
+  const paragraphChildren = [...directParagraph.children];
+  if (paragraphChildren.length !== 1 || paragraphChildren[0].tagName !== 'A') return;
+
+  const [anchor] = paragraphChildren;
+  navSection.insertBefore(anchor, directParagraph);
+  directParagraph.remove();
+}
+
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -229,6 +243,7 @@ export default async function decorate(block) {
     navSections
       .querySelectorAll(':scope .default-content-wrapper > ul > li')
       .forEach((navSection) => {
+        normalizeTopLevelNavItem(navSection);
         if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
         setupSubmenu(navSection);
         navSection.addEventListener('click', (event) => {

@@ -1,9 +1,9 @@
 {
   "nav": {
     "display": "grid",
-    "gridTemplate": "64px / 128px 800px 208px / \"brand sections tools\"",
+    "gridTemplate": "64px / 128px 768px 208px / \"brand sections tools\"",
     "gridTemplateAreas": "\"brand sections tools\"",
-    "gridTemplateColumns": "128px 800px 208px",
+    "gridTemplateColumns": "128px 768px 208px",
     "alignItems": "center",
     "width": 1264,
     "height": 64
@@ -32,8 +32,8 @@
       "text": "Womens\n    \n    \n      Mens\n    \n    \n      Accessories\n    \n    \n      What's New\n    \n    \n      Winter Drop\n    \n    \n      Account\n      \n    All Categories\n      \n        Log in\n        Registration\n        My Account\n        Combined Auth\n      \n    \n      Search Order",
       "display": "block",
       "top": 53,
-      "left": 200,
-      "width": 800,
+      "left": 216,
+      "width": 768,
       "height": 40
     },
     {

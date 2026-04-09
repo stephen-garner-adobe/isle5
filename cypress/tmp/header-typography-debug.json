@@ -1,0 +1,100 @@
+{
+  "brand": {
+    "text": "brand",
+    "tag": "A",
+    "font": "700 24px / 32px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+    "fontSize": "24px",
+    "fontWeight": "700",
+    "lineHeight": "32px",
+    "letterSpacing": "0.96px",
+    "display": "inline",
+    "height": 30,
+    "top": 82.078125
+  },
+  "items": [
+    {
+      "text": "Womens",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "Mens",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "Accessories",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "What's New",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "Winter Drop",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "Account",
+      "tag": "P",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    },
+    {
+      "text": "Search Order",
+      "tag": "A",
+      "font": "700 14px / 20px adobe-clean, roboto, roboto-fallback, system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "700",
+      "lineHeight": "20px",
+      "letterSpacing": "0.56px",
+      "display": "flex",
+      "height": 40,
+      "top": 53
+    }
+  ]
+}

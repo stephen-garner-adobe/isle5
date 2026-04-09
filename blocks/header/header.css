@@ -49,7 +49,7 @@ header nav[aria-expanded='true'] {
       / auto minmax(0, 1fr) auto;
     grid-template-columns: auto minmax(0, 1fr) auto;
     justify-content: stretch;
-    gap: 0 32px;
+    gap: 0 48px;
     max-width: 1264px;
     min-height: 0;
     overflow: visible;
@@ -59,7 +59,6 @@ header nav[aria-expanded='true'] {
 
 header nav p {
   margin: 0;
-  line-height: 1;
 }
 
 /* hamburger */
@@ -317,6 +316,10 @@ header nav .nav-sections ul > li:empty {
     max-width: var(--desktop-item-panel-max-width);
   }
 
+  header nav .nav-sections .default-content-wrapper > ul > li:last-child {
+    margin-right: var(--spacing-small);
+  }
+
   header nav .nav-sections .default-content-wrapper > ul > li:hover,
   header nav .nav-sections .nav-drop[aria-expanded='true'] {
     background-color: var(--color-neutral-200);
@@ -363,7 +366,8 @@ header nav .nav-sections ul > li:empty {
 
   header nav .nav-tools {
     flex: 0 0 auto;
-    gap: 2px;
+    gap: var(--spacing-xsmall);
+    padding-left: var(--spacing-small);
   }
 
   header nav .nav-tools-wrapper > button,
