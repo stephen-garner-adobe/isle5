@@ -141,8 +141,8 @@
 .search-bar-input-wrapper input:-webkit-autofill,
 .search-bar-input-wrapper input:-webkit-autofill:hover,
 .search-bar-input-wrapper input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--search-bar-autofill-text) !important;
-  box-shadow: 0 0 0 1000px var(--search-bar-autofill-bg) inset !important;
+  -webkit-text-fill-color: var(--search-bar-autofill-text);
+  box-shadow: 0 0 0 1000px var(--search-bar-autofill-bg) inset;
 }
 /* stylelint-enable no-descending-specificity */
 

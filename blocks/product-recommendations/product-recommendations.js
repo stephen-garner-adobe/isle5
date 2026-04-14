@@ -113,7 +113,7 @@ export default async function decorate(block) {
 
     // Clear container if reloading
     if (forceReload) {
-      container.innerHTML = '';
+      container.replaceChildren();
     }
 
     const storeViewCode = getConfigValue('headers.cs.Magento-Store-View-Code');

@@ -8,7 +8,7 @@ import {
 } from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
-  block.innerHTML = '';
+  block.replaceChildren();
 
   const headerContainer = document.createElement('div');
   await UI.render(Header, { title: 'Return' })(headerContainer);

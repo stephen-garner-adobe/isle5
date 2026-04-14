@@ -10,3 +10,4 @@ scripts/commerce-events-sdk.js
 scripts/demo-inspector-sdk/
 plugins/
 cypress/
+tools/waypoint/

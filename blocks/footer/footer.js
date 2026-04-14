@@ -40,9 +40,9 @@ export default async function decorate(block) {
 
   // Footer content - Store Switcher
   if (isMultistore()) {
-    footer.innerHTML = `
-      <div class="storeview-switcher-button"></div>
-    `;
+    const switcherDiv = document.createElement('div');
+    switcherDiv.classList.add('storeview-switcher-button');
+    footer.append(switcherDiv);
 
     // Container and component refs
     let modal;

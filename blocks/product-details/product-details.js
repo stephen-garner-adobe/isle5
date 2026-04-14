@@ -355,7 +355,7 @@ export default async function decorate(block) {
     })($alert);
 
     setTimeout(() => {
-      $alert.innerHTML = '';
+      $alert.replaceChildren();
     }, 5000);
 
     setTimeout(() => {

@@ -38,6 +38,55 @@ function sanitizeTel(value = '') {
   return `tel:${hasLeadingPlus ? '+' : ''}${digits}`;
 }
 
+function createSvg(viewBox, width, height, pathD, className = '') {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', viewBox);
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  if (className) svg.setAttribute('class', className);
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('fill', 'currentColor');
+  path.setAttribute('d', pathD);
+  svg.appendChild(path);
+  return svg;
+}
+
+function createSvgCircle(viewBox, width, height, cx, cy, r, className = '') {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', viewBox);
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  if (className) svg.setAttribute('class', className);
+  const circle = document.createElementNS(NS, 'circle');
+  circle.setAttribute('cx', String(cx));
+  circle.setAttribute('cy', String(cy));
+  circle.setAttribute('r', String(r));
+  circle.setAttribute('fill', 'currentColor');
+  svg.appendChild(circle);
+  return svg;
+}
+
+function createEl(tag, attrs = {}, text = '') {
+  const el = document.createElement(tag);
+  Object.entries(attrs).forEach(([k, v]) => {
+    if (k === 'className') el.className = v;
+    else if (k === 'ariaHidden') el.setAttribute('aria-hidden', v);
+    else el[k] = v;
+  });
+  if (text) el.textContent = text;
+  return el;
+}
+
+function bindKeyboardActivation(element, callback) {
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    callback(event);
+  });
+}
+
 function getDisplayAddress(store = {}) {
   const formatted = store.address?.formattedAddress || store.address?.formatted || '';
   if (formatted && String(formatted).trim()) return String(formatted).trim();
@@ -1142,12 +1191,8 @@ function renderStoreCard(store, uiConfig = {}) {
   if (showDistance && store.distance !== undefined) {
     const distanceBadge = document.createElement('div');
     distanceBadge.classList.add('card-distance-badge');
-    distanceBadge.innerHTML = `
-      <svg class="distance-icon" viewBox="0 0 24 24" width="14" height="14">
-        <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-      </svg>
-      ${formatDistance(store.distance, units)}
-    `;
+    distanceBadge.appendChild(createSvg('0 0 24 24', 14, 14, 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z', 'distance-icon'));
+    distanceBadge.append(` ${formatDistance(store.distance, units)}`);
     metaStrip.appendChild(distanceBadge);
   }
 
@@ -1156,12 +1201,8 @@ function renderStoreCard(store, uiConfig = {}) {
   statusBadge.classList.add('card-status-badge', isOpen ? 'open' : 'closed');
   statusBadge.setAttribute('aria-label', isOpen ? 'Store is open' : 'Store is closed');
   statusBadge.title = isOpen ? 'Store is open' : 'Store is closed';
-  statusBadge.innerHTML = `
-    <svg class="status-icon" viewBox="0 0 8 8" width="8" height="8">
-      <circle cx="4" cy="4" r="4" fill="currentColor"/>
-    </svg>
-    ${isOpen ? 'Open' : 'Closed'}
-  `;
+  statusBadge.appendChild(createSvgCircle('0 0 8 8', 8, 8, 4, 4, 4, 'status-icon'));
+  statusBadge.append(` ${isOpen ? 'Open' : 'Closed'}`);
   metaStrip.appendChild(statusBadge);
 
   topRow.appendChild(metaStrip);
@@ -1188,12 +1229,10 @@ function renderStoreCard(store, uiConfig = {}) {
     } else {
       const photoFallback = document.createElement('div');
       photoFallback.classList.add('card-photo-wrap', 'card-photo-fallback');
-      photoFallback.innerHTML = `
-        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-          <path fill="currentColor" d="M19 5h-3.2l-1.8-2H10L8.2 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-7 11a4 4 0 110-8 4 4 0 010 8z"/>
-        </svg>
-        <span>No photo available</span>
-      `;
+      const fallbackSvg = createSvg('0 0 24 24', 28, 28, 'M19 5h-3.2l-1.8-2H10L8.2 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-7 11a4 4 0 110-8 4 4 0 010 8z');
+      fallbackSvg.setAttribute('aria-hidden', 'true');
+      photoFallback.appendChild(fallbackSvg);
+      photoFallback.appendChild(createEl('span', {}, 'No photo available'));
       card.appendChild(photoFallback);
     }
   }
@@ -1219,7 +1258,11 @@ function renderStoreCard(store, uiConfig = {}) {
     const ratingRow = document.createElement('div');
     ratingRow.classList.add('card-rating');
     const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
-    ratingRow.innerHTML = `<span class="stars">${stars}</span> <span class="rating-value">${store.rating}</span> <span class="rating-count">(${store.userRatingsTotal})</span>`;
+    ratingRow.appendChild(createEl('span', { className: 'stars' }, stars));
+    ratingRow.append(' ');
+    ratingRow.appendChild(createEl('span', { className: 'rating-value' }, String(store.rating)));
+    ratingRow.append(' ');
+    ratingRow.appendChild(createEl('span', { className: 'rating-count' }, `(${store.userRatingsTotal})`));
     card.appendChild(ratingRow);
   } else {
     const ratingRow = document.createElement('div');
@@ -1286,17 +1329,21 @@ function renderStoreCard(store, uiConfig = {}) {
 
       moreDetails = document.createElement('details');
       moreDetails.classList.add('card-more-details');
-      const extraServices = store.services.slice(maxVisibleServiceTags)
-        .map((service) => `<span class="card-service-tag">${escapeHtml(formatLabel(service))}</span>`)
-        .join('');
-      moreDetails.innerHTML = `
-        <summary><span>Details</span><span class="card-more-chevron" aria-hidden="true">▾</span></summary>
-        <div class="card-more-content">${extraServices}</div>
-      `;
+      const summary = document.createElement('summary');
+      summary.appendChild(createEl('span', {}, 'Details'));
+      const chevron = createEl('span', { className: 'card-more-chevron' }, '\u25BE');
+      chevron.setAttribute('aria-hidden', 'true');
+      summary.appendChild(chevron);
+      moreDetails.appendChild(summary);
+      const moreContent = createEl('div', { className: 'card-more-content' });
+      store.services.slice(maxVisibleServiceTags).forEach((service) => {
+        moreContent.appendChild(createEl('span', { className: 'card-service-tag' }, formatLabel(service)));
+      });
+      moreDetails.appendChild(moreContent);
     }
   } else {
     servicesTags.classList.add('card-slot-empty');
-    servicesTags.innerHTML = '<span class="card-service-tag card-service-placeholder">No listed services</span>';
+    servicesTags.appendChild(createEl('span', { className: 'card-service-tag card-service-placeholder' }, 'No listed services'));
   }
   card.appendChild(servicesTags);
   if (moreDetails) card.appendChild(moreDetails);
@@ -1311,20 +1358,20 @@ function renderStoreCard(store, uiConfig = {}) {
       ? ` · ${hoursText}`
       : '';
     hours.setAttribute('aria-label', `${statusPrefix}${statusHoursText}`);
-    hours.innerHTML = `
-      <div class="card-hours-main">
-        <span class="card-hours-dot" aria-hidden="true"></span>
-        <span class="card-hours-text">${statusPrefix}${escapeHtml(statusHoursText)}</span>
-      </div>
-    `;
+    const hoursMain = createEl('div', { className: 'card-hours-main' });
+    const hoursDot = createEl('span', { className: 'card-hours-dot' });
+    hoursDot.setAttribute('aria-hidden', 'true');
+    hoursMain.appendChild(hoursDot);
+    hoursMain.appendChild(createEl('span', { className: 'card-hours-text' }, `${statusPrefix}${statusHoursText}`));
+    hours.appendChild(hoursMain);
   } else {
     hours.classList.add('card-slot-empty');
-    hours.innerHTML = `
-      <div class="card-hours-main">
-        <span class="card-hours-dot" aria-hidden="true"></span>
-        <span class="card-hours-text">Hours unavailable</span>
-      </div>
-    `;
+    const hoursMainEmpty = createEl('div', { className: 'card-hours-main' });
+    const hoursDotEmpty = createEl('span', { className: 'card-hours-dot' });
+    hoursDotEmpty.setAttribute('aria-hidden', 'true');
+    hoursMainEmpty.appendChild(hoursDotEmpty);
+    hoursMainEmpty.appendChild(createEl('span', { className: 'card-hours-text' }, 'Hours unavailable'));
+    hours.appendChild(hoursMainEmpty);
   }
   card.appendChild(hours);
 
@@ -1345,12 +1392,8 @@ function renderStoreCard(store, uiConfig = {}) {
   }
   directionsBtn.target = '_blank';
   directionsBtn.rel = 'noopener noreferrer';
-  directionsBtn.innerHTML = `
-    <svg viewBox="0 0 24 24" width="18" height="18">
-      <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-    </svg>
-    ${escapeHtml(ctaLabel)}
-  `;
+  directionsBtn.appendChild(createSvg('0 0 24 24', 18, 18, 'M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z'));
+  directionsBtn.append(` ${ctaLabel}`);
   directionsBtn.addEventListener('click', () => {
     trackStoreLocatorEvent('directions_click', {
       source: 'store_card',
@@ -1366,12 +1409,8 @@ function renderStoreCard(store, uiConfig = {}) {
     websiteBtn.href = sanitizeUrl(store.contact.website);
     websiteBtn.target = '_blank';
     websiteBtn.rel = 'noopener noreferrer';
-    websiteBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="18" height="18">
-        <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
-      </svg>
-      Website
-    `;
+    websiteBtn.appendChild(createSvg('0 0 24 24', 18, 18, 'M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z'));
+    websiteBtn.append(' Website');
     actions.appendChild(websiteBtn);
   }
 
@@ -1496,22 +1535,18 @@ function createSearchSection(
   const searchBtn = document.createElement('button');
   searchBtn.type = 'submit';
   searchBtn.classList.add('btn-search');
-  searchBtn.innerHTML = `
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 10-.71.71l.27.28v.79L20 21.5 21.5 20l-6-6zm-6 0A4.5 4.5 0 119.5 5a4.5 4.5 0 010 9z"/>
-    </svg>
-    <span>Search</span>
-  `;
+  const searchSvg = createSvg('0 0 24 24', 16, 16, 'M15.5 14h-.79l-.28-.27a6.5 6.5 0 10-.71.71l.27.28v.79L20 21.5 21.5 20l-6-6zm-6 0A4.5 4.5 0 119.5 5a4.5 4.5 0 010 9z');
+  searchSvg.setAttribute('aria-hidden', 'true');
+  searchBtn.appendChild(searchSvg);
+  searchBtn.appendChild(createEl('span', {}, 'Search'));
 
   const locationBtn = document.createElement('button');
   locationBtn.type = 'button';
   locationBtn.classList.add('btn-location');
-  locationBtn.innerHTML = `
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <path fill="currentColor" d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.25A2.25 2.25 0 1112 6.75a2.25 2.25 0 010 4.5z"/>
-    </svg>
-    <span>Use My Location</span>
-  `;
+  const locationSvg = createSvg('0 0 24 24', 16, 16, 'M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.25A2.25 2.25 0 1112 6.75a2.25 2.25 0 010 4.5z');
+  locationSvg.setAttribute('aria-hidden', 'true');
+  locationBtn.appendChild(locationSvg);
+  locationBtn.appendChild(createEl('span', {}, 'Use My Location'));
   locationBtn.setAttribute('aria-label', 'Use my current location');
 
   inputWrapper.appendChild(autocompleteWrapper);
@@ -1830,7 +1865,7 @@ function createSearchSection(
         autocompleteFetchController.abort();
         autocompleteFetchController = null;
       }
-      autocompleteList.innerHTML = '';
+      autocompleteList.replaceChildren();
       autocompleteList.classList.remove('visible');
       return;
     }
@@ -1848,23 +1883,26 @@ function createSearchSection(
             },
             (predictions, status) => {
               if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-                autocompleteList.innerHTML = '';
+                autocompleteList.replaceChildren();
                 predictions.forEach((prediction) => {
                   const item = document.createElement('div');
                   item.classList.add('autocomplete-item');
                   item.setAttribute('role', 'option');
+                  item.tabIndex = 0;
                   item.textContent = prediction.description;
-                  item.addEventListener('click', () => {
+                  const selectPrediction = () => {
                     input.value = prediction.description;
-                    autocompleteList.innerHTML = '';
+                    autocompleteList.replaceChildren();
                     autocompleteList.classList.remove('visible');
                     onSearch({ type: 'address', value: prediction.description });
-                  });
+                  };
+                  item.addEventListener('click', selectPrediction);
+                  bindKeyboardActivation(item, selectPrediction);
                   autocompleteList.appendChild(item);
                 });
                 autocompleteList.classList.add('visible');
               } else {
-                autocompleteList.innerHTML = '';
+                autocompleteList.replaceChildren();
                 autocompleteList.classList.remove('visible');
               }
             },
@@ -1886,24 +1924,27 @@ function createSearchSection(
           debugLog('✅ Nominatim results:', results.length, 'suggestions');
 
           if (results.length > 0) {
-            autocompleteList.innerHTML = '';
+            autocompleteList.replaceChildren();
             results.forEach((result) => {
               const item = document.createElement('div');
               item.classList.add('autocomplete-item');
               item.setAttribute('role', 'option');
+              item.tabIndex = 0;
               item.textContent = result.display_name;
-              item.addEventListener('click', () => {
+              const selectResult = () => {
                 input.value = result.display_name;
-                autocompleteList.innerHTML = '';
+                autocompleteList.replaceChildren();
                 autocompleteList.classList.remove('visible');
                 onSearch({ type: 'address', value: result.display_name });
-              });
+              };
+              item.addEventListener('click', selectResult);
+              bindKeyboardActivation(item, selectResult);
               autocompleteList.appendChild(item);
             });
             autocompleteList.classList.add('visible');
             debugLog('👁️ Autocomplete dropdown shown with', results.length, 'items');
           } else {
-            autocompleteList.innerHTML = '';
+            autocompleteList.replaceChildren();
             autocompleteList.classList.remove('visible');
             debugLog('⚠️ No autocomplete results found');
           }
@@ -1919,7 +1960,7 @@ function createSearchSection(
   // Close autocomplete on outside click
   document.addEventListener('click', (e) => {
     if (!autocompleteWrapper.contains(e.target)) {
-      autocompleteList.innerHTML = '';
+      autocompleteList.replaceChildren();
       autocompleteList.classList.remove('visible');
     }
   }, { signal });
@@ -1934,7 +1975,7 @@ function createSearchSection(
       const openNow = openNowCheckbox.checked;
       const radius = Number.parseInt(radiusSelect.value, 10) || 0;
       savePreferences({ lastSearch: searchValue });
-      autocompleteList.innerHTML = '';
+      autocompleteList.replaceChildren();
       autocompleteList.classList.remove('visible');
       trackStoreLocatorEvent('search_submit', { query: searchValue });
       onSearch({
@@ -2314,7 +2355,17 @@ async function initializeMap(
 ) {
   // Check if Google Maps is available
   if (typeof google === 'undefined' || !google.maps) {
-    container.innerHTML = '<p class="map-placeholder">📍 Map requires Google Maps API key.<br><br>Add <strong>"Google Maps API Key"</strong> in your DA.live block configuration to enable the interactive map.<br><br>The store list and search features work without it!</p>';
+    const mapMsg = createEl('p', { className: 'map-placeholder' });
+    mapMsg.append('\uD83D\uDCCD Map requires Google Maps API key.');
+    mapMsg.appendChild(document.createElement('br'));
+    mapMsg.appendChild(document.createElement('br'));
+    mapMsg.append('Add ');
+    mapMsg.appendChild(createEl('strong', {}, '"Google Maps API Key"'));
+    mapMsg.append(' in your DA.live block configuration to enable the interactive map.');
+    mapMsg.appendChild(document.createElement('br'));
+    mapMsg.appendChild(document.createElement('br'));
+    mapMsg.append('The store list and search features work without it!');
+    container.replaceChildren(mapMsg);
     return null;
   }
 
@@ -2433,12 +2484,14 @@ async function initializeMap(
           const dropdown = infoRoot.querySelector('[data-hours-dropdown]');
 
           if (toggleBtn && dropdown) {
-            toggleBtn.addEventListener('click', () => {
+            const toggleHoursDropdown = () => {
               const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
               toggleBtn.setAttribute('aria-expanded', !isExpanded);
               toggleBtn.classList.toggle('expanded');
               dropdown.classList.toggle('expanded');
-            });
+            };
+            toggleBtn.addEventListener('click', toggleHoursDropdown);
+            bindKeyboardActivation(toggleBtn, toggleHoursDropdown);
           }
 
           // Photo carousel scroll indicators
@@ -2459,13 +2512,18 @@ async function initializeMap(
 
             // Click indicator to scroll to that photo
             indicators.forEach((dot, index) => {
-              dot.addEventListener('click', () => {
+              dot.tabIndex = 0;
+              dot.setAttribute('role', 'button');
+              dot.setAttribute('aria-label', `Show store photo ${index + 1}`);
+              const scrollToPhoto = () => {
                 const slideWidth = photosContainer.offsetWidth;
                 photosContainer.scrollTo({
                   left: slideWidth * index,
                   behavior: 'smooth',
                 });
-              });
+              };
+              dot.addEventListener('click', scrollToPhoto);
+              bindKeyboardActivation(dot, scrollToPhoto);
             });
 
             // Set first indicator as active on load
@@ -2489,7 +2547,7 @@ async function initializeMap(
     return mapState;
   } catch (error) {
     console.error('Map initialization error:', error);
-    container.innerHTML = '<p class="map-error">Unable to load map. Please try again later.</p>';
+    container.replaceChildren(createEl('p', { className: 'map-error' }, 'Unable to load map. Please try again later.'));
     return null;
   }
 }
@@ -2800,7 +2858,8 @@ async function enrichStoresWithPlacesData(stores, config, detailLevel = 'lite') 
 function createLoadingSpinner() {
   const spinner = document.createElement('div');
   spinner.classList.add('loading-spinner');
-  spinner.innerHTML = '<div class="spinner"></div><p>Loading stores...</p>';
+  spinner.appendChild(createEl('div', { className: 'spinner' }));
+  spinner.appendChild(createEl('p', {}, 'Loading stores...'));
   return spinner;
 }
 
@@ -2848,7 +2907,7 @@ export default async function decorate(block) {
     storeDataObj = await loadStoreData(config, block);
   } catch (error) {
     console.error('Failed to load store data:', error);
-    block.innerHTML = '<p class="error">Unable to load store data. Please try again later.</p>';
+    block.replaceChildren(createEl('p', { className: 'error' }, 'Unable to load store data. Please try again later.'));
     return;
   }
 
@@ -2938,14 +2997,15 @@ export default async function decorate(block) {
       summaryParts.push(`${services.length} service filters`);
     }
     const accessibleText = summaryParts.join(' · ');
-    const chipsMarkup = chips
-      .map((chip) => `<span class="summary-chip">${escapeHtml(chip)}</span>`)
-      .join('');
     resultsSummary.setAttribute('aria-label', accessibleText);
-    resultsSummary.innerHTML = `
-      <span class="summary-count">${escapeHtml(summaryParts[0])}</span>
-      <span class="summary-chips" aria-hidden="true">${chipsMarkup}</span>
-    `;
+    resultsSummary.replaceChildren();
+    resultsSummary.appendChild(createEl('span', { className: 'summary-count' }, summaryParts[0]));
+    const chipsContainer = createEl('span', { className: 'summary-chips' });
+    chipsContainer.setAttribute('aria-hidden', 'true');
+    chips.forEach((chip) => {
+      chipsContainer.appendChild(createEl('span', { className: 'summary-chip' }, chip));
+    });
+    resultsSummary.appendChild(chipsContainer);
     resultsSummary.hidden = false;
   }
 
@@ -3255,7 +3315,7 @@ export default async function decorate(block) {
   updateCompactToolbar();
 
   // Replace block content
-  block.innerHTML = '';
+  block.replaceChildren();
   block.appendChild(container);
 
   // Create persistent loading spinner overlay
@@ -3351,7 +3411,7 @@ export default async function decorate(block) {
       } catch (error) {
         console.error('Failed to load Google Maps:', error);
         const errorMsg = 'Unable to load map. Please check your API key and try again.';
-        mapContainer.innerHTML = `<p class="map-placeholder">${errorMsg}</p>`;
+        mapContainer.replaceChildren(createEl('p', { className: 'map-placeholder' }, errorMsg));
       }
     } else {
       // No API key provided - show helpful message

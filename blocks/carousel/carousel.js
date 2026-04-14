@@ -55,6 +55,26 @@ function bindEvents(block) {
     });
   });
 
+  slideIndicators.addEventListener('keydown', (event) => {
+    const currentButton = event.target.closest('button');
+    if (!currentButton) return;
+
+    const indicators = [...slideIndicators.querySelectorAll('button')];
+    const currentIndex = indicators.indexOf(currentButton);
+    if (currentIndex === -1) return;
+
+    let targetIndex = currentIndex;
+    if (event.key === 'ArrowRight') targetIndex = (currentIndex + 1) % indicators.length;
+    else if (event.key === 'ArrowLeft') targetIndex = (currentIndex - 1 + indicators.length) % indicators.length;
+    else if (event.key === 'Home') targetIndex = 0;
+    else if (event.key === 'End') targetIndex = indicators.length - 1;
+    else return;
+
+    event.preventDefault();
+    indicators[targetIndex].focus();
+    indicators[targetIndex].click();
+  });
+
   const slideObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -153,9 +173,12 @@ export default async function decorate(block) {
       const indicator = document.createElement('li');
       indicator.classList.add('carousel-slide-indicator');
       indicator.dataset.targetSlide = idx;
-      indicator.innerHTML = `<button type="button" aria-label="${
+      const indicatorBtn = document.createElement('button');
+      indicatorBtn.type = 'button';
+      indicatorBtn.setAttribute('aria-label', `${
         placeholders.showSlide || 'Show Slide'
-      } ${idx + 1} ${placeholders.of || 'of'} ${rows.length}"></button>`;
+      } ${idx + 1} ${placeholders.of || 'of'} ${rows.length}`);
+      indicator.append(indicatorBtn);
       slideIndicators.append(indicator);
     }
     row.remove();

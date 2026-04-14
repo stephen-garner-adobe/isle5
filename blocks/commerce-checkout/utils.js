@@ -28,7 +28,7 @@ export const removeOverlaySpinner = (loaderRef, $loader) => {
 
   loaderRef.current.remove();
   loaderRef.current = null;
-  $loader.innerHTML = '';
+  $loader.replaceChildren();
 };
 
 // Modal state management

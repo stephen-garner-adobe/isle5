@@ -28,12 +28,12 @@ const renderSignIn = async (element, email, orderNumber) => authRenderer.render(
 })(element);
 
 export default async function decorate(block) {
-  block.innerHTML = '';
+  block.replaceChildren();
 
   events.on('order/data', async (order) => {
     if (!order) return;
 
-    block.innerHTML = '';
+    block.replaceChildren();
 
     await orderRenderer.render(OrderSearch, {
       isAuth: checkIsAuthenticated(),

@@ -16,7 +16,13 @@
     "build:json:models": "merge-json-cli -i \"models/_component-models.json\" -o \"component-models.json\"",
     "build:json:definitions": "merge-json-cli -i \"models/_component-definition.json\" -o \"component-definition.json\"",
     "build:json:filters": "merge-json-cli -i \"models/_component-filters.json\" -o \"component-filters.json\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "waypoint": "node tools/waypoint/waypoint.js",
+    "waypoint:assess": "node tools/waypoint/waypoint.js assess",
+    "waypoint:verify": "node tools/waypoint/waypoint.js verify",
+    "waypoint:gates": "node tools/waypoint/waypoint.js gates",
+    "waypoint:drift": "node tools/waypoint/waypoint.js drift",
+    "waypoint:json": "node tools/waypoint/waypoint.js assess --format=json"
   },
   "repository": {
     "type": "git",

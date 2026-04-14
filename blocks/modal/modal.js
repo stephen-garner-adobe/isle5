@@ -17,7 +17,9 @@ export default async function createModal(contentNodes) {
   closeButton.setAttribute('aria-label', 'Close');
   closeButton.setAttribute('data-dismiss', 'modal');
   closeButton.type = 'button';
-  closeButton.innerHTML = '<span class="icon icon-close"></span>';
+  const closeIcon = document.createElement('span');
+  closeIcon.classList.add('icon', 'icon-close');
+  closeButton.append(closeIcon);
   closeButton.addEventListener('click', () => dialog.close());
   dialog.append(closeButton);
 
@@ -39,6 +41,13 @@ export default async function createModal(contentNodes) {
       || event.clientY < dialogDimensions.top
       || event.clientY > dialogDimensions.bottom
     ) {
+      closeModal();
+    }
+  });
+
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
       closeModal();
     }
   });

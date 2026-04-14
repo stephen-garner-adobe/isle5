@@ -1,269 +1,178 @@
-# Adobe Commerce Storefront Skills Proposal
+# Adobe Commerce Storefront Skills & Agents
 
-This document proposes a compact operational skill set for Adobe Commerce Storefront implementations using `isle5` as the reference implementation.
+Operational skill and agent system for Adobe Commerce Storefront implementations using `isle5` as the reference implementation.
+
+## Architecture
+
+| Layer | Purpose | Location | Format |
+|-------|---------|----------|--------|
+| **Shared Contracts** | Universal finding schema, severity model, delegation protocol | `skills/_contracts/*.md` | Reference docs |
+| **Skills** (9) | Single-concern domain expertise. Stateless. Produce findings or artifacts. | `skills/<name>/SKILL.md` | Frontmatter + markdown |
+| **Agents** (3) | Multi-step orchestrators. Route decisions, compose skill outputs, autonomous workflows. | `agents/<name>/AGENT.md` | Frontmatter + markdown |
+
+Skills do not invoke agents. Agents invoke skills. Skills delegate findings outside their domain via the `delegate-to` field in the shared finding schema.
 
 ## Reference Model
 
-Use `isle5` as the baseline for how these skills should reason about a storefront implementation:
+Use `isle5` as the baseline for how skills and agents reason about a storefront implementation:
 
 - `blocks/` contains reusable custom blocks, DA.live contracts, and block-specific authoring patterns.
 - `scripts/__dropins__/` and `scripts/initializers/` define drop-in delivery and integration behavior.
 - `cypress/` provides route smoke coverage, end-to-end checks, and visual evidence.
-- `AGENTS.md` is the standards and guardrails source of truth.
-- `README.md` describes the delivery model and reusable accelerator intent.
+- `AGENTS.md` is the canonical standards and guardrails source of truth.
+- `skills/_contracts/` defines the shared finding schema, severity model, and delegation protocol.
 
-## Proposed Skills
+## Shared Contracts
+
+All skills and agents share these contracts:
+
+| Contract | File | Purpose |
+|----------|------|---------|
+| Finding Schema | `skills/_contracts/finding-schema.md` | Universal output shape for all audit findings |
+| Severity Model | `skills/_contracts/severity-model.md` | Blocker/warning/advisory classification with confidence levels |
+| Delegation Protocol | `skills/_contracts/delegation-protocol.md` | Skill ownership boundaries, dependency chains, delegation rules |
+
+## Skills
 
 ### `storefront-block-author`
-Purpose: Create or update custom storefront blocks that comply with block structure, metadata, accessibility, security, and documentation rules.
+**Purpose**: Create or update custom storefront blocks that comply with block structure, metadata, accessibility, security, performance, lifecycle, and documentation rules from AGENTS.md.
 
-Use when:
-- building a new block
-- doing a major first-pass block rewrite
-- aligning block implementation with DA.live and `AGENTS.md`
+**Use when**: Building a new block, doing a major block rewrite, or remediating security/accessibility issues in block code.
 
-Inspects:
-- `blocks/<block>/`
-- `AGENTS.md`
-- component definition/model/filter surfaces
-
-Should produce:
-- block JS/CSS
-- `_block.json`
-- README alignment
-- metadata precedence and safe DOM patterns
-
-Should avoid:
-- unrelated route or drop-in changes
-- repo-wide refactors when the request is block-scoped
+**Key checklists**: Structure (4 files), Security (URL safety, innerHTML), Accessibility (semantic HTML, focus, tap targets, reduced motion), Performance (LCP, loading phases, DOM batching), Metadata (prefix naming, precedence, normalization), Lifecycle (idempotent decoration, cleanup), Error handling (fallbacks, warnings), CSS discipline (variants, tokens, specificity).
 
 ### `dropin-integrator`
-Purpose: Wire Adobe Commerce drop-ins correctly for the route and commerce domain they serve.
+**Purpose**: Wire Adobe Commerce drop-ins correctly for the route and commerce domain they serve.
 
-Use when:
-- adding or updating a commerce drop-in
-- fixing initializer or endpoint issues
-- integrating account, cart, checkout, PDP, PLP, search, or recommendations flows
+**Use when**: Adding or updating a commerce drop-in, fixing initializer or endpoint issues, debugging event bus leaks.
 
-Inspects:
-- `scripts/initializers/`
-- `scripts/__dropins__/`
-- `scripts/commerce.js`
-- route-specific blocks
+**Key checklists**: Endpoint matrix (CS vs CORE per drop-in), Initializer lifecycle (guard, setEndpoint, placeholders, mountImmediately), Render pattern (curried render, scope isolation), Event bus lifecycle (on/off pairing, no stacking), Cross-drop-in dependencies (auth -> cart -> checkout chain), Import strategy (dynamic vs static).
 
-Should produce:
-- correct initializer placement
-- correct GraphQL endpoint usage
-- placeholders and scope handling
-- route-aware integration notes
+### `authoring-contract-auditor`
+**Purpose**: Verify bidirectional alignment between implementation code and author-facing documentation — metadata naming, precedence, normalization, README completeness, DA.live contracts.
 
-Should avoid:
-- inventing custom rendering layers where a drop-in pattern already exists
-- changing unrelated storefront content blocks
+**Use when**: Blocks rely on section metadata, README drift is likely, DA.live contracts may have drifted from implementation, or a new block needs contract verification.
 
-### `metadata-contract-checker`
-Purpose: Verify that block metadata naming, precedence, normalization, and README documentation stay aligned.
+**Merges**: Former `metadata-contract-checker` and `authoring-docs-sync` skills.
 
-Use when:
-- blocks rely on section metadata
-- README drift is likely
-- metadata-heavy implementations need auditing
-
-Inspects:
-- block JS config resolution
-- block README tables and precedence sections
-- `_block.json`
-- section metadata conventions from `AGENTS.md`
-
-Should produce:
-- metadata drift findings
-- precedence mismatches
-- normalization/fallback issues
-- concrete doc/code alignment recommendations
-
-Should avoid:
-- broad stylistic feedback unrelated to metadata contracts
+**Key checklists**: Metadata naming (block prefix, no generics), Metadata precedence (5-tier order), Metadata resolution (getConfigValue, double-prefix, normalize-and-persist), README completeness (7 sections, 3-column metadata table, precedence section), DA.live contract (definitions/models/filters match authoring shape), Bidirectional alignment (code vs docs parity).
 
 ### `route-smoke-auditor`
-Purpose: Validate critical storefront routes and detect missing or weak route coverage.
+**Purpose**: Validate critical storefront routes and detect missing or weak route coverage.
 
-Use when:
-- auditing implementation readiness
-- validating route-critical changes
-- checking account, checkout, PDP, PLP, cart, login, or search flows
+**Use when**: Auditing implementation readiness, validating route-critical changes, checking Cypress coverage.
 
-Inspects:
-- `cypress/`
-- route-critical blocks and drop-ins
-- route expectations from repo conventions
+**Key checklists**: Route inventory (19+ routes mapped to Cypress specs), Coverage gap detection (missing specs, weak coverage, skipped specs), Route-to-block mapping, Prerequisite-gated routes (auth, cart state, config dependencies).
 
-Should produce:
-- route coverage summary
-- missing smoke coverage findings
-- route-to-block expectation gaps
-
-Should avoid:
-- acting like a full visual diff tool
-- treating static code review as route validation
+**Boundary**: Owns functional behavior ("does the route work?"). Visual correctness belongs to `visual-geometry-auditor`.
 
 ### `visual-geometry-auditor`
-Purpose: Check responsive geometry, overflow, clipping, spacing drift, and route-level visual regressions.
+**Purpose**: Check responsive geometry, overflow, clipping, spacing drift, overlay safety, and viewport-based visual regressions.
 
-Use when:
-- validating responsive storefront quality
-- reviewing floating UI, overlays, cards, and layout-sensitive blocks
-- comparing captured evidence across routes or breakpoints
+**Use when**: Validating responsive quality, reviewing floating UI, checking CSS compliance, verifying accessibility geometry.
 
-Inspects:
-- `cypress/` visual assets and related specs
-- block CSS and layout-sensitive UI surfaces
-- responsive breakpoints used by the project
+**Key checklists**: Viewport sweep (9 widths, 2px leak threshold), Overlay/floating safety (box-sizing, max-width, z-index), CSS variant model (data attributes, specificity ordering), Design token compliance, Accessibility geometry (44x44 tap targets, focus-visible, AA contrast).
 
-Should produce:
-- viewport-based defect findings
-- geometry risk summaries
-- route/viewport evidence references
-
-Should avoid:
-- making product decisions without visual evidence
-- replacing smoke or metadata validation
+**Boundary**: Owns visual correctness ("does it look right?"). Functional behavior belongs to `route-smoke-auditor`.
 
 ### `commerce-config-doctor`
-Purpose: Diagnose endpoint, header, placeholder, environment, and storefront mode issues.
+**Purpose**: Diagnose endpoint, header, CSP, environment, and storefront mode issues.
 
-Use when:
-- setup feels inconsistent
-- auth or commerce requests behave unexpectedly
-- the implementation may mix storefront modes or environments
+**Use when**: Setup feels inconsistent, auth/commerce requests misbehave, or you need to verify ACO vs Cloud Service mode.
 
-Inspects:
-- `config.json`
-- demo config files
-- `scripts/commerce.js`
-- initializer and route assumptions
-
-Should produce:
-- readiness checks
-- missing config findings
-- endpoint/header mismatches
-- mode plausibility notes
-
-Should avoid:
-- rewriting implementation code when the issue is pure configuration
-
-### `commerce-optimizer-catalog-builder`
-Purpose: Build Adobe Commerce Optimizer catalog-ingestion request sets from the official Data Ingestion schema and emit implementation-ready REST payloads.
-
-Use when:
-- creating Commerce Optimizer ingestion payloads
-- modeling categories, metadata, products, price books, and prices
-- turning a product-domain brief into request-ready sample catalog data
-
-Inspects:
-- official Adobe Commerce Optimizer schema:
-  - `https://developer.adobe.com/commerce/services/rest/data-ingestion-schema-v1.yaml`
-- official Adobe Commerce Optimizer fallback docs when raw schema retrieval is blocked
-
-Should produce:
-- request blocks in a consistent REST template format
-- schema-aligned endpoint paths and payload shapes
-- internally consistent categories, metadata, products, price books, and prices
-- clear assumptions when the user does not fully specify the catalog
-
-Should ask first:
-- what type of products are needed
-- how many price books are needed
-- whether child price books are needed
-
-Should avoid:
-- inventing unsupported fields or enums
-- answering from memory when the official schema can be read
-- producing storefront implementation guidance instead of ingestion payloads
-
-### `authoring-docs-sync`
-Purpose: Keep authoring documentation, DA.live contracts, and implementation behavior in sync.
-
-Use when:
-- block README coverage is incomplete
-- DA.live models/definitions drift from implementation
-- authoring predictability matters
-
-Inspects:
-- block READMEs
-- `_block.json`
-- component definition/model/filter files
-- related block implementation
-
-Should produce:
-- README gap findings
-- DA.live contract drift findings
-- concise updates for author-facing guidance
-
-Should avoid:
-- changing runtime behavior unless the task explicitly includes implementation fixes
+**Key checklists**: Config surface (config.json, demo configs, fstab.yaml), Endpoint/header matrix, Mode detection (ACO vs CS signals), Security config (CSP, secrets, session), Pipeline config (head.html import map, modulepreload, speculation rules), Analytics config.
 
 ### `upstream-drift-reviewer`
-Purpose: Compare the storefront against upstream boilerplate and isolate meaningful follow-up work.
+**Purpose**: Compare the storefront against upstream boilerplate and isolate meaningful sync work.
 
-Use when:
-- reviewing template drift
-- planning upgrade or sync work
-- separating local customization from baseline platform change
+**Use when**: Reviewing template drift, planning upgrade work, separating customization from unintentional drift.
 
-Inspects:
-- git history and remotes
-- local storefront customizations
-- upstream-compatible surfaces
+**Key checklists**: Baseline definition (upstream remote and branch), File classification matrix (upstream-safe, local-custom, mixed), Drift severity (high/medium/low/intentional), Sync risk assessment.
 
-Should produce:
-- upstream drift summary
-- sync candidates
-- high-risk local divergence notes
+### `quality-gate-runner`
+**Purpose**: Validate lint, build pipeline, shipping checklist, CI/CD health, and risk-based testing expectations.
 
-Should avoid:
-- blind sync recommendations
-- overwriting local implementation choices without review
+**Use when**: Pre-commit validation, PR review, shipping readiness check, or build pipeline diagnosis.
+
+**Key checklists**: Lint (ESLint + Stylelint), Build pipeline (build:json sync, pre-commit hook, postinstall), Before Shipping Checklist (all 17 AGENTS.md items), CI/CD health (GitHub workflows), Risk-based testing expectations (per block type).
+
+### `commerce-optimizer-catalog-builder`
+**Purpose**: Build Adobe Commerce Optimizer catalog-ingestion request sets from the official Data Ingestion schema.
+
+**Use when**: Creating Commerce Optimizer ingestion payloads, modeling categories/products/prices/price books.
+
+**Key features**: Schema-grounded (fetches official Adobe schema on every invocation), discovery questions (product type, price book count, child price books), structured REST template output, validation against official field names and enums.
+
+## Agents
 
 ### `waypoint-assess`
-Purpose: Orchestrate storefront assessment across blocks, drop-ins, routes, docs, config, visual evidence, and remediation planning.
+**Purpose**: Storefront-wide assessment orchestrator. Delegates evidence-gathering to specialist skills, synthesizes findings, maps cross-domain dependencies, produces remediation packages.
 
-Use when:
-- assessing implementation quality
-- preparing remediation work
-- turning storefront findings into grouped action packages
+**Promoted from**: Former `waypoint-assess` skill.
 
-Inspects:
-- `AGENTS.md`
-- `README.md`
-- `blocks/`
-- `scripts/`
-- `cypress/`
-- config and git surfaces
+**Composes**: All 8 non-catalog skills.
 
-Should produce:
-- structured findings
-- confidence/readiness state
-- grouped remediation packages
-- next-step commands for Codex or developers
+**20 concern domains**: Accessibility, Performance, Security, Metadata, Resilience, Authoring, DOM, Visual Geometry, CSS, Route Readiness, Documentation, Pipeline, Drop-in Lifecycle, Data Flow, Cross-Block, Config, Analytics, SEO, Error Paths, CI/CD.
 
-Should avoid:
-- acting like a generic linter
-- mutating risky code directly when the right outcome is a Codex-ready plan
+**Adds beyond skills**: Executive synthesis, cross-domain dependency graph, remediation package grouping with parallelization hints, readiness state determination (ready / ready-with-warnings / not-ready).
 
-## How These Skills Work Together
+### `block-lifecycle`
+**Purpose**: End-to-end block creation/rewrite orchestrator.
 
-Typical implementation flow:
+**Composes**: `storefront-block-author`, `dropin-integrator` (if commerce), `authoring-contract-auditor`, `quality-gate-runner`, `visual-geometry-auditor`.
 
-1. `storefront-block-author` builds or updates the custom block surface.
-2. `dropin-integrator` wires commerce journeys where packaged drop-ins are the right fit.
-3. `metadata-contract-checker` and `authoring-docs-sync` keep authoring behavior predictable.
-4. `route-smoke-auditor` and `visual-geometry-auditor` validate route behavior and layout quality.
-5. `commerce-config-doctor` checks environment and endpoint correctness.
-6. `upstream-drift-reviewer` identifies reusable baseline sync opportunities.
-7. `waypoint-assess` pulls the full picture together into findings and remediation actions.
+**Workflow**: Discovery -> Author -> Wire drop-in (if commerce) -> Verify contracts -> Register in DA.live -> Run quality gates -> Verify geometry. Each stage must pass before the next begins.
 
-## Notes
+### `remediation-executor`
+**Purpose**: Takes assessment findings and executes remediation in dependency order.
 
-- These are proposed Codex-style operational skills, not installed skills yet.
-- The catalog is intentionally small and role-oriented rather than exhaustive.
-- The focus is Adobe Commerce Storefront implementation work, not generic frontend development.
+**Composes**: Any skill, as needed per finding.
+
+**Workflow**: Parse findings -> Resolve dependencies -> Identify parallelizable work -> Execute (delegate, apply, verify, record) -> Cascade check (auto-resolve downstream findings).
+
+## How Skills and Agents Work Together
+
+### Assessment flow
+```
+waypoint-assess (agent)
+  -> commerce-config-doctor      (config correctness)
+  -> quality-gate-runner          (pipeline health)
+  -> authoring-contract-auditor   (metadata/docs alignment)
+  -> storefront-block-author      (block implementation quality)
+  -> dropin-integrator            (drop-in wiring)
+  -> route-smoke-auditor          (route coverage)
+  -> visual-geometry-auditor      (responsive geometry)
+  -> upstream-drift-reviewer      (sync planning)
+  = Synthesized assessment with remediation packages
+```
+
+### Block creation flow
+```
+block-lifecycle (agent)
+  -> storefront-block-author      (implement block)
+  -> dropin-integrator            (wire drop-in, if commerce)
+  -> authoring-contract-auditor   (verify contracts)
+  -> quality-gate-runner          (run gates)
+  -> visual-geometry-auditor      (verify geometry)
+  = Block completion report
+```
+
+### Remediation flow
+```
+remediation-executor (agent)
+  -> [findings from waypoint-assess or user input]
+  -> dependency-ordered execution via specialist skills
+  -> cascade resolution of downstream findings
+  = Remediation execution report
+```
+
+## Dependency Chains
+
+Skills and agents respect these dependency orders during execution:
+
+| Chain | Order |
+|-------|-------|
+| Config -> Data flow -> Routes | `commerce-config-doctor` -> `dropin-integrator` -> `route-smoke-auditor` |
+| Pipeline -> Authoring -> DA.live | `quality-gate-runner` -> `authoring-contract-auditor` -> `storefront-block-author` |
+| Initializer -> Drop-in -> Commerce | `dropin-integrator` -> `route-smoke-auditor` -> `visual-geometry-auditor` |
+| CSP -> URL safety -> Block security | `commerce-config-doctor` -> `storefront-block-author` |

@@ -43,7 +43,7 @@ export default async function decorate(block) {
     return menuItemEl;
   });
 
-  block.innerHTML = '';
+  block.replaceChildren();
   sidebarItems.forEach((el) => {
     block.appendChild(el);
   });

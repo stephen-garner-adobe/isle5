@@ -6,7 +6,7 @@ export default function decorate(block) {
     title = 'My account',
   } = readBlockConfig(block);
 
-  block.innerHTML = '';
+  block.replaceChildren();
 
   return UI.render(Header, { title })(block);
 }

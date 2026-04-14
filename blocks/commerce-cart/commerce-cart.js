@@ -82,7 +82,7 @@ export default async function decorate(block) {
   const $giftOptions = fragment.querySelector('.cart__gift-options');
   const $rightColumn = fragment.querySelector('.cart__right-column');
 
-  block.innerHTML = '';
+  block.replaceChildren();
   block.appendChild(fragment);
 
   // Wishlist variables
@@ -317,7 +317,7 @@ export default async function decorate(block) {
     })($notification);
 
     setTimeout(() => {
-      $notification.innerHTML = '';
+      $notification.replaceChildren();
     }, 5000);
   });
 

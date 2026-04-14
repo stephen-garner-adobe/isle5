@@ -50,17 +50,17 @@
 
 /* Show when it contains actual error content */
 .checkout__server-error:has(.dropin-illustrated-message) {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Safari fallback: show when not empty, but this may show empty divs briefly */
 @supports not selector(:has(*)) {
     .checkout__server-error:not(:empty) {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+        display: block;
+        visibility: visible;
+        opacity: 1;
     }
 }
 
@@ -79,7 +79,7 @@
 .checkout__content--error .checkout__payment-methods,
 .checkout__content--error .checkout__billing-form,
 .checkout__content--error .checkout__terms-and-conditions {
-    display: none !important;
+    display: none;
 }
 
 /* Hide blocks with empty divs */
@@ -119,7 +119,7 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 9999;
+    z-index: 20;
 }
 
 .checkout__loader:empty {

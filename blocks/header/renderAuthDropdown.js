@@ -59,16 +59,23 @@ export function renderAuthDropdown(navTools) {
   );
 
   authDropDownPanel.addEventListener('click', (e) => e.stopPropagation());
+  authDropDownPanel.addEventListener('keydown', async (event) => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    await toggleDropDownAuthMenu(false);
+    loginButton.focus();
+  });
 
   async function toggleDropDownAuthMenu(state) {
     const show = state ?? !authDropDownPanel.classList.contains('nav-tools-panel--show');
 
     authDropDownPanel.classList.toggle('nav-tools-panel--show', show);
     authDropDownPanel.setAttribute('role', 'dialog');
-    authDropDownPanel.setAttribute('aria-hidden', 'false');
+    authDropDownPanel.setAttribute('aria-hidden', show ? 'false' : 'true');
     authDropDownPanel.setAttribute('aria-labelledby', 'modal-title');
     authDropDownPanel.setAttribute('aria-describedby', 'modal-description');
-    authDropDownPanel.focus();
+    loginButton.setAttribute('aria-expanded', show ? 'true' : 'false');
+    if (show) authDropDownPanel.focus();
   }
 
   loginButton.addEventListener('click', () => toggleDropDownAuthMenu());
@@ -103,17 +110,25 @@ export function renderAuthDropdown(navTools) {
     } else {
       authDropDownMenuList.style.display = 'none';
       authDropinContainer.style.display = 'block';
-      loginButton.innerHTML = `
-      <svg
-          width="25"
-          height="25"
-          viewBox="0 0 24 24"
-          aria-label="My Account"
-          >
-          <g fill="none" stroke="#000000" stroke-width="1.5">
-          <circle cx="12" cy="6" r="4"></circle>
-          <path d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z"></path></g></svg>
-        `;
+      const accountSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      accountSvg.setAttribute('width', '25');
+      accountSvg.setAttribute('height', '25');
+      accountSvg.setAttribute('viewBox', '0 0 24 24');
+      accountSvg.setAttribute('aria-label', 'My Account');
+      const accountG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      accountG.setAttribute('fill', 'none');
+      accountG.setAttribute('stroke', '#000000');
+      accountG.setAttribute('stroke-width', '1.5');
+      const accountCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      accountCircle.setAttribute('cx', '12');
+      accountCircle.setAttribute('cy', '6');
+      accountCircle.setAttribute('r', '4');
+      const accountPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      accountPath.setAttribute('d', 'M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z');
+      accountG.appendChild(accountCircle);
+      accountG.appendChild(accountPath);
+      accountSvg.appendChild(accountG);
+      loginButton.replaceChildren(accountSvg);
     }
   };
 

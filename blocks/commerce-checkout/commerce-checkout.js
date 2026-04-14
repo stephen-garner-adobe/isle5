@@ -232,7 +232,7 @@ export default async function decorate(block) {
     if (isVirtualCart(data)) {
       shippingForm?.remove();
       shippingForm = null;
-      $shippingForm.innerHTML = '';
+      $shippingForm.replaceChildren();
     } else if (!shippingForm) {
       shippingFormSkeleton.remove();
 
@@ -250,7 +250,7 @@ export default async function decorate(block) {
     if (isVirtualCart(data)) {
       shippingAddresses?.remove();
       shippingAddresses = null;
-      $shippingForm.innerHTML = '';
+      $shippingForm.replaceChildren();
     } else if (!shippingAddresses) {
       shippingForm?.remove();
       shippingForm = null;

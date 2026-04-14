@@ -119,6 +119,37 @@ const resetPasswordFormConfig = {
   routeSignIn: () => rootLink(CUSTOMER_LOGIN_PATH),
 };
 
+function createPopupMenuList() {
+  const list = document.createElement('ul');
+  list.className = 'popupMenuUrlList';
+
+  const accountItem = document.createElement('li');
+  const accountLink = document.createElement('a');
+  accountLink.href = rootLink(CUSTOMER_ACCOUNT_PATH);
+  accountLink.textContent = 'My Account';
+  accountItem.append(accountLink);
+
+  const productItem = document.createElement('li');
+  const productLink = document.createElement('a');
+  productLink.href = getProductLink('hollister-backyard-sweatshirt', 'MH05');
+  productLink.textContent = 'Product page';
+  productItem.append(productLink);
+
+  const logoutItem = document.createElement('li');
+  const logoutButton = document.createElement('button');
+  logoutButton.type = 'button';
+  logoutButton.className = 'logoutButton';
+  logoutButton.textContent = 'Logout';
+  logoutButton.addEventListener('click', async () => {
+    await authApi.revokeCustomerToken();
+    window.location.href = rootLink('/');
+  });
+  logoutItem.append(logoutButton);
+
+  list.append(accountItem, productItem, logoutItem);
+  return list;
+}
+
 const onHeaderLinkClick = (element) => {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
   const originalViewportContent = viewportMeta.getAttribute('content');
@@ -223,7 +254,10 @@ const renderAuthCombine = (navSections, toggleMenu) => {
 
     authCombineLink.classList.add('authCombineNavElement');
     const text = authCombineLink.textContent || '';
-    authCombineLink.innerHTML = `<a href="#">${text}</a>`;
+    const authCombineAnchor = document.createElement('a');
+    authCombineAnchor.href = '#';
+    authCombineAnchor.textContent = text;
+    authCombineLink.replaceChildren(authCombineAnchor);
     authCombineLink.addEventListener('click', (event) => {
       event.preventDefault();
       onHeaderLinkClick(accountLi);
@@ -259,7 +293,7 @@ const renderAuthCombine = (navSections, toggleMenu) => {
           }
 
           authCombineNavElement.style.display = 'none';
-          popupMenuContainer.innerHTML = '';
+          popupMenuContainer.replaceChildren();
           popupElement.style.minWidth = '250px';
           if (headerLoginButton) {
             const spanElementText = headerLoginButton.querySelector('span');
@@ -267,14 +301,7 @@ const renderAuthCombine = (navSections, toggleMenu) => {
               'auth_dropin_firstname',
             )}`;
           }
-          popupMenuContainer.insertAdjacentHTML(
-            'afterend',
-            `<ul class="popupMenuUrlList">
-              <li><a href="${rootLink(CUSTOMER_ACCOUNT_PATH)}">My Account</a></li>
-              <li><a href="${getProductLink('hollister-backyard-sweatshirt', 'MH05')}">Product page</a></li>
-              <li><button class="logoutButton">Logout</button></li>
-            </ul>`,
-          );
+          popupMenuContainer.after(createPopupMenuList());
         }
       });
       toggleMenu?.();

@@ -544,6 +544,16 @@ function initTocBehavior(block) {
     tocToggle.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
   });
 
+  toc.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (toc.dataset.expanded !== 'true') return;
+    if (!window.matchMedia('(max-width: 1023px)').matches) return;
+
+    toc.dataset.expanded = 'false';
+    tocToggle.setAttribute('aria-expanded', 'false');
+    tocToggle.focus();
+  });
+
   updateMode();
   window.addEventListener('resize', updateMode, { passive: true });
 

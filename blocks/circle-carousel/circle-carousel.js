@@ -94,11 +94,20 @@ function createNavigation(block, totalItems) {
   const prevBtn = document.createElement('button');
   prevBtn.classList.add('circle-carousel-nav-btn', 'circle-carousel-prev');
   prevBtn.setAttribute('aria-label', 'Previous items');
-  prevBtn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"></polyline>
-    </svg>
-  `;
+  const prevSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  prevSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  prevSvg.setAttribute('width', '20');
+  prevSvg.setAttribute('height', '20');
+  prevSvg.setAttribute('viewBox', '0 0 24 24');
+  prevSvg.setAttribute('fill', 'none');
+  prevSvg.setAttribute('stroke', 'currentColor');
+  prevSvg.setAttribute('stroke-width', '2');
+  prevSvg.setAttribute('stroke-linecap', 'round');
+  prevSvg.setAttribute('stroke-linejoin', 'round');
+  const prevPolyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+  prevPolyline.setAttribute('points', '15 18 9 12 15 6');
+  prevSvg.appendChild(prevPolyline);
+  prevBtn.appendChild(prevSvg);
   prevBtn.addEventListener('click', () => {
     const currentSlide = parseInt(block.dataset.currentSlide || '0', 10);
     showSlide(block, currentSlide - 1);
@@ -128,11 +137,20 @@ function createNavigation(block, totalItems) {
   const nextBtn = document.createElement('button');
   nextBtn.classList.add('circle-carousel-nav-btn', 'circle-carousel-next');
   nextBtn.setAttribute('aria-label', 'Next items');
-  nextBtn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  `;
+  const nextSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  nextSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  nextSvg.setAttribute('width', '20');
+  nextSvg.setAttribute('height', '20');
+  nextSvg.setAttribute('viewBox', '0 0 24 24');
+  nextSvg.setAttribute('fill', 'none');
+  nextSvg.setAttribute('stroke', 'currentColor');
+  nextSvg.setAttribute('stroke-width', '2');
+  nextSvg.setAttribute('stroke-linecap', 'round');
+  nextSvg.setAttribute('stroke-linejoin', 'round');
+  const nextPolyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+  nextPolyline.setAttribute('points', '9 18 15 12 9 6');
+  nextSvg.appendChild(nextPolyline);
+  nextBtn.appendChild(nextSvg);
   nextBtn.addEventListener('click', () => {
     const currentSlide = parseInt(block.dataset.currentSlide || '0', 10);
     showSlide(block, currentSlide + 1);
@@ -141,6 +159,18 @@ function createNavigation(block, totalItems) {
   nav.appendChild(prevBtn);
   nav.appendChild(indicatorsContainer);
   nav.appendChild(nextBtn);
+
+  nav.addEventListener('keydown', (event) => {
+    if (!event.target.closest('.circle-carousel-nav-btn, .circle-carousel-indicator button')) return;
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      prevBtn.click();
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      nextBtn.click();
+    }
+  });
 
   return { nav };
 }
@@ -256,7 +286,7 @@ export default function decorate(block) {
   viewport.appendChild(track);
   container.appendChild(viewport);
 
-  block.innerHTML = '';
+  block.replaceChildren();
   block.appendChild(container);
 
   // Add navigation if more items than can be displayed

@@ -383,7 +383,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
   border-radius: var(--sl-search-radius);
   max-height: 300px;
   overflow-y: auto;
-  z-index: 9999; /* Highest z-index to ensure dropdown is always on top */
+  z-index: 12;
   box-shadow: var(--sl-shadow-lg);
 
   /* Ensure dropdown doesn't get cut off by parent containers */
@@ -391,7 +391,7 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 }
 
 .autocomplete-list.visible {
-  display: block !important;
+  display: block;
 }
 
 .autocomplete-item {
@@ -1592,8 +1592,8 @@ main > .section.store-locator-container[data-width="full"] .store-locator.block 
 a.btn-primary {
   width: 100%;
   padding: 8px 12px;
-  background: var(--sl-action-bg) !important;
-  color: var(--sl-action-text) !important;
+  background: var(--sl-action-bg);
+  color: var(--sl-action-text);
   border: 1px solid var(--sl-action-border);
   border-radius: 8px;
   font-size: 13px;
@@ -1603,7 +1603,7 @@ a.btn-primary {
   letter-spacing: 0;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none !important;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1626,12 +1626,12 @@ a.btn-primary {
 a.btn-primary svg,
 .card-actions .btn-primary svg {
   flex-shrink: 0;
-  fill: currentcolor !important;
+  fill: currentcolor;
 }
 
 a.btn-primary svg path,
 .card-actions .btn-primary svg path {
-  fill: currentcolor !important;
+  fill: currentcolor;
 }
 
 .btn-primary:focus-visible {
@@ -1641,24 +1641,24 @@ a.btn-primary svg path,
 
 a.btn-primary:hover,
 .card-actions .btn-primary:hover {
-  background: var(--sl-action-bg-hover) !important;
+  background: var(--sl-action-bg-hover);
   border-color: var(--sl-action-bg-hover);
-  color: var(--sl-action-text) !important;
+  color: var(--sl-action-text);
   box-shadow: var(--sl-action-shadow);
   transform: translateY(-1px);
 }
 
 a.btn-primary:active,
 .card-actions .btn-primary:active {
-  background: var(--sl-action-bg-active) !important;
-  color: var(--sl-action-text) !important;
+  background: var(--sl-action-bg-active);
+  color: var(--sl-action-text);
   box-shadow: none;
   transform: translateY(0);
 }
 
 a.btn-primary:visited,
 .card-actions .btn-primary:visited {
-  color: var(--sl-action-text) !important;
+  color: var(--sl-action-text);
 }
 
 .card-actions .btn-secondary {
@@ -2264,7 +2264,7 @@ a.btn-primary:visited,
   background: var(--sl-action-bg);
   border: 1px solid var(--sl-action-border);
   border-radius: 8px;
-  text-decoration: none !important;
+  text-decoration: none;
   color: var(--sl-action-text);
   font-size: 13px;
   font-weight: 600;
@@ -2278,15 +2278,15 @@ a.btn-primary:visited,
 
 .info-link:link,
 .info-link:visited {
-  color: var(--sl-action-text) !important;
-  text-decoration: none !important;
+  color: var(--sl-action-text);
+  text-decoration: none;
 }
 
 .info-link:hover {
   background: var(--sl-action-bg-hover);
   border-color: var(--sl-action-bg-hover);
-  color: var(--sl-action-text) !important;
-  text-decoration: none !important;
+  color: var(--sl-action-text);
+  text-decoration: none;
   transform: translateY(-1px);
   box-shadow: var(--sl-action-shadow);
 }
@@ -2299,23 +2299,23 @@ a.btn-primary:visited,
 
 .info-link.info-link-primary:link,
 .info-link.info-link-primary:visited {
-  color: var(--sl-action-text) !important;
-  text-decoration: none !important;
+  color: var(--sl-action-text);
+  text-decoration: none;
 }
 
 .info-link.info-link-primary:hover {
   background: var(--sl-action-bg-hover);
   border-color: var(--sl-action-bg-hover);
-  color: var(--sl-action-text) !important;
-  text-decoration: none !important;
+  color: var(--sl-action-text);
+  text-decoration: none;
 }
 
 .info-link:active,
 .info-link.info-link-primary:active {
   background: var(--sl-action-bg-active);
   border-color: var(--sl-action-bg-active);
-  color: var(--sl-action-text) !important;
-  text-decoration: none !important;
+  color: var(--sl-action-text);
+  text-decoration: none;
   box-shadow: none;
   transform: translateY(0);
 }
@@ -2869,9 +2869,9 @@ a.btn-primary:visited,
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .store-locator * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }
 

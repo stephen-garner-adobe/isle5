@@ -210,12 +210,28 @@ export default async function decorate(block) {
   searchIconButton.type = 'submit';
   searchIconButton.classList.add('search-bar-icon');
   searchIconButton.setAttribute('aria-label', 'Search');
-  searchIconButton.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  const searchSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  searchSvg.setAttribute('width', '24');
+  searchSvg.setAttribute('height', '24');
+  searchSvg.setAttribute('viewBox', '0 0 24 24');
+  searchSvg.setAttribute('fill', 'none');
+  searchSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  searchSvg.setAttribute('aria-hidden', 'true');
+  const searchPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  searchPath1.setAttribute('d', 'M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z');
+  searchPath1.setAttribute('stroke', 'currentColor');
+  searchPath1.setAttribute('stroke-width', '2');
+  searchPath1.setAttribute('stroke-linecap', 'round');
+  searchPath1.setAttribute('stroke-linejoin', 'round');
+  const searchPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  searchPath2.setAttribute('d', 'M21 21L16.65 16.65');
+  searchPath2.setAttribute('stroke', 'currentColor');
+  searchPath2.setAttribute('stroke-width', '2');
+  searchPath2.setAttribute('stroke-linecap', 'round');
+  searchPath2.setAttribute('stroke-linejoin', 'round');
+  searchSvg.appendChild(searchPath1);
+  searchSvg.appendChild(searchPath2);
+  searchIconButton.appendChild(searchSvg);
 
   const inputWrapper = document.createElement('div');
   inputWrapper.classList.add('search-bar-input-wrapper');

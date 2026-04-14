@@ -6,7 +6,7 @@ The Header block provides the main navigation and commerce functionality for the
 
 ## DA.live integration and authoring structure
 
-The header is infrastructure-only. It is not registered in `models/_component-definition.json` and intentionally has no `_header.json` file because it is driven by shared fragments and page metadata.
+The header is infrastructure-oriented and primarily driven by shared fragments and page metadata. It does include a lightweight [_header.json](/Users/sgarner/Documents/Demo%20Environments/isle5/blocks/header/_header.json) definition so the block shape remains explicit, but it does not expose custom sidebar configuration fields.
 
 | DA.live Model Options | Value | Effect |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ The header is infrastructure-only. It is not registered in `models/_component-de
 
 Document authoring example:
 
-This block is typically placed by the site template rather than authored ad hoc in page content.
+This block is typically placed by the site template rather than authored ad hoc in page content. The DA definition declares a simple 1x1 content structure and leaves behavior to shared fragments plus metadata tags such as `nav`, `wishlist`, and `mini-cart`.
 
 ## Section Metadata Reference
 

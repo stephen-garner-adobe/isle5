@@ -47,7 +47,7 @@ export default async function decorate(block) {
   const $productList = fragment.querySelector('.search__product-list');
   const $pagination = fragment.querySelector('.search__pagination');
 
-  block.innerHTML = '';
+  block.replaceChildren();
   block.appendChild(fragment);
 
   // Add url path back to the block for enrichment, incase enrichment block is
@@ -190,9 +190,15 @@ export default async function decorate(block) {
     block.classList.toggle('product-list-page--empty', totalCount === 0);
 
     // Results Info
-    $resultInfo.innerHTML = payload.request?.phrase
-      ? `${totalCount} results found for <strong>"${payload.request.phrase}"</strong>.`
-      : `${totalCount} results found.`;
+    $resultInfo.replaceChildren();
+    if (payload.request?.phrase) {
+      const phraseText = `${totalCount} results found for `;
+      const strong = document.createElement('strong');
+      strong.textContent = `"${payload.request.phrase}"`;
+      $resultInfo.append(phraseText, strong, '.');
+    } else {
+      $resultInfo.textContent = `${totalCount} results found.`;
+    }
 
     // Update the view facets button with the number of filters
     if (payload.request.filter.length > 0) {

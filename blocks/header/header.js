@@ -538,7 +538,7 @@ export default async function decorate(block) {
     );
     const undoEnabled = miniCartElement
       && (miniCartElement.textContent?.includes('undo-remove-item')
-        || miniCartElement.innerHTML?.includes('undo-remove-item'));
+        || miniCartElement.querySelector('.undo-remove-item'));
 
     // For mini cart: if undo is enabled, be more restrictive about when to close
     const shouldCloseMiniCart = undoEnabled
@@ -577,9 +577,14 @@ export default async function decorate(block) {
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></span>
-    </button>`;
+  const hamburgerBtn = document.createElement('button');
+  hamburgerBtn.type = 'button';
+  hamburgerBtn.setAttribute('aria-controls', 'nav');
+  hamburgerBtn.setAttribute('aria-label', 'Open navigation');
+  const hamburgerIcon = document.createElement('span');
+  hamburgerIcon.classList.add('nav-hamburger-icon');
+  hamburgerBtn.append(hamburgerIcon);
+  hamburger.append(hamburgerBtn);
   hamburger.addEventListener('click', () => {
     navWrapper.classList.toggle('active');
     overlay.classList.toggle('show');

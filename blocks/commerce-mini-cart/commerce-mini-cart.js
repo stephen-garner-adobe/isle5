@@ -155,9 +155,23 @@ export default async function decorate(block) {
         e.stopPropagation();
       }
     });
+
+    block.addEventListener('keydown', (e) => {
+      const isKeyboardActivation = e.key === 'Enter' || e.key === ' ';
+      if (!isKeyboardActivation) return;
+
+      const isRemoveButton = e.target.closest('[class*="remove"]')
+        || e.target.closest('[data-testid*="remove"]')
+        || e.target.closest('[class*="undo"]')
+        || e.target.closest('[data-testid*="undo"]');
+
+      if (isRemoveButton) {
+        e.stopPropagation();
+      }
+    });
   }
 
-  block.innerHTML = '';
+  block.replaceChildren();
 
   // Render MiniCart
   const createProductLink = (product) => getProductLink(product.url.urlKey, product.topLevelSku);

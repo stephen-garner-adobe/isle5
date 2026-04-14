@@ -1,0 +1,19 @@
+{
+  "definitions": [
+    {
+      "title": "Footer",
+      "id": "footer",
+      "plugins": {
+        "da": {
+          "rows": 1,
+          "columns": 1,
+          "fields": [
+            { "name": "content", "selector": "div>div" }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [],
+  "filters": []
+}
