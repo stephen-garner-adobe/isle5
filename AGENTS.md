@@ -225,6 +225,40 @@ function normalizeAlign(value, fallback = 'right') {
 This project uses Adobe Commerce drop-in components for commerce functionality.
 Understanding the integration pattern is required for any block that renders commerce UI.
 
+## Generated Config Artifacts
+
+This repo generates the root DA.live config artifacts from `models/_*.json`.
+
+Rules:
+- If you change any block `_*.json` file under `blocks/`, or any file under `models/`, you MUST run `npm run build:json`.
+- Treat `component-definition.json`, `component-models.json`, and `component-filters.json` as generated artifacts.
+- Do not hand-edit generated root JSON files unless the task explicitly requires it.
+- New non-`commerce-*` and non-`product-*` blocks usually also require updating `models/_component-definition.json` so they appear in authoring.
+
+## Drop-in Source Ownership
+
+This repo vendors drop-in implementation code under `scripts/__dropins__/`.
+
+Rules:
+- Prefer changing block code, wrappers, slots, initializers, and shared storefront helpers before editing vendored files under `scripts/__dropins__/`.
+- Treat `scripts/__dropins__/` as vendor-managed unless the task explicitly requires patching vendored drop-in code.
+- If vendored drop-in code must be changed, document why the wrapper or initializer layer was insufficient.
+
+## Shared Commerce Helpers
+
+When implementing commerce behavior:
+- Reuse helpers from `scripts/commerce.js` and `scripts/aem.js` before adding block-local variants.
+- Do not hardcode known commerce route paths, product URLs, or placeholder-loading patterns when an existing helper exists.
+- Prefer `getProductLink()`, `fetchPlaceholders()`, route/path constants, and existing metadata readers over ad-hoc string construction.
+
+## GraphQL Endpoint Selection
+
+Rules:
+- Use `CS_FETCH_GRAPHQL` for catalog, search, and product-discovery use cases.
+- Use `CORE_FETCH_GRAPHQL` for cart, auth, checkout, account, order, and other customer-state flows.
+- Do not introduce a new fetch client when one of the shared storefront GraphQL instances already matches the use case.
+- If a block mounts a drop-in, ensure the corresponding initializer sets the correct endpoint before render.
+
 ### Initializer lifecycle
 
 Each drop-in has an initializer in `scripts/initializers/`. The common pattern:
@@ -248,6 +282,14 @@ await initializeDropin(async () => {
 - `setEndpoint` assigns the GraphQL fetch instance (`CS_FETCH_GRAPHQL` for catalog/search, `CORE_FETCH_GRAPHQL` for cart/auth/account).
 - `fetchPlaceholders` loads i18n strings.
 - `initializers.mountImmediately` runs the drop-in init.
+
+## Initializer Discipline
+
+Rules:
+- If a block depends on a storefront drop-in, import the relevant initializer from `scripts/initializers/` rather than reimplementing initialization inside the block.
+- Use `initializeDropin()` for drop-in setup that must be guarded against duplicate initialization.
+- Do not register duplicate global event-bus listeners on repeated decoration.
+- When adding document or window listeners in blocks, ensure they remain safe under re-decoration and prerendering changes.
 
 ### Render pattern
 
@@ -322,6 +364,13 @@ Use a canonical pattern or helper for validating/sanitizing authored URLs (e.g. 
 - Do not inject unsanitized author content with `innerHTML`.
 - Build DOM with `createElement`/`textContent`.
 - Do not log raw `innerHTML` from authored cells in warnings.
+
+## DOM Construction Safety
+
+Rules:
+- Do not use `createContextualFragment`, `DOMParser`, or `innerHTML` with authored or metadata-derived strings.
+- These APIs are acceptable only for fully static, in-repo template strings with no author-controlled interpolation.
+- For author-controlled content, build DOM with `createElement`, `textContent`, and attribute setters.
 
 ## JavaScript Rules
 
@@ -748,6 +797,21 @@ When removing a custom block or capability, remove all implementation surfaces:
 All block creation changes must pass:
 - ESLint (JS)
 - Stylelint (CSS)
+
+## Repo Test Execution Conventions
+
+Rules:
+- Root project linting runs from the repo root: `npm run lint`, `npm run lint:js`, `npm run lint:css`.
+- End-to-end commerce tests live in the separate `cypress/` workspace and must be run from that directory.
+- For route-critical commerce changes, prefer running the relevant Cypress coverage from `cypress/` instead of relying only on manual smoke-test notes.
+- When documenting E2E validation, specify whether it was run against the PaaS or SaaS Cypress config.
+
+## Placeholder And Label Conventions
+
+Rules:
+- Author-visible UI labels for commerce or drop-in experiences should come from placeholders where the repo already supports them.
+- Prefer `fetchPlaceholders('placeholders/<feature>.json')` or the existing shared placeholder flow over inline English strings.
+- If a new route-critical experience introduces new author-visible labels, document the placeholder dependency in the block README.
 
 ### Risk-based testing expectations
 
