@@ -2201,8 +2201,12 @@ function createInfoWindowContent(store, uiConfig = {}) {
     content.appendChild(distanceRow);
   }
 
+  let actions = null;
   if (store.contact?.website || store.directionsUrl) {
-    const actions = createEl('div', { className: 'info-links-row' });
+    actions = createEl('div', { className: 'info-links-row' });
+    if (store.contact?.website && store.directionsUrl) {
+      actions.classList.add('has-secondary');
+    }
     if (store.directionsUrl) {
       const directions = createEl('a', { className: 'info-link info-link-primary' });
       directions.href = safeDirectionsHref;
@@ -2224,7 +2228,6 @@ function createInfoWindowContent(store, uiConfig = {}) {
       website.appendChild(createEl('span', {}, 'Website'));
       actions.appendChild(website);
     }
-    content.appendChild(actions);
   }
 
   const addressRow = createEl('div', { className: 'info-row' });
@@ -2239,6 +2242,10 @@ function createInfoWindowContent(store, uiConfig = {}) {
     phoneLink.href = safePhoneHref;
     phoneRow.appendChild(phoneLink);
     content.appendChild(phoneRow);
+  }
+
+  if (actions) {
+    content.appendChild(actions);
   }
 
   const supplementaryItems = [
@@ -3265,29 +3272,6 @@ export default async function decorate(block) {
   const mobileDefaultView = window.matchMedia('(max-width: 767px)').matches ? 'list' : null;
   const preferredView = prefs.preferredView || mobileDefaultView || config.defaultView || 'split';
   setView(preferredView);
-
-  // Compact toolbar mode on scroll (desktop/tablet)
-  let compactTicking = false;
-  const updateCompactToolbar = () => {
-    if (!searchSectionEl) return;
-    const isWideViewport = window.matchMedia('(min-width: 1024px)').matches;
-    const compactThreshold = searchSectionEl.offsetTop + 24;
-    const shouldCompact = isWideViewport && window.scrollY > compactThreshold;
-    searchSectionEl.classList.toggle('is-compact', shouldCompact);
-  };
-
-  const onCompactToolbarScroll = () => {
-    if (compactTicking) return;
-    compactTicking = true;
-    window.requestAnimationFrame(() => {
-      updateCompactToolbar();
-      compactTicking = false;
-    });
-  };
-
-  window.addEventListener('scroll', onCompactToolbarScroll, { passive: true, signal });
-  window.addEventListener('resize', onCompactToolbarScroll, { passive: true, signal });
-  updateCompactToolbar();
 
   // Replace block content
   block.replaceChildren();
