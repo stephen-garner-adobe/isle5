@@ -7,7 +7,7 @@ Typical files:
 - `blocks/<block-name>/<block-name>.js`
 - `blocks/<block-name>/<block-name>.css`
 - `blocks/<block-name>/README.md`
-- `blocks/<block-name>/_<block-name>.json`
+- `ue/models/blocks/<block-name>.json`
 
 Use official Adobe Commerce Storefront documentation as source of truth:
 - https://experienceleague.adobe.com/developer/commerce/storefront/get-started/
@@ -38,7 +38,7 @@ Use official Adobe Commerce Storefront documentation as source of truth:
 
 | Change type | Apply full file? | Minimum expectation |
 |---|---|---|
-| New block creation | Yes | Full compliance, README + `_block-name.json`, lint and geometry gates |
+| New block creation | Yes | Full compliance, README + `ue/models/blocks/block-name.json`, lint and geometry gates |
 | Major first-pass architecture rewrite | Yes | Full compliance for rewritten surfaces, remove stale legacy behavior |
 | Micro-fix in existing block | No (unless requested) | Keep fix scoped, preserve existing contracts, avoid opportunistic rewrites |
 | Security/accessibility defect | Yes for relevant sections | Enforce mandatory sections even in micro-fixes |
@@ -53,7 +53,7 @@ Use this short sequence before reading the full detail:
 5. Verify Eager/Lazy/Delayed placement and LCP image behavior.
 6. Run `npm run lint:js` and `npm run lint:css` (or `npm run lint`).
 7. Validate geometry across required widths.
-8. Ensure `_block-name.json`, README, and implementation match.
+8. Ensure `ue/models/blocks/block-name.json`, README, and implementation match.
 
 ## Required Block Structure
 
@@ -63,7 +63,7 @@ Every new block must include:
 - `block-name.js` -- block logic with a single default export `decorate(block)`.
 - `block-name.css` -- block styles.
 - `README.md` -- documentation (see README Requirements).
-- `_block-name.json` -- DA.live configuration (see DA.live JSON Config).
+- `ue/models/blocks/block-name.json` -- DA.live/Universal Editor configuration (see DA.live JSON Config).
 
 ## EDS Loading Phases (Eager-Lazy-Delayed)
 
@@ -227,13 +227,13 @@ Understanding the integration pattern is required for any block that renders com
 
 ## Generated Config Artifacts
 
-This repo generates the root DA.live config artifacts from `models/_*.json`.
+This repo generates the root DA.live/Universal Editor config artifacts from `ue/models/*.json`.
 
 Rules:
-- If you change any block `_*.json` file under `blocks/`, or any file under `models/`, you MUST run `npm run build:json`.
+- If you change any block JSON file under `ue/models/blocks/`, or any file under `ue/models/`, you MUST run `npm run build:json`.
 - Treat `component-definition.json`, `component-models.json`, and `component-filters.json` as generated artifacts.
 - Do not hand-edit generated root JSON files unless the task explicitly requires it.
-- New non-`commerce-*` and non-`product-*` blocks usually also require updating `models/_component-definition.json` so they appear in authoring.
+- New authorable blocks must be added to `ue/models/blocks/` and included by the generated authoring config so they appear in authoring.
 
 ## Drop-in Source Ownership
 
@@ -656,7 +656,7 @@ For very simple blocks (one or two metadata keys, no real precedence), a short n
 
 ## DA.live JSON Config
 
-The `_block-name.json` file configures how DA.live presents the block to authors.
+The `ue/models/blocks/block-name.json` file configures how DA.live and Universal Editor present the block to authors.
 It contains three arrays: `definitions`, `models`, and `filters`.
 
 ### Definitions
@@ -751,11 +751,11 @@ An empty `components` array means no child components are filtered.
 - `component-models.json` aggregates all block models by id.
 - `component-filters.json` aggregates all block filters.
 - `component-definition.json` aggregates all block definitions.
-- Keep `_block-name.json` aligned with actual authoring shape; avoid stale model fields that no longer map to behavior.
+- Keep `ue/models/blocks/block-name.json` aligned with actual authoring shape; avoid stale model fields that no longer map to behavior.
 
 ### Registering a new block
 
-Definitions are sourced from `models/_component-definition.json`, which references block folders via globs (e.g. `../blocks/hero/_*.json#/definitions`, `../blocks/product-*/_*.json#/definitions`). For a new block to appear in the DA.live authoring UI, either add an entry in the appropriate group in `models/_component-definition.json` pointing to `../blocks/<block-name>/_*.json#/definitions`, or place the block in a folder that already matches an existing glob (e.g. `product-*`). After changing any `_*.json` under `blocks/` or any file under `models/`, run `npm run build:json` so `component-definition.json`, `component-models.json`, and `component-filters.json` are updated (the pre-commit hook stages these built files).
+Definitions are sourced from `ue/models/component-definition.json`, which references block model files in `ue/models/blocks/`. For a new block to appear in the DA.live/Universal Editor authoring UI, add `ue/models/blocks/<block-name>.json` and ensure the generated section filter includes the block id. After changing any JSON file under `ue/models/`, run `npm run build:json` so `component-definition.json`, `component-models.json`, and `component-filters.json` are updated.
 
 ## Removal and Breaking Changes
 
@@ -855,7 +855,7 @@ Follow project conventions:
 7. No-JS fallback: critical content and links are visible/usable before decoration.
 8. Motion respects `prefers-reduced-motion` and timers are lifecycle-safe.
 9. Mobile and desktop layouts are verified, including `44x44` tap targets.
-10. README and `_block-name.json` match implemented behavior.
+10. README and `ue/models/blocks/block-name.json` match implemented behavior.
 11. Responsive geometry gate passes across required widths (no hard leak > `2px`).
 12. Floating/absolute UI layers are clamped and do not overflow/clip at small screens.
 13. Drop-in components (if used) are scoped, initialized correctly, and handle render errors gracefully.

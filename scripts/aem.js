@@ -547,7 +547,7 @@ function buildBlock(blockName, content) {
       vals.forEach((val) => {
         if (val) {
           if (typeof val === 'string') {
-            colEl.innerHTML += val;
+            colEl.append(document.createTextNode(val));
           } else {
             colEl.appendChild(val);
           }

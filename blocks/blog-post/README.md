@@ -36,7 +36,7 @@ Published date in the author area is sourced from DA.live index data for the cur
 - Headings without text are ignored.
 
 ### DA.live Model Options
-Current `_blog-post.json` defines no sidebar model fields; all behavior controls are section metadata driven.
+Current [blog-post.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/blog-post.json) defines no sidebar model fields; all behavior controls are section metadata driven.
 
 | model field | values | effect |
 | --- | --- | --- |

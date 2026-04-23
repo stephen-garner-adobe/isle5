@@ -1,0 +1,69 @@
+{
+  "definitions": [
+    {
+      "title": "Cards List",
+      "id": "cards-list",
+      "model": "cards-list",
+      "plugins": {
+        "da": {
+          "rows": 1,
+          "columns": 2,
+          "fields": [
+            {
+              "name": "image",
+              "selector": "div>div>picture>img[src]"
+            },
+            {
+              "name": "alt",
+              "selector": "div>div>picture>img[alt]"
+            },
+            {
+              "name": "description",
+              "selector": "div>div>p"
+            },
+            {
+              "name": "link",
+              "selector": "div>div>a[href]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "cards-list",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "alt",
+          "label": "Alt Text",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "description",
+          "label": "Description",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link",
+          "label": "Link",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

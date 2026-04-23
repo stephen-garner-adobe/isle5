@@ -136,6 +136,15 @@ export default async function decorate(block) {
 
   block.appendChild(checkoutFragment);
 
+  const emitCheckoutError = (message, code = 'CHECKOUT_RENDER_ERROR', error = null) => {
+    if (error) {
+      console.error('commerce-checkout:', error);
+    } else {
+      console.error(`commerce-checkout: ${message}`);
+    }
+    events.emit('checkout/error', { message, code });
+  };
+
   const handleValidation = () => validateForms([
     { name: LOGIN_FORM_NAME },
     { name: SHIPPING_FORM_NAME, ref: shippingFormRef },
@@ -150,7 +159,10 @@ export default async function decorate(block) {
       // Payment Services credit card
       if (code === PaymentMethodCode.CREDIT_CARD) {
         if (!creditCardFormRef.current) {
-          console.error('Credit card form not rendered.');
+          emitCheckoutError(
+            'We were unable to render the credit card form. Please try again.',
+            'CHECKOUT_PAYMENT_FORM_MISSING',
+          );
           return;
         }
         if (!creditCardFormRef.current.validate()) {
@@ -163,8 +175,11 @@ export default async function decorate(block) {
       // Place order
       await orderApi.placeOrder(cartId);
     } catch (error) {
-      console.error(error);
-      throw error;
+      emitCheckoutError(
+        'We were unable to process your order. Please try again.',
+        'CHECKOUT_PLACE_ORDER_FAILED',
+        error,
+      );
     } finally {
       removeOverlaySpinner(loaderRef, $loader);
     }
@@ -220,58 +235,84 @@ export default async function decorate(block) {
   ]);
 
   async function initializeCheckout(data) {
-    await initReCaptcha(0);
-    if (data.isGuest) await displayGuestAddressForms(data);
-    else {
+    try {
+      await initReCaptcha(0);
+      if (data.isGuest) {
+        await displayGuestAddressForms(data);
+      } else {
+        removeOverlaySpinner(loaderRef, $loader);
+        await displayCustomerAddressForms(data);
+      }
+    } catch (error) {
       removeOverlaySpinner(loaderRef, $loader);
-      await displayCustomerAddressForms(data);
+      emitCheckoutError(
+        'We were unable to initialize checkout. Please refresh and try again.',
+        'CHECKOUT_INITIALIZATION_FAILED',
+        error,
+      );
     }
   }
 
   async function displayGuestAddressForms(data) {
-    if (isVirtualCart(data)) {
-      shippingForm?.remove();
-      shippingForm = null;
-      $shippingForm.replaceChildren();
-    } else if (!shippingForm) {
-      shippingFormSkeleton.remove();
+    try {
+      if (isVirtualCart(data)) {
+        shippingForm?.remove();
+        shippingForm = null;
+        $shippingForm.replaceChildren();
+      } else if (!shippingForm) {
+        shippingFormSkeleton.remove();
 
-      shippingForm = await renderAddressForm($shippingForm, shippingFormRef, data, 'shipping');
-    }
+        shippingForm = await renderAddressForm($shippingForm, shippingFormRef, data, 'shipping');
+      }
 
-    if (!billingForm) {
-      billingFormSkeleton.remove();
+      if (!billingForm) {
+        billingFormSkeleton.remove();
 
-      billingForm = await renderAddressForm($billingForm, billingFormRef, data, 'billing');
+        billingForm = await renderAddressForm($billingForm, billingFormRef, data, 'billing');
+      }
+    } catch (error) {
+      emitCheckoutError(
+        'We were unable to load your address forms. Please refresh and try again.',
+        'CHECKOUT_ADDRESS_FORMS_FAILED',
+        error,
+      );
     }
   }
 
   async function displayCustomerAddressForms(data) {
-    if (isVirtualCart(data)) {
-      shippingAddresses?.remove();
-      shippingAddresses = null;
-      $shippingForm.replaceChildren();
-    } else if (!shippingAddresses) {
-      shippingForm?.remove();
-      shippingForm = null;
-      shippingFormRef.current = null;
+    try {
+      if (isVirtualCart(data)) {
+        shippingAddresses?.remove();
+        shippingAddresses = null;
+        $shippingForm.replaceChildren();
+      } else if (!shippingAddresses) {
+        shippingForm?.remove();
+        shippingForm = null;
+        shippingFormRef.current = null;
 
-      shippingAddresses = await renderCustomerShippingAddresses(
-        $shippingForm,
-        shippingFormRef,
-        data,
-      );
-    }
+        shippingAddresses = await renderCustomerShippingAddresses(
+          $shippingForm,
+          shippingFormRef,
+          data,
+        );
+      }
 
-    if (!billingAddresses) {
-      billingForm?.remove();
-      billingForm = null;
-      billingFormRef.current = null;
+      if (!billingAddresses) {
+        billingForm?.remove();
+        billingForm = null;
+        billingFormRef.current = null;
 
-      billingAddresses = await renderCustomerBillingAddresses(
-        $billingForm,
-        billingFormRef,
-        data,
+        billingAddresses = await renderCustomerBillingAddresses(
+          $billingForm,
+          billingFormRef,
+          data,
+        );
+      }
+    } catch (error) {
+      emitCheckoutError(
+        'We were unable to load your saved addresses. Please refresh and try again.',
+        'CHECKOUT_CUSTOMER_ADDRESSES_FAILED',
+        error,
       );
     }
   }

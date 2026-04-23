@@ -6,7 +6,7 @@ The `modal` block is a utility helper used by other blocks to render a dialog co
 
 ## DA.live integration and authoring structure
 
-This is not a standalone DA.live authoring block. It is intentionally not registered in `models/_component-definition.json` and has no `_modal.json`.
+This is not a standalone DA.live authoring block. It is intentionally not registered in `ue/models/component-definition.json` and has no active `ue/models/blocks/modal.json` source.
 
 | DA.live Model Options | Value | Effect |
 | --- | --- | --- |

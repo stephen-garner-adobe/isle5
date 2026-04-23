@@ -6,7 +6,7 @@ The Header block provides the main navigation and commerce functionality for the
 
 ## DA.live integration and authoring structure
 
-The header is infrastructure-oriented and primarily driven by shared fragments and page metadata. It does include a lightweight [_header.json](/Users/sgarner/Documents/Demo%20Environments/isle5/blocks/header/_header.json) definition so the block shape remains explicit, but it does not expose custom sidebar configuration fields.
+The header is infrastructure-oriented and primarily driven by shared fragments and page metadata. It includes a lightweight Universal Editor definition at [header.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/header.json) so the block shape remains explicit, but it does not expose custom sidebar configuration fields.
 
 | DA.live Model Options | Value | Effect |
 | --- | --- | --- |

@@ -23,11 +23,12 @@ header nav {
   'hamburger brand tools wrapperPopUpButton' var(--nav-height)
   'sections sections sections ...' 1fr / auto 1fr auto auto;
   align-items: center;
-  gap: 0 16px;
+  gap: 0 8px;
   margin: auto;
   max-width: 1248px;
   height: var(--nav-height);
-  padding: 0 24px;
+  min-width: 0;
+  padding: 0 16px;
   font-family: var(--type-base-font-family);
 }
 
@@ -145,15 +146,19 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
 
 /* brand */
 header nav .nav-brand {
+  min-width: 0;
   min-width: 128px;
 }
 
 header nav .nav-brand a {
   grid-area: brand;
+  align-items: center;
+  display: inline-flex;
   flex-basis: 128px;
   font: var(--type-headline-1-font);
   letter-spacing: var(--type-headline-1-letter-spacing);
   font-weight: bold;
+  min-width: 0;
 }
 
 li.nav-drop img {
@@ -166,6 +171,7 @@ li.nav-drop img {
 header nav .nav-brand img {
   width: 128px;
   height: auto;
+  max-width: 100%;
 }
 
 /* sections */
@@ -370,8 +376,8 @@ header nav .nav-sections ul > li:empty {
     padding-left: var(--spacing-small);
   }
 
-  header nav .nav-tools-wrapper > button,
-  .dropdown-wrapper.nav-tools-wrapper .nav-dropdown-button {
+  header nav .nav-tools .nav-tools-wrapper > button,
+  header nav .nav-tools .dropdown-wrapper.nav-tools-wrapper .nav-dropdown-button {
     height: 36px;
     min-width: 36px;
     padding: 8px;
@@ -402,7 +408,13 @@ header nav .nav-tools {
   gap: var(--spacing-small);
   align-items: center;
   background: var(--background-color);
+  justify-self: end;
+  min-width: 0;
   z-index: 3;
+}
+
+header nav .nav-tools-wrapper {
+  flex: 0 0 auto;
 }
 
 header nav .nav-tools-wrapper > button {
@@ -577,6 +589,9 @@ header .nav-search-input .search_autocomplete .popover-container {
   align-items: center;
   width: auto;
   min-width: 40px;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .dropdown-wrapper.nav-tools-wrapper .nav-auth-menu-panel {
@@ -667,24 +682,53 @@ li
 
   header .nav-wrapper.active,
   header .nav-wrapper:has(nav[aria-expanded='true']) {
-    width: 320px;
+    width: min(320px, 100vw);
+  }
+
+  header nav .nav-tools .nav-tools-wrapper > button,
+  header nav .nav-tools .dropdown-wrapper.nav-tools-wrapper .nav-dropdown-button {
+    height: 36px;
+    min-width: 36px;
+    padding: 8px;
   }
 
   header .nav-wrapper.active nav .nav-hamburger button,
   header .nav-wrapper:has(nav[aria-expanded='true']) nav .nav-hamburger button {
     position: fixed;
-    left: 275px;
+    left: calc(min(320px, 100vw) - 45px);
     z-index: 5;
   }
 
   header nav {
     position: relative;
+    grid-template:
+      'hamburger brand tools' var(--nav-height)
+      'sections sections sections' 1fr / auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0 8px;
+    padding: 0 12px;
   }
 
   header nav[aria-expanded='true'] {
     gap: var(--spacing-small);
     overflow-x: hidden;
-    width: 320px;
+    width: min(320px, 100vw);
+  }
+
+  header nav .nav-brand {
+    min-width: 96px;
+  }
+
+  header nav .nav-brand a {
+    flex-basis: 96px;
+  }
+
+  header nav .nav-brand img {
+    width: 96px;
+  }
+
+  header nav .nav-tools {
+    gap: 4px;
   }
 
   header nav[aria-expanded='true'] .nav-tools {
@@ -819,6 +863,24 @@ li
 
   header nav .nav-sections ul li:empty {
     display: none;
+  }
+}
+
+@media (min-width: 390px) and (max-width: 899px) {
+  header nav {
+    padding: 0 16px;
+  }
+
+  header nav .nav-brand {
+    min-width: 112px;
+  }
+
+  header nav .nav-brand a {
+    flex-basis: 112px;
+  }
+
+  header nav .nav-brand img {
+    width: 112px;
   }
 }
 

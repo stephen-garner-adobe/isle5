@@ -6,7 +6,7 @@ The `footer` block loads the shared footer fragment and, in multistore mode, ren
 
 ## DA.live integration and authoring structure
 
-This block is infrastructure-only. It is not currently registered in `models/_component-definition.json` and intentionally has no `_footer.json` file.
+This block is infrastructure-oriented and registered through [footer.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/footer.json) so Universal Editor can identify the block. It does not expose custom sidebar configuration fields.
 
 | DA.live Model Options | Value | Effect |
 | --- | --- | --- |

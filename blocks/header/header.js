@@ -71,6 +71,23 @@ function getOrCreateOverlay(block) {
   return overlay;
 }
 
+function createToolPanel(wrapperClass, buttonClass, buttonLabel, panelClass, buttonText = '') {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add(wrapperClass, 'nav-tools-wrapper');
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = buttonClass;
+  button.setAttribute('aria-label', buttonLabel);
+  if (buttonText) button.textContent = buttonText;
+
+  const panel = document.createElement('div');
+  panel.className = panelClass;
+
+  wrapper.append(button, panel);
+  return { wrapper, button, panel };
+}
+
 /**
  * Toggles all nav sections
  * @param {Element} sections The container element
@@ -269,16 +286,14 @@ export default async function decorate(block) {
   const navTools = nav.querySelector('.nav-tools');
 
   /** Wishlist */
-  const wishlist = document.createRange().createContextualFragment(`
-     <div class="wishlist-wrapper nav-tools-wrapper">
-       <button type="button" class="nav-wishlist-button" aria-label="Wishlist"></button>
-       <div class="wishlist-panel nav-tools-panel"></div>
-     </div>
-   `);
+  const { wrapper: wishlist, button: wishlistButton } = createToolPanel(
+    'wishlist-wrapper',
+    'nav-wishlist-button',
+    'Wishlist',
+    'wishlist-panel nav-tools-panel',
+  );
 
   navTools.append(wishlist);
-
-  const wishlistButton = navTools.querySelector('.nav-wishlist-button');
 
   const wishlistMeta = getMetadata('wishlist');
   const wishlistPath = wishlistMeta ? new URL(wishlistMeta, window.location).pathname : '/wishlist';
@@ -290,18 +305,18 @@ export default async function decorate(block) {
   /** Mini Cart */
   const excludeMiniCartFromPaths = ['/checkout'];
 
-  const minicart = document.createRange().createContextualFragment(`
-     <div class="minicart-wrapper nav-tools-wrapper">
-       <button type="button" class="nav-cart-button" aria-label="Cart"></button>
-       <div class="minicart-panel nav-tools-panel"></div>
-     </div>
-   `);
+  const {
+    wrapper: minicart,
+    button: cartButton,
+    panel: minicartPanel,
+  } = createToolPanel(
+    'minicart-wrapper',
+    'nav-cart-button',
+    'Cart',
+    'minicart-panel nav-tools-panel',
+  );
 
   navTools.append(minicart);
-
-  const minicartPanel = navTools.querySelector('.minicart-panel');
-
-  const cartButton = navTools.querySelector('.nav-cart-button');
   const handleEscape = (event) => closeOnEscape(event, overlay);
   const handleFocusLost = (event) => closeOnFocusLost(event, overlay);
   nav.__toggleMenu = (forceExpanded = null) => toggleMenu(
@@ -401,22 +416,25 @@ export default async function decorate(block) {
   }, { eager: true }));
 
   /** Search */
-  const searchFragment = document.createRange().createContextualFragment(`
-  <div class="search-wrapper nav-tools-wrapper">
-    <button type="button" class="nav-search-button">Search</button>
-    <div class="nav-search-input nav-search-panel nav-tools-panel">
-      <form id="search-bar-form"></form>
-      <div class="search-bar-result" style="display: none;"></div>
-    </div>
-  </div>
-  `);
+  const {
+    wrapper: searchFragment,
+    button: searchButton,
+    panel: searchPanel,
+  } = createToolPanel(
+    'search-wrapper',
+    'nav-search-button',
+    'Search',
+    'nav-search-input nav-search-panel nav-tools-panel',
+    'Search',
+  );
+  const searchForm = document.createElement('form');
+  searchForm.id = 'search-bar-form';
+  const searchResult = document.createElement('div');
+  searchResult.className = 'search-bar-result';
+  searchResult.style.display = 'none';
+  searchPanel.append(searchForm, searchResult);
 
   navTools.append(searchFragment);
-
-  const searchPanel = navTools.querySelector('.nav-search-panel');
-  const searchButton = navTools.querySelector('.nav-search-button');
-  const searchForm = searchPanel.querySelector('#search-bar-form');
-  const searchResult = searchPanel.querySelector('.search-bar-result');
 
   async function toggleSearch(state) {
     const pageSize = 4;

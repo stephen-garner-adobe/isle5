@@ -8,15 +8,6 @@ const debugLog = (...args) => {
   }
 };
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 function sanitizeUrl(url, fallback = '#') {
   if (!url) return fallback;
   try {
@@ -2068,16 +2059,15 @@ function createSearchSection(
 /**
  * Create rich info window HTML content with all Places API data
  * @param {Object} store - Store object with Places API data
- * @returns {string} HTML content for info window
+ * @returns {HTMLElement} DOM content for info window
  */
 function createInfoWindowContent(store, uiConfig = {}) {
   const units = uiConfig.units || 'miles';
   const ctaLabel = uiConfig.primaryCtaLabel || 'Get Directions';
   const maxVisibleInfoTags = 4;
-  const safeStoreName = escapeHtml(store.name || 'Store');
-  const safeAddress = escapeHtml(getDisplayAddress(store) || 'Address not available');
+  const storeName = store.name || 'Store';
+  const address = getDisplayAddress(store) || 'Address not available';
   const displayPhone = getDisplayPhone(store);
-  const safePhoneText = escapeHtml(displayPhone || '');
   const safePhoneHref = sanitizeTel(displayPhone || '');
   const safeWebsiteHref = sanitizeUrl(store.contact?.website || '');
   const safeDirectionsHref = sanitizeUrl(store.directionsUrl || '#');
@@ -2085,255 +2075,240 @@ function createInfoWindowContent(store, uiConfig = {}) {
   const statusClass = isOpen ? 'open' : 'closed';
   const hoursText = getTodayHours(store);
 
-  // Build photo carousel HTML (max 3 images)
+  const root = createEl('div', { className: 'map-info-window map-info-window-compact' });
+  const content = createEl('div', { className: 'info-content' });
+
+  const appendIcon = (parent, viewBox, width, height, pathD, className = 'info-icon-svg') => {
+    parent.appendChild(createSvg(viewBox, width, height, pathD, className));
+  };
+
   let photos = [];
   if (Array.isArray(store.photos) && store.photos.length > 0) {
     photos = store.photos.slice(0, 3);
   } else if (store.photo) {
     photos = [store.photo];
   }
-  let photoHTML = '';
+
   if (photos.length > 0) {
-    const photoSlides = photos.map((url, index) => `
-      <div class="info-photo-slide">
-        <img src="${sanitizeUrl(url, '')}" alt="${safeStoreName} photo ${index + 1}" class="info-photo" />
-      </div>
-    `).join('');
-    photoHTML = `
-      <div class="info-photos-container">
-        <div class="info-photos" role="group" aria-label="Photos of ${safeStoreName}">
-          ${photoSlides}
-        </div>
-        ${photos.length > 1 ? `
-          <div class="info-photo-indicators">
-            ${photos.map((_, index) => `<span class="info-photo-dot" data-index="${index}"></span>`).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `;
+    const photosContainer = createEl('div', { className: 'info-photos-container' });
+    const photosList = createEl('div', { className: 'info-photos' });
+    photosList.setAttribute('role', 'group');
+    photosList.setAttribute('aria-label', `Photos of ${storeName}`);
+
+    photos.forEach((url, index) => {
+      const slide = createEl('div', { className: 'info-photo-slide' });
+      const photo = createEl('img', { className: 'info-photo' });
+      photo.src = sanitizeUrl(url, '');
+      photo.alt = `${storeName} photo ${index + 1}`;
+      slide.appendChild(photo);
+      photosList.appendChild(slide);
+    });
+    photosContainer.appendChild(photosList);
+
+    if (photos.length > 1) {
+      const indicators = createEl('div', { className: 'info-photo-indicators' });
+      photos.forEach((_, index) => {
+        const dot = createEl('span', { className: 'info-photo-dot' });
+        dot.dataset.index = String(index);
+        indicators.appendChild(dot);
+      });
+      photosContainer.appendChild(indicators);
+    }
+    root.appendChild(photosContainer);
   }
 
-  // Build rating HTML
-  let ratingHTML = '';
+  const name = createEl('h4', { className: 'info-name' });
+  const nameLink = createEl('a', { className: 'info-name-link' }, storeName);
+  nameLink.href = safeDirectionsHref;
+  nameLink.target = '_blank';
+  nameLink.rel = 'noopener noreferrer';
+  name.appendChild(nameLink);
+  content.appendChild(name);
+
   if (store.rating && store.userRatingsTotal) {
     const stars = '★'.repeat(Math.round(store.rating)) + '☆'.repeat(5 - Math.round(store.rating));
-    ratingHTML = `
-      <div class="info-rating">
-        <span class="info-stars">${stars}</span>
-        <span class="info-rating-value">${store.rating}</span>
-        <span class="info-rating-count">· ${store.userRatingsTotal} reviews</span>
-      </div>
-    `;
+    const rating = createEl('div', { className: 'info-rating' });
+    rating.appendChild(createEl('span', { className: 'info-stars' }, stars));
+    rating.appendChild(createEl('span', { className: 'info-rating-value' }, String(store.rating)));
+    rating.appendChild(
+      createEl('span', { className: 'info-rating-count' }, `· ${store.userRatingsTotal} reviews`),
+    );
+    content.appendChild(rating);
   }
 
-  // Build reviews section (shown in progressive details area)
-  let reviewsHTML = '';
-  if (store.reviews && store.reviews.length > 0) {
-    const reviewCards = store.reviews.map((review) => {
-      const reviewStars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-      const truncatedText = review.text.length > 150
-        ? `${review.text.substring(0, 150)}...`
-        : review.text;
-      return `
-        <div class="info-review-card">
-          <div class="info-review-header">
-            <div class="info-review-author">
-              <div class="info-review-author-info">
-                <span class="info-review-author-name">${escapeHtml(review.author)}</span>
-                <span class="info-review-time">${escapeHtml(review.relativeTime)}</span>
-              </div>
-            </div>
-            <div class="info-review-rating">
-              <span class="info-review-stars">${reviewStars}</span>
-            </div>
-          </div>
-          <p class="info-review-text">${escapeHtml(truncatedText)}</p>
-        </div>
-      `;
-    }).join('');
-
-    reviewsHTML = `
-      <div class="info-reviews-section">
-        <h3 class="info-reviews-title">Recent Reviews</h3>
-        <div class="info-reviews-container">
-          ${reviewCards}
-        </div>
-      </div>
-    `;
-  }
-
-  // Build status/hours HTML with expandable dropdown
   let statusHoursText = '';
   if (hoursText && hoursText !== 'Hours not available') {
     statusHoursText = ` · ${hoursText}`;
   }
 
-  // Build full weekly hours HTML (for dropdown)
-  let fullHoursHTML = '';
   if (store.hours && Object.keys(store.hours).length > 0) {
     const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const openingTimes = createEl('div', { className: 'info-opening-times' });
+    const toggle = createEl('button', { className: 'info-hours-toggle' });
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('data-toggle-hours', '');
 
-    const hoursRows = daysOrder.map((day) => {
+    const statusRow = createEl('div', { className: 'info-status-row' });
+    statusRow.appendChild(createEl('span', { className: `info-status-dot ${statusClass}` }));
+    statusRow.appendChild(
+      createEl('span', { className: 'info-status-text' }, `${isOpen ? 'Open' : 'Closed'}${statusHoursText}`),
+    );
+    toggle.appendChild(statusRow);
+    toggle.appendChild(createSvg(
+      '0 0 24 24',
+      20,
+      20,
+      'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',
+      'info-hours-arrow',
+    ));
+
+    const dropdown = createEl('div', { className: 'info-hours-dropdown' });
+    dropdown.setAttribute('data-hours-dropdown', '');
+    daysOrder.forEach((day) => {
       const dayHours = store.hours[day];
       const isToday = day === today;
       const dayLabel = day.charAt(0).toUpperCase() + day.slice(1);
-
+      const row = createEl('div', { className: `info-hours-row ${isToday ? 'today' : ''}` });
+      row.appendChild(createEl('span', { className: 'info-hours-day' }, dayLabel));
       if (dayHours) {
-        const openTime = formatTime(dayHours.open);
-        const closeTime = formatTime(dayHours.close);
-        return `
-          <div class="info-hours-row ${isToday ? 'today' : ''}">
-            <span class="info-hours-day">${dayLabel}</span>
-            <span class="info-hours-time">${openTime} – ${closeTime}</span>
-          </div>
-        `;
+        row.appendChild(
+          createEl('span', { className: 'info-hours-time' }, `${formatTime(dayHours.open)} – ${formatTime(dayHours.close)}`),
+        );
+      } else {
+        row.appendChild(createEl('span', { className: 'info-hours-time' }, 'Closed'));
       }
-      return `
-        <div class="info-hours-row ${isToday ? 'today' : ''}">
-          <span class="info-hours-day">${dayLabel}</span>
-          <span class="info-hours-time">Closed</span>
-        </div>
-      `;
-    }).join('');
-
-    fullHoursHTML = `
-      <div class="info-opening-times">
-        <button class="info-hours-toggle" type="button" aria-expanded="false" data-toggle-hours>
-          <div class="info-status-row">
-            <span class="info-status-dot ${statusClass}"></span>
-            <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
-          </div>
-          <svg class="info-hours-arrow" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="#5f6368" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-          </svg>
-        </button>
-        <div class="info-hours-dropdown" data-hours-dropdown>
-          ${hoursRows}
-        </div>
-      </div>
-    `;
+      dropdown.appendChild(row);
+    });
+    openingTimes.append(toggle, dropdown);
+    content.appendChild(openingTimes);
   } else {
-    // No hours available - show static status
-    fullHoursHTML = `
-      <div class="info-status-row info-status-static">
-        <span class="info-status-dot ${statusClass}"></span>
-        <span class="info-status-text">${isOpen ? 'Open' : 'Closed'}${statusHoursText}</span>
-      </div>
-    `;
+    const statusRow = createEl('div', { className: 'info-status-row info-status-static' });
+    statusRow.appendChild(createEl('span', { className: `info-status-dot ${statusClass}` }));
+    statusRow.appendChild(
+      createEl('span', { className: 'info-status-text' }, `${isOpen ? 'Open' : 'Closed'}${statusHoursText}`),
+    );
+    content.appendChild(statusRow);
   }
 
-  // Build supplementary info HTML
+  if (store.distance !== undefined) {
+    const distanceRow = createEl('div', { className: 'info-row info-distance-row' });
+    appendIcon(distanceRow, '0 0 24 24', 20, 20, 'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z');
+    distanceRow.appendChild(
+      createEl('span', { className: 'info-distance-text' }, formatDistance(store.distance, units)),
+    );
+    content.appendChild(distanceRow);
+  }
+
+  if (store.contact?.website || store.directionsUrl) {
+    const actions = createEl('div', { className: 'info-links-row' });
+    if (store.directionsUrl) {
+      const directions = createEl('a', { className: 'info-link info-link-primary' });
+      directions.href = safeDirectionsHref;
+      directions.target = '_blank';
+      directions.rel = 'noopener noreferrer';
+      directions.dataset.analytics = 'directions';
+      directions.dataset.storeId = store.id || '';
+      directions.dataset.placeId = store.placeId || '';
+      appendIcon(directions, '0 0 24 24', 18, 18, 'M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z', '');
+      directions.appendChild(createEl('span', {}, ctaLabel));
+      actions.appendChild(directions);
+    }
+    if (store.contact?.website) {
+      const website = createEl('a', { className: 'info-link' });
+      website.href = safeWebsiteHref;
+      website.target = '_blank';
+      website.rel = 'noopener noreferrer';
+      appendIcon(website, '0 0 24 24', 18, 18, 'M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z', '');
+      website.appendChild(createEl('span', {}, 'Website'));
+      actions.appendChild(website);
+    }
+    content.appendChild(actions);
+  }
+
+  const addressRow = createEl('div', { className: 'info-row' });
+  appendIcon(addressRow, '0 0 24 24', 20, 20, 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z');
+  addressRow.appendChild(createEl('span', { className: 'info-address-text' }, address));
+  content.appendChild(addressRow);
+
+  if (displayPhone && safePhoneHref) {
+    const phoneRow = createEl('div', { className: 'info-row' });
+    appendIcon(phoneRow, '0 0 24 24', 20, 20, 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z');
+    const phoneLink = createEl('a', {}, displayPhone);
+    phoneLink.href = safePhoneHref;
+    phoneRow.appendChild(phoneLink);
+    content.appendChild(phoneRow);
+  }
+
   const supplementaryItems = [
     ...(Array.isArray(store.services) ? store.services : []),
     ...(Array.isArray(store.details) ? store.details : []),
   ].filter((item) => item);
-
   const visibleTags = supplementaryItems.slice(0, maxVisibleInfoTags);
   const hiddenTagCount = Math.max(0, supplementaryItems.length - visibleTags.length);
-  const tagsHTML = visibleTags.length > 0
-    ? `
-      <div class="info-supplementary-tags info-card-services">
-        ${visibleTags.map((item) => `<span class="card-service-tag">${escapeHtml(formatLabel(item))}</span>`).join('')}
-        ${hiddenTagCount > 0 ? `<span class="card-service-tag card-service-more">+${hiddenTagCount} more</span>` : ''}
-      </div>
-    `
-    : '';
-
-  const actionsHTML = (store.contact?.website || store.directionsUrl)
-    ? `
-      <div class="info-links-row">
-        ${store.directionsUrl ? `
-          <a
-            href="${safeDirectionsHref}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="info-link info-link-primary"
-            data-analytics="directions"
-            data-store-id="${escapeHtml(store.id)}"
-            data-place-id="${escapeHtml(store.placeId || '')}"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-            </svg>
-            <span>${escapeHtml(ctaLabel)}</span>
-          </a>
-        ` : ''}
-        ${store.contact?.website ? `
-          <a href="${safeWebsiteHref}" target="_blank" rel="noopener noreferrer" class="info-link">
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.6 15.6 0 00-1.2-5.1A8.02 8.02 0 0119.93 11zM12 4c1.3 0 2.92 2.25 3.55 5H8.45C9.08 6.25 10.7 4 12 4zM4.07 13h3.02a15.6 15.6 0 001.2 5.1A8.02 8.02 0 014.07 13zM4.07 11A8.02 8.02 0 018.29 5.9 15.6 15.6 0 007.09 11H4.07zm7.93 9c-1.3 0-2.92-2.25-3.55-5h7.1C14.92 17.75 13.3 20 12 20zm3.71-1.9A15.6 15.6 0 0016.91 13h3.02a8.02 8.02 0 01-4.22 5.1z"/>
-            </svg>
-            <span>Website</span>
-          </a>
-        ` : ''}
-      </div>
-    `
-    : '';
 
   const detailSections = [];
-  if (tagsHTML) detailSections.push(tagsHTML);
-  if (reviewsHTML) detailSections.push(reviewsHTML);
-
-  const moreDetailsHTML = detailSections.length > 0
-    ? `
-      <details class="info-more-details card-more-details">
-        <summary><span>Details & reviews</span><span class="info-more-chevron" aria-hidden="true">▾</span></summary>
-        <div class="info-more-content">
-          ${detailSections.join('')}
-        </div>
-      </details>
-    `
-    : '';
-
-  // Build phone HTML
-  let phoneHTML = '';
-  if (displayPhone && safePhoneHref) {
-    phoneHTML = `
-      <div class="info-row">
-        <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
-          <path fill="#5f6368" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-        </svg>
-        <a href="${safePhoneHref}">${safePhoneText}</a>
-      </div>
-    `;
+  if (visibleTags.length > 0) {
+    const tags = createEl('div', { className: 'info-supplementary-tags info-card-services' });
+    visibleTags.forEach((item) => {
+      tags.appendChild(createEl('span', { className: 'card-service-tag' }, formatLabel(item)));
+    });
+    if (hiddenTagCount > 0) {
+      tags.appendChild(
+        createEl('span', { className: 'card-service-tag card-service-more' }, `+${hiddenTagCount} more`),
+      );
+    }
+    detailSections.push(tags);
   }
 
-  // Build distance HTML
-  let distanceHTML = '';
-  if (store.distance !== undefined) {
-    distanceHTML = `
-      <div class="info-row info-distance-row">
-        <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
-          <path fill="#1a73e8" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
-        </svg>
-        <span class="info-distance-text">${formatDistance(store.distance, units)}</span>
-      </div>
-    `;
+  if (store.reviews && store.reviews.length > 0) {
+    const reviewsSection = createEl('div', { className: 'info-reviews-section' });
+    reviewsSection.appendChild(createEl('h3', { className: 'info-reviews-title' }, 'Recent Reviews'));
+    const reviewsContainer = createEl('div', { className: 'info-reviews-container' });
+    store.reviews.forEach((review) => {
+      const reviewStars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+      const truncatedText = review.text.length > 150
+        ? `${review.text.substring(0, 150)}...`
+        : review.text;
+      const card = createEl('div', { className: 'info-review-card' });
+      const header = createEl('div', { className: 'info-review-header' });
+      const author = createEl('div', { className: 'info-review-author' });
+      const authorInfo = createEl('div', { className: 'info-review-author-info' });
+      authorInfo.appendChild(
+        createEl('span', { className: 'info-review-author-name' }, review.author || ''),
+      );
+      authorInfo.appendChild(
+        createEl('span', { className: 'info-review-time' }, review.relativeTime || ''),
+      );
+      author.appendChild(authorInfo);
+      const reviewRating = createEl('div', { className: 'info-review-rating' });
+      reviewRating.appendChild(
+        createEl('span', { className: 'info-review-stars' }, reviewStars),
+      );
+      header.append(author, reviewRating);
+      card.append(header, createEl('p', { className: 'info-review-text' }, truncatedText));
+      reviewsContainer.appendChild(card);
+    });
+    reviewsSection.appendChild(reviewsContainer);
+    detailSections.push(reviewsSection);
   }
 
-  return `
-    <div class="map-info-window map-info-window-compact">
-      ${photoHTML}
-      <div class="info-content">
-        <h4 class="info-name">
-          <a href="${safeDirectionsHref}" target="_blank" rel="noopener noreferrer" class="info-name-link">${safeStoreName}</a>
-        </h4>
-        ${ratingHTML}
-        ${fullHoursHTML}
-        ${distanceHTML}
-        ${actionsHTML}
-        <div class="info-row">
-          <svg class="info-icon-svg" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="#ea4335" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-          </svg>
-          <span class="info-address-text">${safeAddress}</span>
-        </div>
-        ${phoneHTML}
-        ${moreDetailsHTML}
-      </div>
-    </div>
-  `;
+  if (detailSections.length > 0) {
+    const details = createEl('details', { className: 'info-more-details card-more-details' });
+    const summary = document.createElement('summary');
+    summary.appendChild(createEl('span', {}, 'Details & reviews'));
+    const chevron = createEl('span', { className: 'info-more-chevron' }, '▾');
+    chevron.setAttribute('aria-hidden', 'true');
+    summary.appendChild(chevron);
+    const moreContent = createEl('div', { className: 'info-more-content' });
+    detailSections.forEach((section) => moreContent.appendChild(section));
+    details.append(summary, moreContent);
+    content.appendChild(details);
+  }
+
+  root.appendChild(content);
+  return root;
 }
 
 /**

@@ -89,7 +89,7 @@ Also produce a gate summary table when useful.
 
 - Delegate runtime code fixes to `implementation-auditor`.
 - Delegate config or initializer causes to `commerce-integration-auditor`.
-- Delegate README or `_block.json` parity issues to `authoring-contract-auditor`.
+- Delegate README or `ue/models/blocks/block-name.json` parity issues to `authoring-contract-auditor`.
 
 ## Inspect
 

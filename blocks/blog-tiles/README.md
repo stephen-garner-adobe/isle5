@@ -20,7 +20,7 @@ The block includes:
 - Publish new posts; once index endpoints include them, tiles update automatically.
 
 ### DA.live Model Options
-Current `_blog-tiles.json` defines no sidebar model fields; behavior is section metadata driven.
+Current [blog-tiles.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/blog-tiles.json) defines no sidebar model fields; behavior is section metadata driven.
 
 | model field | values | effect |
 | --- | --- | --- |

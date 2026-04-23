@@ -1,5 +1,5 @@
 describe('Header Layout Geometry', () => {
-  const widths = [360, 390, 414, 900, 1024, 1100, 1200, 1280];
+  const widths = [320, 360, 390, 414, 900, 1024, 1100, 1200, 1280];
 
   function isVisible(el) {
     const rect = el.getBoundingClientRect();

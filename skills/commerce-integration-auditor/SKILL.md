@@ -89,6 +89,6 @@ Recommended domains:
 
 ## Avoid
 
-- Owning README or `_block.json` parity
+- Owning README or `ue/models/blocks/block-name.json` parity
 - Treating pure implementation defects as integration defects
 - Recommending blind config changes without mode diagnosis

@@ -15,7 +15,7 @@ Not currently implemented:
 
 ## DA.live Integration And Authoring Structure
 ### Block Structure
-`_top-banner.json` defines a `4`-column shape.
+[top-banner.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/top-banner.json) defines a `4`-column shape.
 
 Authoring supports two formats:
 
@@ -39,7 +39,7 @@ Ticker feed resolution:
 - Otherwise ticker falls back to `message + utility` rows
 
 ### DA.live Model Options
-`_top-banner.json` currently defines no model fields.
+[top-banner.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/top-banner.json) currently defines no model fields.
 
 | model field | values | effect |
 | --- | --- | --- |

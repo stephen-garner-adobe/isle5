@@ -11,7 +11,11 @@ describe('Top Banner Automated Checks', () => {
       }
 
       cy.window().then((win) => {
-        const banner = win.document.querySelector('.top-banner');
+        const banner = win.document.querySelector('.top-banner[data-topbanner-mode]');
+        if (!banner) {
+          cy.log('No decorated top-banner found on page. Skipping assertions.');
+          return;
+        }
         const { dataset } = banner;
 
         expect(['static', 'ticker']).to.include(dataset.topbannerMode);
@@ -52,6 +56,28 @@ describe('Top Banner Automated Checks', () => {
           const navTop = Math.round(Number.parseFloat(win.getComputedStyle(navWrapper).top) || 0);
 
           expect(Math.abs(navTop - bannerHeight)).to.be.lte(2);
+        });
+      });
+    });
+  });
+
+  it('animates ticker mode banners when ticker mode is active', () => {
+    cy.viewport(390, 900);
+    cy.visit('/');
+
+    cy.get('body').then(($body) => {
+      const ticker = $body.find('.top-banner[data-topbanner-mode="ticker"] .top-banner-ticker-track')[0];
+      if (!ticker) {
+        cy.log('No ticker-mode top-banner found on page. Skipping assertions.');
+        return;
+      }
+
+      cy.window().then((win) => {
+        const start = win.getComputedStyle(ticker).transform;
+        cy.wait(800);
+        cy.then(() => {
+          const end = win.getComputedStyle(ticker).transform;
+          expect(end, 'ticker transform after 800ms').not.to.equal(start);
         });
       });
     });

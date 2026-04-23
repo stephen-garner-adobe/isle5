@@ -34,8 +34,8 @@ Not applicable. The block has no metadata contract today.
 
 ## Behavior patterns
 
-- Rendering is driven entirely by authored markup and block CSS.
-- No custom `decorate(block)` behavior is currently applied in `hero.js`.
+- Rendering is driven by authored markup, block CSS, and a small `decorate(block)` enhancement.
+- `hero.js` replaces the authored picture with an optimized responsive picture and marks the first-section image eager for LCP.
 
 ## Accessibility notes
 
@@ -45,4 +45,4 @@ Not applicable. The block has no metadata contract today.
 ## Troubleshooting
 
 - If styling appears missing, verify the block is authored as the `hero` definition and the CSS is loading.
-- If content structure is unexpected, confirm the authored row matches the `_hero.json` field selectors.
+- If content structure is unexpected, confirm the authored row matches [hero.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/hero.json) field selectors.

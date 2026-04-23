@@ -54,7 +54,7 @@ quality-gate-runner (build pipeline, build:json)
   -> authoring-contract-auditor (metadata contracts, README)
     -> storefront-block-author (implementation alignment)
 ```
-Stale `build:json` output means DA.live shows wrong models regardless of correct `_*.json` source.
+Stale `build:json` output means DA.live shows wrong models regardless of correct `ue/models/**/*.json` source.
 
 ### Initializer order -> Drop-in lifecycle -> Commerce readiness
 ```

@@ -19,7 +19,7 @@ Owns runtime implementation quality for storefront code.
 ## Does not own
 
 - README completeness or certification
-- `_block.json` and DA.live contract certification
+- `ue/models/blocks/block-name.json` and DA.live contract certification
 - Lint/build/test execution as a primary responsibility
 - Config mode diagnosis or endpoint policy
 - Upstream drift analysis
@@ -76,7 +76,7 @@ Recommended domains:
 
 ## Delegation
 
-- Delegate README, metadata, and `_block.json` parity issues to `authoring-contract-auditor`.
+- Delegate README, metadata, and `ue/models/blocks/block-name.json` parity issues to `authoring-contract-auditor`.
 - Delegate config and endpoint issues to `commerce-integration-auditor`.
 - Delegate lint, build, route coverage, and geometry evidence to `verification-auditor`.
 

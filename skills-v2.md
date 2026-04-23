@@ -18,7 +18,7 @@ This draft consolidates the current skill system into a smaller, harder-edged mo
 | `implementation-auditor` | Runtime code quality in blocks and routes |
 | `commerce-integration-auditor` | Config, endpoints, initializers, event bus, route prerequisites |
 | `verification-auditor` | Lint/build/test/geometry evidence and gate summaries |
-| `authoring-contract-auditor` | README, metadata, DA.live, `_block.json` parity |
+| `authoring-contract-auditor` | README, metadata, DA.live, `ue/models/blocks/block-name.json` parity |
 | `upstream-drift-reviewer` | Upstream comparison and sync planning |
 
 ## Orchestrators

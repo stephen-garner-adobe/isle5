@@ -527,12 +527,14 @@ function buildTicker(leftLane, rows, config, signal) {
 
   let pausedByFocus = false;
   let pausedByHover = false;
+  let hoverEligible = false;
+  let lastAnimationKey = '';
 
   const applyPlaybackState = () => {
-    if (pausedByFocus || pausedByHover) {
+    if (pausedByFocus || (hoverEligible && pausedByHover)) {
       track.style.animationPlayState = 'paused';
     } else {
-      track.style.removeProperty('animation-play-state');
+      track.style.animationPlayState = 'running';
     }
   };
 
@@ -550,6 +552,14 @@ function buildTicker(leftLane, rows, config, signal) {
       } else {
         track.style.setProperty('--top-banner-track-start', `${tickerWidth}px`);
         track.style.setProperty('--top-banner-track-end', `-${trackWidth}px`);
+      }
+
+      const animationKey = `${config.direction}:${tickerWidth}:${trackWidth}`;
+      if (animationKey !== lastAnimationKey) {
+        track.style.animation = 'none';
+        track.getBoundingClientRect();
+        track.style.removeProperty('animation');
+        lastAnimationKey = animationKey;
       }
     }
 
@@ -569,16 +579,22 @@ function buildTicker(leftLane, rows, config, signal) {
   }, { signal });
 
   if (config.pauseOnHover) {
+    window.addEventListener('pointermove', () => {
+      hoverEligible = true;
+    }, { once: true, signal, passive: true });
+
     // Use pointer events instead of pure CSS :hover so initial cursor position
     // does not freeze ticker on first paint.
     ticker.addEventListener('pointerenter', (event) => {
       if (event.pointerType === 'touch') return;
+      if (!hoverEligible) return;
       pausedByHover = true;
       applyPlaybackState();
     }, { signal });
 
     ticker.addEventListener('pointerleave', (event) => {
       if (event.pointerType === 'touch') return;
+      if (!hoverEligible) return;
       pausedByHover = false;
       applyPlaybackState();
     }, { signal });

@@ -71,7 +71,7 @@ Classify every file that differs between upstream and local into one of three ca
 | `config.json`, `demo-config*.json` | Project-specific commerce configuration |
 | `fstab.yaml` | Project-specific DA.live content source |
 | `scripts/initializers/` | Project-specific drop-in initialization |
-| `models/_component-definition.json` | Project-specific block registration |
+| `ue/models/component-definition.json` | Project-specific block registration |
 | `cypress/` (custom specs/fixtures) | Project-specific test coverage |
 | `styles/styles.css` (design tokens) | Project-specific branding |
 

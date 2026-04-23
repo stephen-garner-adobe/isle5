@@ -6,7 +6,7 @@ The `cards-list` block is a lightweight presentational block that applies card a
 
 ## DA.live integration and authoring structure
 
-This block is not currently registered in `models/_component-definition.json` and has no `_cards-list.json` authoring contract. Treat it as a legacy/internal block rather than a DA.live sidebar component.
+This block is registered through [cards-list.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/cards-list.json). Treat it as a simple DA.live/Universal Editor block with row-based card content and no custom sidebar fields.
 
 | DA.live Model Options | Value | Effect |
 | --- | --- | --- |

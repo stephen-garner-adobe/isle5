@@ -83,7 +83,7 @@ export function checkBuildPipeline(rootDir) {
       summary: 'npm run build:json failed',
       evidence: `Build output: ${output.substring(0, 200)}`,
       principle: 'DA.live JSON Config > Integration with project-level configs',
-      remediation: 'Fix build:json errors — check _*.json files for syntax issues',
+      remediation: 'Fix build:json errors — check ue/models/**/*.json files for syntax issues',
     });
     summary.buildJson = 'fail';
   }

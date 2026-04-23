@@ -11,10 +11,10 @@ This skill merges two former skills — `metadata-contract-checker` and `authori
 
 - Auditing metadata-heavy blocks for naming, precedence, or normalization issues
 - Checking that README documentation matches actual implementation behavior
-- Verifying DA.live `_block.json` contracts after block behavior changes
+- Verifying DA.live `ue/models/blocks/block-name.json` contracts after block behavior changes
 - Building authoring contracts for a new block alongside `storefront-block-author`
 - Detecting drift between code and docs after iterative block updates
-- Validating that `npm run build:json` output is in sync with source `_*.json` files
+- Validating that `npm run build:json` output is in sync with source `ue/models/**/*.json` files
 
 ## Discovery questions
 
@@ -28,9 +28,9 @@ This skill merges two former skills — `metadata-contract-checker` and `authori
 1. Read `AGENTS.md` — metadata contract rules, README requirements, DA.live JSON config rules.
 2. Read the block implementation (`blocks/<block>/<block>.js`) and extract all metadata keys, precedence logic, normalizers, and fallback behavior.
 3. Read the block README and extract all documented metadata keys, values, effects, and precedence descriptions.
-4. Read `_block.json` and extract definitions, models, and filters.
+4. Read `ue/models/blocks/block-name.json` and extract definitions, models, and filters.
 5. Run the bidirectional comparison using the checklists below.
-6. Emit findings for every mismatch between code and docs, or between `_block.json` and actual authoring shape.
+6. Emit findings for every mismatch between code and docs, or between `ue/models/blocks/block-name.json` and actual authoring shape.
 7. Verify `npm run build:json` output is in sync (delegate execution to `quality-gate-runner` if needed).
 
 ## Checklists
@@ -86,7 +86,7 @@ This skill merges two former skills — `metadata-contract-checker` and `authori
 
 ### DA.live contract (AGENTS.md: DA.live JSON Config)
 
-- [ ] `_block.json` `definitions` array: `rows` and `columns` match actual authoring table structure the block expects
+- [ ] `ue/models/blocks/block-name.json` `definitions` array: `rows` and `columns` match actual authoring table structure the block expects
 - [ ] `definitions` `behaviour` value is correct (`"columns"` is most common)
 - [ ] `definitions` `id` matches block folder name
 - [ ] `models` fields match implemented behavior — no stale fields for removed features, no missing fields for new features
@@ -94,7 +94,7 @@ This skill merges two former skills — `metadata-contract-checker` and `authori
 - [ ] `models` field `value` defaults match code defaults
 - [ ] `models` field `options` (for `select`) match the allowed values in code normalizers
 - [ ] `filters` array correctly defines which child components are allowed
-- [ ] Block registered in `models/_component-definition.json` — either explicit entry or matching existing glob pattern (e.g., `product-*`)
+- [ ] Block registered in `ue/models/component-definition.json` — either explicit entry or matching existing glob pattern (e.g., `product-*`)
 - [ ] `npm run build:json` output reflects current source — `component-definition.json`, `component-models.json`, `component-filters.json` are in sync
 
 ### Bidirectional alignment (cross-cutting)
@@ -104,9 +104,9 @@ This skill merges two former skills — `metadata-contract-checker` and `authori
 - [ ] **Precedence parity**: Tier names in README are identical to tier names/comments in code
 - [ ] **Default parity**: Default values in README "effect" column match fallback values in code normalizers
 - [ ] **Value parity**: Allowed values in README "possible values" column match the validation sets in code normalizers
-- [ ] **Model-to-code parity**: Every field in `_block.json` models corresponds to actual authoring behavior in the block
+- [ ] **Model-to-code parity**: Every field in `ue/models/blocks/block-name.json` models corresponds to actual authoring behavior in the block
 - [ ] **Authoring example accuracy**: Example tables in README use real key names and realistic values that the block actually supports
-- [ ] **Removal completeness**: If a metadata key was removed from code, it is also removed from README, `_block.json` models, and `component-models.json`
+- [ ] **Removal completeness**: If a metadata key was removed from code, it is also removed from README, `ue/models/blocks/block-name.json` models, and `component-models.json`
 
 ## Output format
 
@@ -131,7 +131,7 @@ remediation: Either add "fluid" to the normalizer's allowed values or remove it 
 | Build pipeline verification (`npm run build:json` execution) | `quality-gate-runner` |
 | Runtime behavior verification beyond static analysis | `route-smoke-auditor` |
 
-**Owns**: Metadata naming, precedence, resolution auditing. README completeness and accuracy. DA.live `_block.json` contract alignment. Bidirectional code-to-docs and docs-to-code parity. Build output sync verification (diagnosis, not execution).
+**Owns**: Metadata naming, precedence, resolution auditing. README completeness and accuracy. DA.live `ue/models/blocks/block-name.json` contract alignment. Bidirectional code-to-docs and docs-to-code parity. Build output sync verification (diagnosis, not execution).
 
 ## Evidence patterns
 
@@ -139,7 +139,7 @@ remediation: Either add "fluid" to the normalizer's allowed values or remove it 
 - **Precedence drift**: Show the tier order in code (comment or implementation sequence) alongside the tier order in README. Highlight any reordering or missing tiers.
 - **Resolution gaps**: Show `getConfigValue()` calls with their key arrays and compare to README's documented key resolution.
 - **README gaps**: List required sections (from AGENTS.md) and mark which are present/absent.
-- **DA.live contract drift**: Show `_block.json` model fields alongside the actual `decorate()` parameters or config reads that consume them.
+- **DA.live contract drift**: Show `ue/models/blocks/block-name.json` model fields alongside the actual `decorate()` parameters or config reads that consume them.
 
 ## Inspect
 
@@ -147,14 +147,14 @@ remediation: Either add "fluid" to the normalizer's allowed values or remove it 
 - `blocks/<block>/README.md` — author-facing documentation
 - `blocks/<block>/_<block>.json` — DA.live definitions, models, filters
 - `component-definition.json`, `component-models.json`, `component-filters.json` — aggregated built output
-- `models/_component-definition.json` — block registration source
+- `ue/models/component-definition.json` — block registration source
 - `AGENTS.md` — metadata contract rules, README requirements, DA.live JSON rules
 
 ## Produce
 
 - Metadata drift findings (naming, precedence, resolution)
 - README completeness findings (missing sections, tables, examples)
-- DA.live contract drift findings (`_block.json` vs implementation)
+- DA.live contract drift findings (`ue/models/blocks/block-name.json` vs implementation)
 - Bidirectional alignment findings (code vs docs mismatches)
 - Build output sync findings (source vs built file discrepancies)
 

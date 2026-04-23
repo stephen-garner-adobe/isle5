@@ -1,0 +1,181 @@
+{
+  "groups": [
+    {
+      "title": "Default Content",
+      "id": "default",
+      "components": [
+        {
+          "...": "./text.json#/definitions"
+        },
+        {
+          "...": "./image.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Sections",
+      "id": "sections",
+      "components": [
+        {
+          "...": "./section.json#/definitions"
+        }
+      ]
+    },
+    {
+      "title": "Blocks",
+      "id": "blocks",
+      "components": [
+        {
+          "...": "./blocks/accordion.json#/definitions"
+        },
+        {
+          "...": "./blocks/blog-post.json#/definitions"
+        },
+        {
+          "...": "./blocks/blog-tiles.json#/definitions"
+        },
+        {
+          "...": "./blocks/cards.json#/definitions"
+        },
+        {
+          "...": "./blocks/cards-list.json#/definitions"
+        },
+        {
+          "...": "./blocks/carousel.json#/definitions"
+        },
+        {
+          "...": "./blocks/circle-carousel.json#/definitions"
+        },
+        {
+          "...": "./blocks/columns.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-account-header.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-account-sidebar.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-addresses.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-cart.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-checkout.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-checkout-success.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-confirm-account.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-create-account.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-create-password.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-create-return.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-customer-details.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-customer-information.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-forgot-password.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-gift-options.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-login.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-mini-cart.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-order-cost-summary.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-order-header.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-order-product-list.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-order-returns.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-order-status.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-orders-list.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-return-header.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-returns-list.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-search-order.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-shipping-status.json#/definitions"
+        },
+        {
+          "...": "./blocks/commerce-wishlist.json#/definitions"
+        },
+        {
+          "...": "./blocks/enrichment.json#/definitions"
+        },
+        {
+          "...": "./blocks/footer.json#/definitions"
+        },
+        {
+          "...": "./blocks/fragment.json#/definitions"
+        },
+        {
+          "...": "./blocks/header.json#/definitions"
+        },
+        {
+          "...": "./blocks/hero.json#/definitions"
+        },
+        {
+          "...": "./blocks/hero-cta.json#/definitions"
+        },
+        {
+          "...": "./blocks/newsletter.json#/definitions"
+        },
+        {
+          "...": "./blocks/product-details.json#/definitions"
+        },
+        {
+          "...": "./blocks/product-list-page.json#/definitions"
+        },
+        {
+          "...": "./blocks/product-recommendations.json#/definitions"
+        },
+        {
+          "...": "./blocks/promotional-hero.json#/definitions"
+        },
+        {
+          "...": "./blocks/search-bar.json#/definitions"
+        },
+        {
+          "...": "./blocks/store-locator.json#/definitions"
+        },
+        {
+          "...": "./blocks/targeted-block.json#/definitions"
+        },
+        {
+          "...": "./blocks/top-banner.json#/definitions"
+        }
+      ]
+    }
+  ]
+}

@@ -51,7 +51,7 @@ export const CS_FETCH_GRAPHQL = new FetchGraphQL();
  */
 
 // Environment checks
-export const IS_UE = window.location.hostname.includes('ue.da.live');
+export const IS_UE = /\.(stage-ue|ue)\.da\.live$/.test(window.location.hostname);
 export const IS_DA = new URL(window.location.href).searchParams.has('dapreview');
 
 /**

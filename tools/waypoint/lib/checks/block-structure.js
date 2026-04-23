@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const REQUIRED_FILES = ['.js', '.css', '/README.md'];
+const RUNTIME_HELPER_BLOCKS = new Set(['modal']);
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -156,24 +157,19 @@ export function checkBlockStructure(rootDir) {
       });
     }
 
-    // Check _block.json
-    const blockJson = path.join(blockDir, `_${block}.json`);
-    if (!fs.existsSync(blockJson)) {
-      // Some blocks use alternate naming, check for any _*.json
-      const files = fs.readdirSync(blockDir);
-      const hasAnyBlockJson = files.some((f) => f.startsWith('_') && f.endsWith('.json'));
-      if (!hasAnyBlockJson) {
-        findings.push({
-          id: `block-structure/da-live-contract/${block}-json`,
-          domain: 'da-live-contract',
-          severity: 'warning',
-          confidence: 'verified',
-          summary: `${block}/ missing _${block}.json DA.live config`,
-          evidence: blockJson,
-          principle: 'Required Block Structure: _block-name.json',
-          remediation: `Create _${block}.json with definitions, models, filters`,
-        });
-      }
+    // Check Universal Editor block model source
+    const blockJson = path.join(rootDir, 'ue', 'models', 'blocks', `${block}.json`);
+    if (!RUNTIME_HELPER_BLOCKS.has(block) && !fs.existsSync(blockJson)) {
+      findings.push({
+        id: `block-structure/da-live-contract/${block}-json`,
+        domain: 'da-live-contract',
+        severity: 'warning',
+        confidence: 'verified',
+        summary: `${block}/ missing ue/models/blocks/${block}.json DA.live config`,
+        evidence: blockJson,
+        principle: 'Required Block Structure: ue/models/blocks/block-name.json',
+        remediation: `Create ue/models/blocks/${block}.json with definitions, models, filters`,
+      });
     }
   }
 

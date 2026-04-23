@@ -168,7 +168,7 @@ CSP -> URL-safety -> block-security
 - `blocks/` — all block implementations
 - `scripts/` — initializers, utilities, delayed.js, commerce.js, aem.js
 - `scripts/initializers/` — drop-in lifecycle and event bus
-- `models/` and `_*.json` files — DA.live contracts
+- `ue/models/**/*.json` files — DA.live and Universal Editor contracts
 - `component-definition.json`, `component-models.json`, `component-filters.json` — built output
 - `cypress/` — test coverage
 - `.github/workflows/` — CI/CD

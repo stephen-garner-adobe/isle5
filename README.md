@@ -19,7 +19,8 @@ It is built to reduce delivery time and implementation risk by combining:
 
 ## What's included
 
-- `blocks/` for reusable storefront blocks and their DA.live authoring contracts,
+- `blocks/` for reusable storefront block implementations,
+- `ue/models/` for DA.live and Universal Editor authoring contracts,
 - `scripts/__dropins__/` for locally served drop-in assets synced from dependencies,
 - `styles/` for shared/global design foundations,
 - component definitions/models/filters for controlled authoring and configuration.

@@ -76,7 +76,7 @@ Verify bidirectional alignment between code and documentation:
 - Metadata naming follows block-prefix convention
 - Precedence tiers match between code and README
 - README has all required sections and tables
-- `_block.json` definitions/models/filters match authoring table shape
+- `ue/models/blocks/block-name.json` definitions/models/filters match authoring table shape
 - Model fields correspond to implemented behavior
 
 **Pass criteria**: Zero bidirectional drift findings. Every code key appears in README, every README key is implemented in code.
@@ -84,7 +84,7 @@ Verify bidirectional alignment between code and documentation:
 ### Stage 4: Register in DA.live
 
 Verify the block is registered in the DA.live authoring system:
-- Block entry exists in `models/_component-definition.json` (explicit entry or matching glob pattern)
+- Block entry exists in `ue/models/component-definition.json` (explicit entry or matching glob pattern)
 - Run `npm run build:json` to regenerate aggregated configs
 - Verify `component-definition.json` includes the block
 - Verify `component-models.json` includes the block's model fields

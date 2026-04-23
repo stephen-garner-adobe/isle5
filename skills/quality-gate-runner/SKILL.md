@@ -25,7 +25,7 @@ If not specified, default to full gate run for all changed surfaces.
 
 1. Identify changed surfaces from git status or user input.
 2. Run lint checks (`npm run lint:js`, `npm run lint:css`).
-3. Validate build pipeline (`npm run build:json` output matches source `_*.json` files).
+3. Validate build pipeline (`npm run build:json` output matches source `ue/models/**/*.json` files).
 4. Verify pre-commit hook health (husky runs `build:json` and stages output).
 5. Walk the AGENTS.md Before Shipping Checklist against the changed surfaces.
 6. Check CI/CD workflow status for relevant GitHub Actions.
@@ -47,9 +47,9 @@ If not specified, default to full gate run for all changed surfaces.
 ### Build pipeline (AGENTS.md: DA.live JSON Config > Integration with project-level configs)
 
 - [ ] `npm run build:json` completes without error
-- [ ] `component-definition.json` output matches aggregated source from `models/_component-definition.json` and `blocks/*/_*.json`
-- [ ] `component-models.json` output matches aggregated source from all block `_*.json` model sections
-- [ ] `component-filters.json` output matches aggregated source from all block `_*.json` filter sections
+- [ ] `component-definition.json` output matches aggregated source from `ue/models/component-definition.json` and `ue/models/blocks/*.json`
+- [ ] `component-models.json` output matches aggregated source from all `ue/models/blocks/*.json` model sections
+- [ ] `component-filters.json` output matches aggregated source from all `ue/models/blocks/*.json` filter sections
 - [ ] No stale model fields in built output that no longer map to implemented behavior
 - [ ] Pre-commit hook (`husky`) runs `build:json` and stages the output files
 - [ ] `postinstall.js` correctly syncs all `@dropins/storefront-*` packages from `node_modules` to `scripts/__dropins__/`
@@ -70,7 +70,7 @@ For each changed block, verify:
 7. [ ] No-JS fallback: critical content and links visible/usable before decoration
 8. [ ] Motion respects `prefers-reduced-motion` and timers are lifecycle-safe
 9. [ ] Mobile and desktop layouts verified, including 44x44 tap targets
-10. [ ] README and `_block-name.json` match implemented behavior
+10. [ ] README and `ue/models/blocks/block-name.json` match implemented behavior
 11. [ ] Responsive geometry gate passes across required widths (no hard leak > 2px)
 12. [ ] Floating/absolute UI layers clamped, no overflow/clip at small screens
 13. [ ] Drop-in components (if used) scoped, initialized correctly, handle render errors gracefully
@@ -122,7 +122,7 @@ Emit findings using the shared finding schema from `_contracts/finding-schema.md
 | Action | Delegate to |
 |--------|------------|
 | Block implementation fixes for lint failures | `storefront-block-author` |
-| README or `_block.json` fixes for shipping checklist failures | `authoring-contract-auditor` |
+| README or `ue/models/blocks/block-name.json` fixes for shipping checklist failures | `authoring-contract-auditor` |
 | Responsive geometry failures | `visual-geometry-auditor` |
 | Route coverage gaps in risk-based testing | `route-smoke-auditor` |
 
@@ -131,7 +131,7 @@ Emit findings using the shared finding schema from `_contracts/finding-schema.md
 ## Evidence patterns
 
 - **Lint**: Show the exact lint error output with file:line references.
-- **Build pipeline**: Show diff between built output and expected aggregation from source `_*.json` files.
+- **Build pipeline**: Show diff between built output and expected aggregation from source `ue/models/**/*.json` files.
 - **Shipping checklist**: For each failed item, reference the specific block file and line where the violation occurs.
 - **CI/CD**: Reference the workflow file and its last run status.
 - **Risk-based testing**: Show the block classification rationale and which required gates are missing.
@@ -141,8 +141,8 @@ Emit findings using the shared finding schema from `_contracts/finding-schema.md
 - `package.json` — scripts, dependencies, drop-in versions
 - `.eslintrc.json`, `.stylelintrc.json` — lint configuration
 - `component-definition.json`, `component-models.json`, `component-filters.json` — built output
-- `models/_component-definition.json` — definition source with globs
-- `blocks/*/_*.json` — individual block DA.live configs
+- `ue/models/component-definition.json` — definition source with globs
+- `ue/models/blocks/*.json` — individual block DA.live configs
 - `build.mjs` — GraphQL override builder
 - `postinstall.js` — drop-in sync script
 - `.husky/` — pre-commit hook configuration

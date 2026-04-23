@@ -1,0 +1,22 @@
+{
+  "definitions": [
+    {
+      "title": "Commerce Customer Details",
+      "id": "commerce-customer-details",
+      "model": "commerce-customer-details",
+      "plugins": {
+        "da": {
+          "rows": 1,
+          "columns": 2
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "commerce-customer-details",
+      "fields": []
+    }
+  ],
+  "filters": []
+}

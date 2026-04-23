@@ -1,6 +1,6 @@
 ---
 name: storefront-block-author
-description: Use when creating or rewriting Adobe Commerce Storefront custom blocks in repositories shaped like isle5, especially when the work must follow block JS/CSS/README/_block.json contracts, DA.live authoring rules, metadata precedence, accessibility, security, performance, and safe DOM/URL handling from AGENTS.md.
+description: Use when creating or rewriting Adobe Commerce Storefront custom blocks in repositories shaped like isle5, especially when the work must follow block JS/CSS, README, ue/models/blocks/block-name.json contracts, DA.live authoring rules, metadata precedence, accessibility, security, performance, and safe DOM/URL handling from AGENTS.md.
 ---
 
 # Storefront Block Author
@@ -34,7 +34,7 @@ If answers are not provided, infer from the block name and location. State assum
 4. Keep authored content in block rows/cells and behavior/layout controls in section metadata.
 5. Implement deterministic metadata precedence and persist resolved values on `block.dataset.*`.
 6. Use safe DOM construction and URL handling throughout.
-7. Align README and `_block.json` with the implementation (delegate deep contract verification to `authoring-contract-auditor`).
+7. Align README and `ue/models/blocks/block-name.json` with the implementation (delegate deep contract verification to `authoring-contract-auditor`).
 
 ## Checklists
 
@@ -133,7 +133,7 @@ When auditing or reviewing, emit findings using the shared finding schema from `
 - Block JS file implementing all checklist requirements
 - Block CSS file with proper variant model and design tokens
 - README with required sections (delegate deep verification to `authoring-contract-auditor`)
-- `_block.json` with definitions/models/filters matching the authoring table shape
+- `ue/models/blocks/block-name.json` with definitions/models/filters matching the authoring table shape
 - Any findings about pre-existing issues encountered during the work
 
 ## Cross-skill awareness
@@ -160,14 +160,14 @@ When auditing or reviewing, emit findings using the shared finding schema from `
 - `blocks/<block>/` — target block folder
 - `AGENTS.md` — canonical rule source
 - `component-definition.json`, `component-models.json`, `component-filters.json` — DA.live aggregated configs
-- `models/_component-definition.json` — block registration source
+- `ue/models/component-definition.json` — block registration source
 - `styles/styles.css` — design token definitions
 - `scripts/aem.js` — `createOptimizedPicture` and EDS utilities
 
 ## Produce
 
 - Block JS/CSS implementation
-- `_block.json` alignment
+- `ue/models/blocks/block-name.json` alignment
 - README alignment
 - Metadata precedence and warning behavior
 - Findings in shared schema for any pre-existing issues
