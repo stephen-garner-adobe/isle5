@@ -67,6 +67,7 @@
   },
   "overrides": {
     "@adobe/alloy": {
+      "js-cookie": "^3.0.8",
       "@rollup/plugin-terser": {
         "serialize-javascript": "^7.0.5"
       }
