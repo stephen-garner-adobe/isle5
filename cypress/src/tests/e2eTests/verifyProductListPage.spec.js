@@ -4,13 +4,9 @@ import {
 
 describe("Verify Product List Page", () => {
     it("Verify PLP page loads", { tags: "@snapPercy" }, () => {
-        cy.visit("");
-
-        // Open Catalog Menu
-        cy.get(".nav-drop").first().should('be.visible').trigger("mouseenter");
-
-        // Navaigate to Apperal category page
-        cy.contains("Apparel").should('be.visible').click();
+        // Use the project-owned published category route instead of relying on
+        // the boilerplate demo navigation taxonomy.
+        cy.visit("/apparel");
 
         // Wait for PLP to finish loading before asserting images (avoids flake when run with full suite)
         cy.waitForLoadingSkeletonToDisappear();

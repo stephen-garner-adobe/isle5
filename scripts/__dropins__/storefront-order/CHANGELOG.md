@@ -1,5 +1,94 @@
 # @dropins/storefront-order
 
+## 4.0.1
+
+### Patch Changes
+
+- 1df0e9c: Fix incorrect and missing `autocomplete` attributes on the order search form (WCAG 1.3.5).
+
+  The email field on the guest order search form used an invalid `autocomplete` value (`username`), and the last name field had no `autocomplete` attribute at all. They now use the correct `email` and `family-name` values respectively.
+
+  This helps browsers and assistive technology correctly identify the purpose of each field, making autofill and form-filling easier for everyone, including people using screen readers or who have difficulty typing.
+
+- 405a09d: Fix visual heading text not marked as heading across order status, order details, shipping, returns and product list sections
+- aea506c: Bump SDK stable versions
+
+## 4.0.1-beta.1
+
+### Patch Changes
+
+- aea506c: Bump SDK stable versions
+
+## 4.0.1-beta.0
+
+### Patch Changes
+
+- 1df0e9c: Fix incorrect and missing `autocomplete` attributes on the order search form (WCAG 1.3.5).
+
+  The email field on the guest order search form used an invalid `autocomplete` value (`username`), and the last name field had no `autocomplete` attribute at all. They now use the correct `email` and `family-name` values respectively.
+
+  This helps browsers and assistive technology correctly identify the purpose of each field, making autofill and form-filling easier for everyone, including people using screen readers or who have difficulty typing.
+
+- 405a09d: Fix visual heading text not marked as heading across order status, order details, shipping, returns and product list sections
+
+## 4.0.0
+
+### Major Changes
+
+- 6a3e582: Add support for Seller Assisted Buying feature that allows store administrators to place orders on behalf of customers. Orders placed by administrators are marked with a visible "Order placed by an administrator" label on the order details page. The feature also integrates with order comments to track admin actions and provide a history of administrative assistance throughout the order lifecycle.
+
+### Minor Changes
+
+- d09caca: Removed the `engines.node` constraint from `package.json`. This package targets browser environments exclusively and does not depend on a specific Node.js runtime version. The package is now built and distributed using Node.js 22 LTS.
+
+### Patch Changes
+
+- 1714bd1:
+- 97eb21b: Bump storefront SDK stable version
+- ab3d4d6: Bump @adobe-commerce/elsie to v1.9.0-beta.3
+
+## 4.0.0-beta.3
+
+### Patch Changes
+
+- 97eb21b: Bump storefront SDK stable version
+
+## 4.0.0-beta.2
+
+### Patch Changes
+
+- ab3d4d6: Bump @adobe-commerce/elsie to v1.9.0-beta.3
+
+## 4.0.0-beta.1
+
+### Patch Changes
+
+- 1714bd1:
+
+## 4.0.0-beta.0
+
+### Major Changes
+
+- 6a3e582: Add support for Seller Assisted Buying feature that allows store administrators to place orders on behalf of customers. Orders placed by administrators are marked with a visible "Order placed by an administrator" label on the order details page. The feature also integrates with order comments to track admin actions and provide a history of administrative assistance throughout the order lifecycle.
+
+### Minor Changes
+
+- d09caca: Removed the `engines.node` constraint from `package.json`. This package targets browser environments exclusively and does not depend on a specific Node.js runtime version. The package is now built and distributed using Node.js 22 LTS.
+
+## 3.3.0
+
+### Minor Changes
+
+- 233a773: Add comments field for authenticated users
+- 2d34f43: This branch adds order-level comments from the GraphQL CustomerOrder.comments field and a new OrderComments UI (component + container).
+
+## 3.3.0-beta.0
+
+### Minor Changes
+
+- 233a773: Add comments field for authenticated users
+- 2d34f43: This branch adds order-level comments from the GraphQL CustomerOrder.comments field and a new OrderComments UI (component + container).
+
 ## 3.2.0
 
 ### Minor Changes

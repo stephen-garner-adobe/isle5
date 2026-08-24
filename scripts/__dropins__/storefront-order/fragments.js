@@ -1,4 +1,4 @@
-const d = `fragment REQUEST_RETURN_ORDER_FRAGMENT on Return {
+const A = `fragment REQUEST_RETURN_ORDER_FRAGMENT on Return {
   __typename
   uid
   status
@@ -119,7 +119,7 @@ const d = `fragment REQUEST_RETURN_ORDER_FRAGMENT on Return {
       product_name
     }
   }
-}`, u = ``, E = `fragment ORDER_ITEM_FRAGMENT on OrderItemInterface {
+}`, d = ``, E = `fragment ORDER_ITEM_FRAGMENT on OrderItemInterface {
   ...ORDER_ITEM_DETAILS_FRAGMENT
   ... on BundleOrderItem {
     ...BUNDLE_ORDER_ITEM_DETAILS_FRAGMENT
@@ -131,7 +131,7 @@ const d = `fragment REQUEST_RETURN_ORDER_FRAGMENT on Return {
     }
   }
 }
-${u}`, i = `fragment ORDER_SUMMARY_FRAGMENT on OrderTotal {
+${d}`, i = `fragment ORDER_SUMMARY_FRAGMENT on OrderTotal {
   gift_options {
     gift_wrapping_for_items {
       currency
@@ -263,7 +263,7 @@ ${u}`, i = `fragment ORDER_SUMMARY_FRAGMENT on OrderTotal {
     value
     currency
   }
-}`, A = `fragment GUEST_ORDER_FRAGMENT on CustomerOrder {
+}`, s = `fragment GUEST_ORDER_FRAGMENT on CustomerOrder {
   printed_card_included
   gift_receipt_included
   gift_wrapping {
@@ -289,6 +289,11 @@ ${u}`, i = `fragment ORDER_SUMMARY_FRAGMENT on OrderTotal {
   shipping_method
   available_actions
   is_virtual
+  admin_assisted_order
+  comments {
+    message
+    timestamp
+  }
   payment_methods {
     name
     type
@@ -352,7 +357,7 @@ ${a}
 ${E}
 ${i}
 ${t}
-${_}`, s = `fragment CUSTOMER_ORDER_FRAGMENT on CustomerOrder {
+${_}`, u = `fragment CUSTOMER_ORDER_FRAGMENT on CustomerOrder {
   printed_card_included
   gift_receipt_included
   gift_wrapping {
@@ -377,6 +382,11 @@ ${_}`, s = `fragment CUSTOMER_ORDER_FRAGMENT on CustomerOrder {
   shipping_method
   available_actions
   is_virtual
+  admin_assisted_order
+  comments {
+    message
+    timestamp
+  }
   payment_methods {
     name
     type
@@ -449,7 +459,7 @@ ${_}`, m = `fragment PLACE_ORDER_FRAGMENT on PlaceOrderOutput {
     ...GUEST_ORDER_FRAGMENT
   }
 }
-${A}`, G = `fragment PLACE_NEGOTIABLE_QUOTE_ORDER_FRAGMENT on PlaceNegotiableQuoteOrderOutputV2 {
+${s}`, G = `fragment PLACE_NEGOTIABLE_QUOTE_ORDER_FRAGMENT on PlaceNegotiableQuoteOrderOutputV2 {
   errors {
     code
     message
@@ -458,17 +468,17 @@ ${A}`, G = `fragment PLACE_NEGOTIABLE_QUOTE_ORDER_FRAGMENT on PlaceNegotiableQuo
     ...GUEST_ORDER_FRAGMENT
   }
 }
-${A}`;
+${s}`;
 export {
 e as ADDRESS_FRAGMENT,
 R as APPLIED_GIFT_CARDS_FRAGMENT,
 n as BUNDLE_ORDER_ITEM_DETAILS_FRAGMENT,
-s as CUSTOMER_ORDER_FRAGMENT,
-u as DOWNLOADABLE_ORDER_ITEMS_FRAGMENT,
+u as CUSTOMER_ORDER_FRAGMENT,
+d as DOWNLOADABLE_ORDER_ITEMS_FRAGMENT,
 r as GIFT_CARD_DETAILS_FRAGMENT,
 T as GIFT_MESSAGE_FRAGMENT,
 c as GIFT_WRAPPING_FRAGMENT,
-A as GUEST_ORDER_FRAGMENT,
+s as GUEST_ORDER_FRAGMENT,
 a as ORDER_ITEM_DETAILS_FRAGMENT,
 E as ORDER_ITEM_FRAGMENT,
 i as ORDER_SUMMARY_FRAGMENT,
@@ -476,6 +486,6 @@ G as PLACE_NEGOTIABLE_QUOTE_ORDER_FRAGMENT,
 m as PLACE_ORDER_FRAGMENT,
 t as PRICE_DETAILS_FRAGMENT,
 _ as PRODUCT_DETAILS_FRAGMENT,
-d as REQUEST_RETURN_ORDER_FRAGMENT,
+A as REQUEST_RETURN_ORDER_FRAGMENT,
 o as RETURNS_FRAGMENT
 };
