@@ -17,51 +17,61 @@
       "fields": [
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "hide-heading",
           "label": "Hide Heading"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "max-items",
           "label": "Max Items"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "hide-attributes",
           "label": "Hide Attributes"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "enable-item-quantity-update",
           "label": "Enable Item Quantity Update"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "enable-item-remove",
           "label": "Enable Item Remove"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "enable-estimate-shipping",
           "label": "Enable Estimate Shipping"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "start-shopping-url",
           "label": "Start Shopping URL"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "checkout-url",
           "label": "Checkout URL"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "enable-updating-product",
           "label": "Enable Updating Product"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "undo-remove-item",
           "label": "Undo Remove Item"
         }

@@ -17,12 +17,14 @@
       "fields": [
         {
           "component": "text",
+          "valueType": "string",
           "name": "urlpath",
           "label": "URL Path",
           "description": "URL Path of the category as defined in the catalog (not CMS)"
         },
         {
           "component": "number",
+          "valueType": "number",
           "name": "pageSize",
           "label": "Page Size",
           "value": 9,

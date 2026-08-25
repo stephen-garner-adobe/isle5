@@ -7,8 +7,8 @@ A responsive horizontal carousel displaying circular images with linked text bel
 - Circular image containers with optimized images
 - Clickable text links below each circle
 - Horizontal smooth-sliding carousel
-- Configurable items per view (mobile/tablet/desktop)
-- Optional autoplay with hover pause
+- Responsive items per view (2 mobile, 4 tablet, 6 desktop)
+- Autoplay with hover pause
 - Navigation arrows and dot indicators
 - Responsive design (2/4/6 items visible)
 - Touch-friendly for mobile
@@ -37,64 +37,29 @@ Each row has 2 columns:
 - **Column 1**: Circle Image (square images work best, will be cropped to circle)
 - **Column 2**: Linked Text (title with hyperlink, e.g., `Fresh Produce → /produce`)
 
+In Universal Editor, each repeatable `circle-carousel-item` exposes `Image`, `Image Alt Text`,
+and `Linked Text`. The parent model is intentionally empty: it owns the repeatable items but has
+no authorable configuration fields.
+
 **Image Recommendations:**
 - **Size**: 200x200px minimum (square aspect ratio)
 - **Format**: JPG or PNG
 - **Content**: Product photos, category icons, or representative images
 - **Focus**: Center the main subject (will be cropped to circle)
 
-## Configuration Options
+## Runtime Defaults
 
-### 1. Alignment
-**Type:** Select (left | center | right)  
-**Default:** "center"  
-**Description:** Horizontal alignment of the carousel within the section.
+The current authoring contract does not expose alignment, autoplay, or items-per-view controls.
+The decorator uses these defaults:
 
-**Options:**
-- `left` - Align carousel to the left
-- `center` - Center carousel (default, recommended for grocery)
-- `right` - Align carousel to the right
+| Behavior | Default |
+|---|---|
+| Alignment | `center` |
+| Autoplay | enabled, 4-second interval, paused on hover |
+| Items per view | `2` mobile, `4` tablet, `6` desktop |
 
-### 2. Enable Autoplay
-**Type:** Boolean  
-**Default:** true  
-**Description:** Automatically cycle through items every 4 seconds.
-
-**Behavior:**
-- Autoplay pauses on hover
-- Resumes when mouse leaves
-- Loops back to start after reaching the end
-- Only active when more items than visible
-
-### 3. Items Per View (Mobile)
-**Type:** Number (1-4)  
-**Default:** 2  
-**Description:** Number of circles visible on mobile screens (< 768px).
-
-**Recommendations:**
-- `2` - Standard for grocery (default)
-- `1` - For large product images
-- `3` - For small icons/categories
-
-### 4. Items Per View (Tablet)
-**Type:** Number (2-6)  
-**Default:** 4  
-**Description:** Number of circles visible on tablet screens (768-1023px).
-
-**Recommendations:**
-- `4` - Balanced view (default)
-- `3` - More breathing room
-- `5-6` - For many categories
-
-### 5. Items Per View (Desktop)
-**Type:** Number (3-8)  
-**Default:** 6  
-**Description:** Number of circles visible on desktop screens (≥ 1024px).
-
-**Recommendations:**
-- `6` - Standard for grocery categories (default)
-- `5` - Larger circles with more prominence
-- `8` - Maximum, for extensive catalogs
+Adding author-controlled alternatives requires a matching block model, runtime reader, and README
+change; do not add properties that only exist in the Universal Editor panel.
 
 ## Layout
 
@@ -141,10 +106,7 @@ Mobile (2 items visible):
 | ![frozen](/images/categories/frozen.jpg) | Frozen Foods → /frozen |
 | ![pantry](/images/categories/pantry.jpg) | Pantry Staples → /pantry |
 
-**Configuration:**
-- Alignment: center
-- Autoplay: true
-- Items: 2 (mobile) / 4 (tablet) / 6 (desktop)
+Uses the documented runtime defaults.
 
 ### Featured Brands (8 items)
 
@@ -155,10 +117,7 @@ Mobile (2 items visible):
 | ![brand3](/images/brands/applegate.jpg) | Applegate → /brands/applegate |
 | ... (more brands) ... |
 
-**Configuration:**
-- Alignment: center
-- Autoplay: true
-- Items: 2 (mobile) / 4 (tablet) / 6 (desktop)
+Uses the documented runtime defaults.
 
 ### Weekly Specials (5 items)
 
@@ -170,10 +129,7 @@ Mobile (2 items visible):
 | ![special4](/images/specials/chicken.jpg) | Free Range Chicken $4.99 → /specials |
 | ![special5](/images/specials/cheese.jpg) | Aged Cheddar 20% Off → /specials |
 
-**Configuration:**
-- Alignment: center
-- Autoplay: false (let users browse at their pace)
-- Items: 2 (mobile) / 3 (tablet) / 5 (desktop)
+Uses the documented runtime defaults. A non-autoplay campaign variant is not currently authorable.
 
 ## Technical Details
 
@@ -304,10 +260,9 @@ Display available services like "Curbside Pickup", "Delivery", "Pharmacy", etc.
 3. Ensure image container has equal width/height
 
 **Autoplay not working:**
-1. Verify `data-autoplay` is not set to `"false"`
-2. Check that there are more items than visible
-3. Ensure no JavaScript errors in console
-4. Try hovering then leaving to re-trigger
+1. Check that there are more items than visible
+2. Ensure no JavaScript errors appear in the console
+3. Try hovering then leaving to re-trigger
 
 **Navigation missing:**
 1. Need more items than `itemsPerView` setting

@@ -17,6 +17,7 @@
       "fields": [
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "minified-view",
           "label": "Minified View"
         }

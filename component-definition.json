@@ -17,10 +17,21 @@
         {
           "title": "Image",
           "id": "image",
+          "model": "image",
           "plugins": {
             "da": {
               "name": "image",
-              "type": "image"
+              "type": "image",
+              "fields": [
+                {
+                  "name": "imageAlt",
+                  "selector": "img[alt]"
+                },
+                {
+                  "name": "image",
+                  "selector": "img[src]"
+                }
+              ]
             }
           }
         }
@@ -206,30 +217,39 @@
         {
           "title": "Circle Carousel",
           "id": "circle-carousel",
+          "model": "circle-carousel",
+          "filter": "circle-carousel",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"circle-carousel\"><div><div><picture><source type=\"image/webp\" srcset=\"\"><source type=\"image/jpeg\" srcset=\"\"><img loading=\"lazy\"></picture></div><div><p></p></div></div></div>",
-              "behaviour": "columns"
+              "name": "circle-carousel",
+              "rows": 1,
+              "columns": 2
             }
           }
         },
         {
           "title": "Circle Carousel Item",
           "id": "circle-carousel-item",
+          "model": "circle-carousel-item",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div><div><picture><source type=\"image/webp\" srcset=\"\"><source type=\"image/jpeg\" srcset=\"\"><img loading=\"lazy\"></picture></div><div><p></p></div></div>",
-              "behaviour": "columns-row"
-            }
-          }
-        },
-        {
-          "title": "Circle Carousel Cell",
-          "id": "circle-carousel-cell",
-          "plugins": {
-            "da": {
-              "unsafeHTML": "<div></div>",
-              "behaviour": "columns-cell"
+              "name": "circle-carousel-item",
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
             }
           }
         },
@@ -663,9 +683,46 @@
         {
           "title": "Newsletter",
           "id": "newsletter",
+          "model": "newsletter",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"newsletter\"><div><div><p>Heading</p></div></div><div><div><p>Subheading</p></div></div></div>"
+              "name": "newsletter",
+              "rows": 8,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "heading",
+                  "selector": "div:nth-child(1)"
+                },
+                {
+                  "name": "subheading",
+                  "selector": "div:nth-child(2)"
+                },
+                {
+                  "name": "emailPlaceholder",
+                  "selector": "div:nth-child(3)"
+                },
+                {
+                  "name": "buttonLabel",
+                  "selector": "div:nth-child(4)"
+                },
+                {
+                  "name": "supportingText",
+                  "selector": "div:nth-child(5)"
+                },
+                {
+                  "name": "successHeading",
+                  "selector": "div:nth-child(6)"
+                },
+                {
+                  "name": "successSubheading",
+                  "selector": "div:nth-child(7)"
+                },
+                {
+                  "name": "successSupportingText",
+                  "selector": "div:nth-child(8)"
+                }
+              ]
             }
           }
         },
@@ -711,40 +768,29 @@
         {
           "title": "Search Bar",
           "id": "search-bar",
+          "model": "search-bar",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"search-bar\"><div><div><p>Search Products</p></div></div></div>",
-              "behaviour": "columns"
+              "name": "search-bar",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "placeholder",
+                  "selector": "div>div>p"
+                }
+              ]
             }
           }
         },
         {
           "title": "Store Locator",
           "id": "store-locator",
+          "model": "store-locator",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"store-locator\"><div><div><p>Store Name</p></div><div><p>Address</p></div><div><p>City</p></div><div><p>State</p></div><div><p>Zip</p></div><div><p>Phone</p></div></div></div>",
-              "behaviour": "columns"
-            }
-          }
-        },
-        {
-          "title": "Store Locator Item",
-          "id": "store-locator-item",
-          "plugins": {
-            "da": {
-              "unsafeHTML": "<div><div><p>Store Name</p></div><div><p>Address</p></div><div><p>City</p></div><div><p>State</p></div><div><p>Zip</p></div><div><p>Phone</p></div></div>",
-              "behaviour": "columns-row"
-            }
-          }
-        },
-        {
-          "title": "Store Locator Cell",
-          "id": "store-locator-cell",
-          "plugins": {
-            "da": {
-              "unsafeHTML": "<div></div>",
-              "behaviour": "columns-cell"
+              "name": "store-locator",
+              "type": "key-value-block"
             }
           }
         },

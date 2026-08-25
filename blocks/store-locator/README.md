@@ -64,6 +64,18 @@ Pushed (if present) to both `window.adobeDataLayer` and `window.dataLayer`:
 
 Use top config rows, then a data header row.
 
+The Universal Editor properties panel exposes the commonly used key/value settings: Google Maps API
+Key, Default View, Search Radius, Maximum Results, Auto-Detect Location, Default Location, Available
+Service Filters, Experience Mode, Radius Presets, Distance Units, No Results Message, Maximum Reviews
+Per Store, Map Style, Primary CTA Label, and Store Card Density. The model field names normalize to
+the same keys consumed by the runtime.
+
+Advanced settings in the full table below and the store data rows remain source-table authoring.
+They are not modeled as repeatable UE children because the runtime requires a data-header row and
+supports two different row schemas. Do not remove that header. A Google Maps key placed here is
+browser-delivered; use a key restricted to the intended HTTP referrers and APIs, never a private
+credential.
+
 ### Supported config keys
 
 | Key | Aliases | Type | Allowed values / format | Default |

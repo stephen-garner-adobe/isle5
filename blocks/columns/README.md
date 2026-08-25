@@ -7,16 +7,18 @@ The `columns` block lays out authored content in responsive columns and applies 
 ## DA.live integration and authoring structure
 
 The block is authored through the `columns`, `columns-row`, and `columns-cell` DA.live definitions.
-
-| DA.live Model Options | Value | Effect |
-| --- | --- | --- |
-| `columns` | number `1-6` | Default: `2`. Controls the intended number of authored columns. |
+The parent and row models intentionally expose no synthetic "number of columns" property. Column
+count comes from the actual cells in the first authored row, so the source table and rendered layout
+cannot drift apart.
 
 Document authoring example:
 
 | Columns |
 | --- | --- |
 | Column 1 content | Column 2 content |
+
+In Universal Editor, add or remove row/cell content through the container controls. Text and image
+components are allowed inside a column cell.
 
 ## Section Metadata Reference
 

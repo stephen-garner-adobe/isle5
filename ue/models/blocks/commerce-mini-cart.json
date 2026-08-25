@@ -17,26 +17,31 @@
       "fields": [
         {
           "component": "text",
+          "valueType": "string",
           "name": "start-shopping-url",
           "label": "Start Shopping URL"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "cart-url",
           "label": "Cart URL"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "checkout-url",
           "label": "Checkout URL"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "enable-updating-product",
           "label": "Enable Updating Product"
         },
         {
           "component": "boolean",
+          "valueType": "boolean",
           "name": "undo-remove-item",
           "label": "Undo Remove Item"
         }

@@ -17,6 +17,7 @@
       "fields": [
         {
           "component": "select",
+          "valueType": "string",
           "name": "type",
           "label": "Type",
           "options": [
@@ -32,6 +33,7 @@
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "position",
           "label": "Position"
         }

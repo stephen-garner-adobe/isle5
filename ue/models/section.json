@@ -18,6 +18,7 @@
       "fields": [
         {
           "component": "multiselect",
+          "valueType": "string",
           "name": "style",
           "label": "Style",
           "options": [
@@ -29,6 +30,7 @@
         },
         {
           "component": "select",
+          "valueType": "string",
           "name": "padding",
           "label": "Padding",
           "options": [
@@ -76,6 +78,7 @@
         },
         {
           "component": "select",
+          "valueType": "string",
           "name": "margin",
           "label": "Margin",
           "options": [

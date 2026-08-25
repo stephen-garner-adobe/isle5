@@ -24,6 +24,10 @@ Create a 1-row, 1-column `search-bar` block.
 |---|
 | Search products |
 
+Universal Editor exposes only the `Placeholder Text` property because it maps directly to the
+single authored cell. Alignment, result count, timing, and panel behavior remain section metadata;
+they are not duplicate block properties.
+
 ## Configuration Options
 
 | Key | Default | Possible Values | Effect |

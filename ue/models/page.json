@@ -5,27 +5,32 @@
       "fields": [
         {
           "component": "text",
+          "valueType": "string",
           "name": "title",
           "label": "Title"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "description",
           "label": "Description"
         },
         {
           "component": "reference",
+          "valueType": "string",
           "name": "image",
           "label": "Image"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "robots",
           "label": "Robots",
           "description": "Index control via robots"
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "sku",
           "label": "SKU",
           "description": "Optional: Specify a product SKU for this page"

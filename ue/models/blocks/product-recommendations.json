@@ -17,12 +17,14 @@
       "fields": [
         {
           "component": "text",
+          "valueType": "string",
           "name": "recId",
           "label": "Rec ID",
           "required": true
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "currentSku",
           "label": "Current SKU"
         }

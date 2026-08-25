@@ -49,6 +49,13 @@ Notes:
 - If row 4 contains old `Label|URL` format, only `Label` is used.
 - If Row 8 is omitted, it falls back to Row 5.
 
+### Universal Editor properties
+
+The Newsletter component model maps the eight properties above directly to rows 1–8. Visual and
+layout settings are deliberately not duplicated in the block properties panel; they remain section
+metadata because the runtime reads them from the surrounding section. Existing documents with fewer
+than eight rows continue to use the runtime fallbacks in the table above.
+
 ## How to Section-Metadata
 
 Place **Section Metadata immediately above** the Newsletter block.

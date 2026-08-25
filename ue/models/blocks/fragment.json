@@ -28,12 +28,14 @@
       "fields": [
         {
           "component": "text",
+          "valueType": "string",
           "name": "fragmentUrl",
           "label": "Fragment URL",
           "required": true
         },
         {
           "component": "text",
+          "valueType": "string",
           "name": "fragmentUrlText",
           "label": "Fragment URL Text"
         }

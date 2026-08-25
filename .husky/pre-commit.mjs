@@ -12,9 +12,11 @@ const run = (cmd) => new Promise((resolve, reject) => exec(
 const changeset = await run('git diff --cached --name-only --diff-filter=ACMR');
 const modifiedFiles = changeset.split('\n').filter(Boolean);
 
-// check if there are any model files staged
-const modifiedPartials = modifiedFiles.filter((file) => file.match(/(^|\/)_.*.json/));
-if (modifiedPartials.length > 0) {
+// Regenerate and stage root artifacts whenever a UE source model is staged.
+const modifiedModels = modifiedFiles.filter((file) => (
+  file.startsWith('ue/models/') && file.endsWith('.json')
+));
+if (modifiedModels.length > 0) {
     const output = await run('npm run build:json --silent');
     console.log(output);
     await run('git add component-models.json component-definition.json component-filters.json');

@@ -3,30 +3,11 @@
     {
       "title": "Store Locator",
       "id": "store-locator",
+      "model": "store-locator",
       "plugins": {
         "da": {
-          "unsafeHTML": "<div class=\"store-locator\"><div><div><p>Store Name</p></div><div><p>Address</p></div><div><p>City</p></div><div><p>State</p></div><div><p>Zip</p></div><div><p>Phone</p></div></div></div>",
-          "behaviour": "columns"
-        }
-      }
-    },
-    {
-      "title": "Store Locator Item",
-      "id": "store-locator-item",
-      "plugins": {
-        "da": {
-          "unsafeHTML": "<div><div><p>Store Name</p></div><div><p>Address</p></div><div><p>City</p></div><div><p>State</p></div><div><p>Zip</p></div><div><p>Phone</p></div></div>",
-          "behaviour": "columns-row"
-        }
-      }
-    },
-    {
-      "title": "Store Locator Cell",
-      "id": "store-locator-cell",
-      "plugins": {
-        "da": {
-          "unsafeHTML": "<div></div>",
-          "behaviour": "columns-cell"
+          "name": "store-locator",
+          "type": "key-value-block"
         }
       }
     }
@@ -40,7 +21,7 @@
           "valueType": "string",
           "name": "googleMapsApiKey",
           "label": "Google Maps API Key",
-          "description": "API key for Maps JavaScript API and Places API (New)",
+          "description": "Browser-delivered Maps key. Use an HTTP-referrer-restricted key only.",
           "value": "",
           "required": false
         },
@@ -49,20 +30,20 @@
           "valueType": "string",
           "name": "defaultView",
           "label": "Default View",
-          "description": "Initial display layout for the store locator",
+          "description": "Initial store locator layout.",
           "value": "split",
           "required": false,
           "options": [
             {
-              "name": "Split View (50/50)",
+              "name": "Split",
               "value": "split"
             },
             {
-              "name": "Map Focused (Sidebar)",
+              "name": "Map",
               "value": "map"
             },
             {
-              "name": "List Only (No Map)",
+              "name": "List",
               "value": "list"
             }
           ]
@@ -72,7 +53,7 @@
           "valueType": "number",
           "name": "searchRadius",
           "label": "Search Radius",
-          "description": "Default radius (set 0 for All stores)",
+          "description": "Initial distance cap. Zero means all distances.",
           "value": 0,
           "required": false,
           "validation": {
@@ -85,20 +66,20 @@
           "valueType": "number",
           "name": "maxResults",
           "label": "Maximum Results",
-          "description": "Maximum number of stores to display",
+          "description": "Maximum number of stores rendered.",
           "value": 10,
           "required": false,
           "validation": {
-            "numberMin": 5,
+            "numberMin": 1,
             "numberMax": 50
           }
         },
         {
           "component": "boolean",
           "valueType": "boolean",
-          "name": "autoDetect",
+          "name": "autoDetectLocation",
           "label": "Auto-Detect Location",
-          "description": "Automatically use browser geolocation on page load",
+          "description": "Request shopper geolocation when the block initializes.",
           "value": true,
           "required": false
         },
@@ -107,7 +88,7 @@
           "valueType": "string",
           "name": "defaultLocation",
           "label": "Default Location",
-          "description": "Fallback location if geolocation is denied (e.g., 'Portland, OR')",
+          "description": "Location used when shopper geolocation is unavailable.",
           "value": "Portland, OR",
           "required": false
         },
@@ -116,7 +97,7 @@
           "valueType": "string",
           "name": "servicesFilter",
           "label": "Available Service Filters",
-          "description": "Services that users can filter stores by",
+          "description": "Services shoppers can use to filter stores.",
           "value": [
             "pharmacy",
             "pickup",
@@ -166,7 +147,7 @@
           "valueType": "string",
           "name": "experienceMode",
           "label": "Experience Mode",
-          "description": "Fast = lighter payloads; Rich = photos and reviews",
+          "description": "Fast uses lighter Places payloads; rich enables photos and reviews.",
           "value": "fast",
           "required": false,
           "options": [
@@ -185,7 +166,7 @@
           "valueType": "string",
           "name": "radiusPresets",
           "label": "Radius Presets",
-          "description": "Comma-separated radius options shown in the UI (example: 0,5,10,25,50)",
+          "description": "Comma-separated radius options shown to shoppers.",
           "value": "0,5,10,25,50",
           "required": false
         },
@@ -194,7 +175,7 @@
           "valueType": "string",
           "name": "units",
           "label": "Distance Units",
-          "description": "Unit for distance display and radius filtering",
+          "description": "Unit used for radius filtering and displayed distances.",
           "value": "miles",
           "required": false,
           "options": [
@@ -213,7 +194,7 @@
           "valueType": "string",
           "name": "noResultsMessage",
           "label": "No Results Message",
-          "description": "Message shown when no stores match current filters",
+          "description": "Message shown when no stores match the active filters.",
           "value": "No stores found matching your criteria. Please try a different search or remove some filters.",
           "required": false
         },
@@ -221,8 +202,8 @@
           "component": "number",
           "valueType": "number",
           "name": "maxReviewsPerStore",
-          "label": "Max Reviews Per Store",
-          "description": "Maximum review count to render in rich details",
+          "label": "Maximum Reviews Per Store",
+          "description": "Maximum review count rendered in rich mode.",
           "value": 5,
           "required": false,
           "validation": {
@@ -235,7 +216,7 @@
           "valueType": "string",
           "name": "mapStyle",
           "label": "Map Style",
-          "description": "Map visual style (uses configured map IDs)",
+          "description": "Visual treatment for a configured Google map ID.",
           "value": "default",
           "required": false,
           "options": [
@@ -258,16 +239,16 @@
           "valueType": "string",
           "name": "primaryCtaLabel",
           "label": "Primary CTA Label",
-          "description": "Primary action label on store cards and info window links",
+          "description": "Label used for directions actions.",
           "value": "Get Directions",
           "required": false
         },
         {
           "component": "select",
           "valueType": "string",
-          "name": "cardDensity",
+          "name": "storeCardDensity",
           "label": "Store Card Density",
-          "description": "Adjust card spacing for list layout",
+          "description": "Spacing density used by store cards.",
           "value": "comfortable",
           "required": false,
           "options": [
@@ -284,22 +265,5 @@
       ]
     }
   ],
-  "filters": [
-    {
-      "id": "store-locator",
-      "components": [
-        "store-locator-item"
-      ]
-    },
-    {
-      "id": "store-locator-item",
-      "components": []
-    },
-    {
-      "id": "store-locator-cell",
-      "components": [
-        "text"
-      ]
-    }
-  ]
+  "filters": []
 }
