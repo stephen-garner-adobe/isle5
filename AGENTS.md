@@ -1,865 +1,238 @@
-# Adobe Commerce Storefront Block Rules
+# Adobe Commerce Storefront Repository Rules
 
-Apply these rules to **any new block creation** and to major first-pass rewrites of a block's architecture.
-Do not force these rules for unrelated micro-fixes unless explicitly requested.
+These instructions govern the whole repository. More specific `AGENTS.md` files apply within
+their directories and may add or tighten rules. When instructions conflict, use the closest
+path-scoped file unless it conflicts with security, data safety, or an explicit user request.
 
-Typical files:
-- `blocks/<block-name>/<block-name>.js`
-- `blocks/<block-name>/<block-name>.css`
-- `blocks/<block-name>/README.md`
-- `ue/models/blocks/<block-name>.json`
+## Instruction Scope
 
-Use official Adobe Commerce Storefront documentation as source of truth:
-- https://experienceleague.adobe.com/developer/commerce/storefront/get-started/
+| Path | Guidance |
+|---|---|
+| `AGENTS.md` | Cross-cutting repository, Commerce, safety, and validation rules |
+| `blocks/AGENTS.md` | Block implementation, configuration, styling, accessibility, and docs |
+| `scripts/AGENTS.md` | Commerce integration, drop-ins, endpoints, events, analytics, and upgrades |
+| `ue/AGENTS.md` | DA.live and Universal Editor models and generated authoring configuration |
+| `cypress/AGENTS.md` | PaaS/SaaS end-to-end tests, fixtures, and stateful-flow safeguards |
 
-## Scope and File Naming
+## Normative Language and Priority
 
-- `AGENTS.md` is the canonical machine-readable instruction file name for coding agents.
-- This file intentionally governs **Commerce block work** first. It is not a generic repo style guide.
-- If you want stricter path scoping, keep this root file as a short policy and place block-specific extensions in `blocks/AGENTS.md`.
-- If root-level guidance and nested guidance conflict, prefer the more specific path-scoped guidance.
+- **MUST**, **REQUIRED**, and **MANDATORY** are non-negotiable.
+- **SHOULD** and **RECOMMENDED** are defaults unless an explicit exception is documented.
+- **MAY** and **OPTIONAL** are situational.
 
-## Normative Language
+Apply rules in this priority order:
 
-- **MUST** / **REQUIRED** / **MANDATORY**: non-negotiable.
-- **SHOULD** / **RECOMMENDED**: default behavior unless a documented exception exists.
-- **MAY** / **OPTIONAL**: situational.
-
-## Rule Priority (highest to lowest)
-
-1. Security and data safety
+1. Security, privacy, and data safety
 2. Accessibility and semantic correctness
-3. Runtime performance and loading-phase correctness
-4. Metadata contract correctness and authoring predictability
-5. Maintainability and documentation completeness
-6. Visual/style preferences
-
-## Applicability Matrix
-
-| Change type | Apply full file? | Minimum expectation |
-|---|---|---|
-| New block creation | Yes | Full compliance, README + `ue/models/blocks/block-name.json`, lint and geometry gates |
-| Major first-pass architecture rewrite | Yes | Full compliance for rewritten surfaces, remove stale legacy behavior |
-| Micro-fix in existing block | No (unless requested) | Keep fix scoped, preserve existing contracts, avoid opportunistic rewrites |
-| Security/accessibility defect | Yes for relevant sections | Enforce mandatory sections even in micro-fixes |
-
-## Fast Path Checklist
-
-Use this short sequence before reading the full detail:
-1. Confirm change type from the Applicability Matrix.
-2. Validate metadata ownership and naming (`<blockprefix>-<field>`).
-3. Implement precedence tiers in code, then mirror exactly in README.
-4. Enforce URL and HTML injection safety.
-5. Verify Eager/Lazy/Delayed placement and LCP image behavior.
-6. Run `npm run lint:js` and `npm run lint:css` (or `npm run lint`).
-7. Validate geometry across required widths.
-8. Ensure `ue/models/blocks/block-name.json`, README, and implementation match.
-
-## Required Block Structure
-
-Block JS and CSS are loaded by the EDS pipeline from `blocks/<blockName>/<blockName>.js` and `blocks/<blockName>/<blockName>.css` (see `loadBlock` in `scripts/aem.js`). Auto-blocks (e.g. fragments) are built in `buildAutoBlocks` in `scripts/scripts.js`.
-
-Every new block must include:
-- `block-name.js` -- block logic with a single default export `decorate(block)`.
-- `block-name.css` -- block styles.
-- `README.md` -- documentation (see README Requirements).
-- `ue/models/blocks/block-name.json` -- DA.live/Universal Editor configuration (see DA.live JSON Config).
-
-## EDS Loading Phases (Eager-Lazy-Delayed)
-
-Edge Delivery Services loads pages in three sequential phases. Understanding them is
-critical for performance.
-
-### Phase E: Eager
-
-- The body starts hidden (`display: none`).
-- DOM is decorated: CSS classes for icons, buttons, blocks, and sections are added; auto-blocks are created.
-- The **full first section** is loaded. Its first image is the LCP candidate and receives eager loading priority.
-- Fewer blocks in the first section = faster LCP.
-- Once the LCP candidate and all first-section blocks load, the section is displayed and fonts load asynchronously.
-
-### Phase L: Lazy
-
-- Remaining sections and their blocks (JS + CSS) are loaded.
-- Remaining images load via `loading="lazy"`.
-- Keep the bulk of lazy-phase payload first-party to maintain control over TBT and FID.
-- Most custom blocks run in this phase.
-
-### Phase D: Delayed
-
-- Third-party scripts: analytics, consent management, chat widgets, tag managers.
-- Must start **at least 3 seconds after LCP** to avoid impacting the user experience.
-- This project loads delayed scripts via `scripts/scripts.js` with a 3s delay (`setTimeout(..., 3000)`). Do not reduce this delay without a documented reason.
-- Handled in `delayed.js`; move scripts here if they cause TBT issues.
-- Ideally, remove blocking time from scripts entirely and promote them to lazy.
-
-### Implications for block development
-
-- Blocks in the first section must be lightweight (minimal JS, no heavy imports).
-- LCP-critical images must use `createOptimizedPicture(url, alt, true, breakpoints)` with `eager=true`.
-- Non-LCP images use `lazy` loading.
-- Heavy third-party integrations belong in `delayed.js`, not in block code.
-
-## Metadata Contract Rules
-
-### Canonical API first
-
-- Define one canonical metadata API for the block.
-- Prefer preset-driven, condensed metadata over many overlapping knobs.
-- Do not add legacy aliases unless explicitly required by the task.
-- If aliases are required, document them in README and include a deprecation plan.
-
-### Metadata ownership (required)
-
-- Keep authored content in block rows/cells only (copy, links, media).
-- Keep behavior/layout controls in section metadata only (alignment, columns, result counts, timing, motion toggles, etc.).
-- Do not mix content and behavior in the same authoring surface unless explicitly required.
-
-### Adobe native vs custom section metadata
-
-- Distinguish **Adobe native section metadata** from **custom block-specific metadata**.
-- Adobe native section metadata keeps its documented author-facing names (for example `Style`, `Padding`, `Margin`, `Column Width`, `Gap`) when supported by the project.
-- Custom section metadata added for a specific block must use the block-scoped format `<blockprefix>-<field>`.
-- Do not rename Adobe native keys into block-prefixed forms unless the project has an explicit compatibility layer and the README documents it.
-- If a block depends on both native section metadata and custom block metadata, document them separately in the README so authors do not confuse section container styling with block behavior.
-
-### Block-specific metadata naming (required)
-
-- Metadata keys must be block-scoped; never use generic keys like `align`, `size`, `density`.
-- Use a compact block prefix derived from block name without internal hyphens.
-- Preferred author-facing format: `<blockprefix>-<field>`.
-  - Example block prefix for `hero-cta`: `herocta`.
-  - Example keys: `herocta-align`, `herocta-btnstyle`, `herocta-ctagap`.
-- Do not include `data-` in author-facing metadata key names.
-- Keep keys concise:
-  - one hyphen between prefix and field,
-  - no underscores,
-  - avoid extra hyphen chains in field names (prefer `contentwidth` over `content-max-width`).
-- Keep field tokens semantically clear and stable (`btn`, `cta`, `img` abbreviations are acceptable when consistently applied).
-
-### Metadata precedence contract (required)
-
-Every block must implement and document a deterministic precedence model.
-
-Implementation must resolve metadata in this exact order:
-
-1. **Layout tier**:
-   - placement, container width, block size, structural positioning
-   - examples: sidebar mode, width mode, align/position, inset, content width
-2. **Content/structure tier**:
-   - CTA grouping, gaps, type transforms, sizing controls
-3. **Style/shape tier**:
-   - style preset, corner/shape overrides, border thickness
-4. **Color/explicit overrides tier**:
-   - border/fill/text colors and other direct visual tokens
-5. **Media/motion tier**:
-   - frame styles, transitions, image constraints, hover motion
-
-Required behavior:
-- Higher tiers establish layout semantics first.
-- Lower tiers may refine visuals but must not silently break higher-tier semantics.
-- If one setting makes another inapplicable, treat it as a no-op and log a clear block-prefixed warning.
-- Avoid hidden coupling. If coupling is intentional, codify it as an explicit rule (for example: full-width disabled when sidebar is enabled).
-
-### Style vs color contract (required)
-
-- Style fields control structure/chrome only (shape, border style, hover motion, layout behavior).
-- Color fields control color only (border/fill/text/overlay colors).
-- A style option must not silently override explicit color metadata unless documented as an intentional rule.
-
-### DA.live section metadata reads
-
-Author-facing metadata keys use kebab-case (`<blockprefix>-<field>`). In JavaScript, read from `section.dataset` using the camelCase form (e.g. `heroctaAlign`, `dataHeroctaAlign`), as DA.live normalizes keys to camelCase in the DOM.
-
-Section metadata may appear with double-prefix keys. Always read robustly from both:
-- `section.dataset.<blockprefixX>`
-- `section.dataset.data<blockprefixX>`
-
-Preferred pattern:
-
-```js
-function getConfigValue(blockValue, sectionData, keys, fallback) {
-  if (blockValue) return blockValue;
-  for (let i = 0; i < keys.length; i += 1) {
-    if (sectionData?.[keys[i]]) return sectionData[keys[i]];
-  }
-  return fallback;
-}
-```
-
-Example key resolution for author key `herocta-align` (in JS use camelCase):
-- `section.dataset.heroctaAlign`
-- `section.dataset.dataHeroctaAlign`
-
-Do not use inline `||` chaining for config reads; always use a `getConfigValue` helper
-so key resolution order is explicit and testable.
-- Prefer one shared helper signature across blocks to reduce drift. If a shared utility is unavailable,
-  use the same local helper signature shown above.
-
-### Page metadata and route requirements
-
-- For blocks on route-critical pages (cart, checkout, account, order confirmation, wishlists, authenticated areas), verify whether page metadata is required in addition to block and section configuration.
-- Keep page-level concerns in the page `metadata` table, not in the block table or section metadata.
-- When a block is primarily intended for a specific route type, its README must document any required or recommended page metadata and route assumptions.
-- At minimum, document page metadata requirements for:
-  - indexing/search behavior (`Robots`)
-  - caching behavior (`Cache Control`)
-  - page title/social fields when the block changes page semantics
-- If a block only behaves correctly on a specific template, route, or backend page type, state that limitation explicitly in the README and troubleshooting section.
-
-### Normalize and persist
-
-- Validate every author-facing option and fall back safely.
-- Warn on invalid metadata values with block-prefixed warnings.
-- Persist resolved values to `block.dataset.*` so CSS reads a stable state.
-
-```js
-function normalizeAlign(value, fallback = 'right') {
-  const val = (value || '').toLowerCase();
-  return ['left', 'center', 'right'].includes(val) ? val : fallback;
-}
-```
-
-## Drop-in Component Integration
-
-This project uses Adobe Commerce drop-in components for commerce functionality.
-Understanding the integration pattern is required for any block that renders commerce UI.
-
-## Generated Config Artifacts
-
-This repo generates the root DA.live/Universal Editor config artifacts from `ue/models/*.json`.
-
-Rules:
-- If you change any block JSON file under `ue/models/blocks/`, or any file under `ue/models/`, you MUST run `npm run build:json`.
-- Treat `component-definition.json`, `component-models.json`, and `component-filters.json` as generated artifacts.
-- Do not hand-edit generated root JSON files unless the task explicitly requires it.
-- New authorable blocks must be added to `ue/models/blocks/` and included by the generated authoring config so they appear in authoring.
-
-## Drop-in Source Ownership
-
-This repo vendors drop-in implementation code under `scripts/__dropins__/`.
-
-Rules:
-- Prefer changing block code, wrappers, slots, initializers, and shared storefront helpers before editing vendored files under `scripts/__dropins__/`.
-- Treat `scripts/__dropins__/` as vendor-managed unless the task explicitly requires patching vendored drop-in code.
-- If vendored drop-in code must be changed, document why the wrapper or initializer layer was insufficient.
-
-## Shared Commerce Helpers
-
-When implementing commerce behavior:
-- Reuse helpers from `scripts/commerce.js` and `scripts/aem.js` before adding block-local variants.
-- Do not hardcode known commerce route paths, product URLs, or placeholder-loading patterns when an existing helper exists.
-- Prefer `getProductLink()`, `fetchPlaceholders()`, route/path constants, and existing metadata readers over ad-hoc string construction.
-
-## GraphQL Endpoint Selection
-
-Rules:
-- Use `CS_FETCH_GRAPHQL` for catalog, search, and product-discovery use cases.
-- Use `CORE_FETCH_GRAPHQL` for cart, auth, checkout, account, order, and other customer-state flows.
-- Do not introduce a new fetch client when one of the shared storefront GraphQL instances already matches the use case.
-- If a block mounts a drop-in, ensure the corresponding initializer sets the correct endpoint before render.
-
-### Initializer lifecycle
-
-Each drop-in has an initializer in `scripts/initializers/`. The common pattern:
-
-```js
-import { initializers } from '@dropins/tools/initializer.js';
-import { initialize, setEndpoint } from '@dropins/storefront-<dropin>/api.js';
-import { initializeDropin } from './index.js';
-import { CS_FETCH_GRAPHQL, fetchPlaceholders } from '../commerce.js';
-
-await initializeDropin(async () => {
-  setEndpoint(CS_FETCH_GRAPHQL);
-  const labels = await fetchPlaceholders('placeholders/<dropin>.json');
-  return initializers.mountImmediately(initialize, {
-    langDefinitions: { default: { ...labels } },
-  });
-})();
-```
-
-- `initializeDropin` guards against re-initialization.
-- `setEndpoint` assigns the GraphQL fetch instance (`CS_FETCH_GRAPHQL` for catalog/search, `CORE_FETCH_GRAPHQL` for cart/auth/account).
-- `fetchPlaceholders` loads i18n strings.
-- `initializers.mountImmediately` runs the drop-in init.
-
-## Initializer Discipline
-
-Rules:
-- If a block depends on a storefront drop-in, import the relevant initializer from `scripts/initializers/` rather than reimplementing initialization inside the block.
-- Use `initializeDropin()` for drop-in setup that must be guarded against duplicate initialization.
-- Do not register duplicate global event-bus listeners on repeated decoration.
-- When adding document or window listeners in blocks, ensure they remain safe under re-decoration and prerendering changes.
-
-### Render pattern
-
-Drop-in components use a curried render call:
-
-```js
-import { render } from '@dropins/storefront-<dropin>/render.js';
-import { SomeContainer } from '@dropins/storefront-<dropin>/containers/SomeContainer.js';
-
-render.render(SomeContainer, {
-  // props
-  routeProduct: ({ urlKey, sku }) => getProductLink(urlKey, sku),
-  onSomeEvent: (data) => { /* handle */ },
-  slots: {
-    Footer: async (ctx) => {
-      const el = document.createElement('div');
-      // build slot content with createElement, not innerHTML
-      ctx.appendChild(el);
-      ctx.onChange((next) => { /* update on prop change */ });
-    },
-  },
-})(containerElement);
-```
-
-- `render.render(Component, props)(container)` returns a Promise; mounts the component into the container.
-- Use `@dropins/tools/components.js` for shared primitives (`Button`, `Input`, `InLineAlert`).
-- Use `h` from `@dropins/tools/preact.js` only when composing icon or primitive props (e.g., `icon: h(Icon, { source: 'Cart' })`).
-
-### Scope isolation
-
-When multiple instances of a drop-in may exist on one page, pass a unique `scope` string
-to both the API call and the rendered container to isolate them.
-
-### Dynamic vs static imports
-
-- Use **dynamic imports** (`await import(...)`) when the drop-in is loaded conditionally
-  or lazily (e.g., search bar, modal-triggered flows).
-- Use **static imports** when the block always needs the drop-in and loads in the lazy phase
-  (e.g., product details, cart page).
-
-## Plain JS vs Preact/HTM
-
-Adobe recommends plain JavaScript for blocks to keep bundles small and Lighthouse scores high.
-
-- **Use plain JS** for blocks without complex render state (content blocks, heroes, banners, search bars).
-- **Use Preact/HTM** only when the block has complex state management with multiple re-render cycles.
-- Drop-in components handle their own rendering internally; you do not need Preact/HTM just because you use a drop-in.
-- When using `h` from `@dropins/tools/preact.js`, limit it to composing primitive props (icons, nested components). Do not build entire block UIs with `h()` calls.
-
-## Security Requirements
-
-### URL safety (mandatory)
-
-- Never trust authored `href`/`src` blindly.
-- Allow only safe protocols and safe relative forms.
-- Explicitly block unsafe protocols (`javascript:`, `data:`, etc.).
-- For `target="_blank"`, always enforce `rel="noopener noreferrer"`.
-
-Minimum allowed URL types:
-- `http:`
-- `https:`
-- `mailto:`
-- `tel:`
-- root-relative (`/path`)
-- relative (`./path`, `../path`)
-- hash anchors (`#id`)
-
-Use a canonical pattern or helper for validating/sanitizing authored URLs (e.g. try `new URL(url, base)`, check `protocol` against the list above, return `href` or a safe fallback). Optionally centralize this in a shared utility (e.g. `scripts/utils.js`) so blocks do not duplicate logic; if the project prefers block-local helpers, implement the same protocol checks and document the pattern in the block README.
-
-### HTML injection safety
-
-- Do not inject unsanitized author content with `innerHTML`.
-- Build DOM with `createElement`/`textContent`.
-- Do not log raw `innerHTML` from authored cells in warnings.
-
-## DOM Construction Safety
-
-Rules:
-- Do not use `createContextualFragment`, `DOMParser`, or `innerHTML` with authored or metadata-derived strings.
-- These APIs are acceptable only for fully static, in-repo template strings with no author-controlled interpolation.
-- For author-controlled content, build DOM with `createElement`, `textContent`, and attribute setters.
-
-## JavaScript Rules
-
-### Architecture
-
-- Single default export: `export default function decorate(block) {}`.
-- Keep state local to the block instance; never attach state to `window` or global variables.
-- Scope queries to `block` whenever possible (`block.querySelector(...)`, not `document.querySelector(...)`).
-- Prefer schema-based config resolution for maintainability.
-- Centralize metadata schema in one place (defaults, key map, normalizers, tier/precedence).
-- `decorate(block)` must be idempotent. If called twice, it must not duplicate listeners, duplicate rendered UI, or re-wrap already processed markup.
-- Do not remove or overwrite authored fallback content until replacement UI is ready. If enhancement fails, preserve usable authored content where possible.
-
-```js
-// GOOD -- scoped query, single export
-export default function decorate(block) {
-  const section = block.closest('.section');
-  const links = block.querySelectorAll('a');
-}
-
-// BAD -- global state, document-wide query
-window.myBlockState = {};
-document.querySelectorAll('.my-block a');
-```
-
-### Loading and lifecycle
-
-- Use explicit loading state (`data-loading`).
-- Remove loading state on load/error and with timeout fallback.
-- Clean up timers/listeners when re-decorating or disconnecting paths are possible.
-- Pause autoplay/timers when page is hidden (`visibilitychange`).
-- Prefer one delegated listener on the block over many individual listeners on children.
-- If listeners are attached to `document` or `window`, use an `AbortController` signal and abort on disconnect.
-- When a block mounts asynchronous UI, guard against race conditions if the block is re-decorated, moved, or removed before the async work finishes.
-
-```js
-block.dataset.loading = 'true';
-
-picture.addEventListener('load', () => {
-  delete block.dataset.loading;
-});
-
-// Timeout fallback
-setTimeout(() => {
-  delete block.dataset.loading;
-}, 3000);
-```
-
-### Error handling and resilience
-
-- If content or config is missing, render a safe fallback (hide section or show placeholder). Do not throw.
-- Use `console.warn` with a block-name prefix for invalid metadata or missing content.
-- Never fail silently with a bare `return` -- always warn so authors can debug.
-- Prefer a consistent warning shape: `blockname: invalid <key>="<value>"; expected <allowed>; using "<fallback>"`.
-- Warnings should identify the author-facing key where possible, not only internal variable names.
-
-```js
-// GOOD
-if (!imageUrl) {
-  console.warn('hero-cta: No valid image in row 1');
-  return;
-}
-
-// BAD -- silent failure
-if (!imageUrl) return;
-
-// BAD -- hard throw
-if (!imageUrl) throw new Error('No image');
-```
-
-### Images and media
-
-- Use `createOptimizedPicture` from `scripts/aem.js`.
-- Use eager loading for likely LCP media; lazy for non-LCP media.
-- Provide responsive breakpoints matched to real layout needs.
-
-```js
-import { createOptimizedPicture } from '../../scripts/aem.js';
-
-const picture = createOptimizedPicture(
-  imageUrl,
-  alt,
-  isFirstSlide, // true = eager for LCP
-  [
-    { media: '(min-width: 600px)', width: config.imageMaxWidth },
-    { width: '750' },
-  ],
-);
-```
-
-### Performance
-
-- Batch DOM reads then writes; do not interleave reads and writes in loops (layout thrash).
-- Avoid scanning the full document; scope to block or section.
-- Consider `contain: layout paint` on isolated blocks for rendering performance.
-- Use shorthand CSS properties where stylelint expects them.
-
-### Block scaffold contract
-
-For new blocks and first-pass rewrites, prefer one predictable internal scaffold:
-
-- `CONFIG_SCHEMA` (or equivalent) for defaults, dataset keys, allowed values, and tier ownership
-- `getConfigValue()` helper for deterministic block/section resolution
-- dedicated normalizers per author-facing option
-- `warnInvalid()` helper for block-prefixed, actionable warnings
-- `sanitizeUrl()` helper for authored links/media
-- resolved config persisted to `block.dataset.*`
-
-If a shared utility exists for any of these concerns, use it consistently. If not, keep the local helper names and signatures stable across blocks.
-
-## HTML and Semantics
-
-- Prefer `<button>` for actions, `<a>` for navigation. Avoid interactive `<div>` when a native element exists.
-- Heading hierarchy: one `<h1>` per page; do not skip levels (`h2` then `h4`).
-- Use `rel="noopener noreferrer"` with `target="_blank"`. Never use `javascript:` URLs.
-- Always set meaningful `alt` on images (empty `alt=""` only for purely decorative images).
-
-```html
-<!-- GOOD -->
-<button type="button" aria-label="Close">x</button>
-<a href="/page" rel="noopener noreferrer" target="_blank">External</a>
-<img src="..." alt="Product hero" loading="lazy" />
-
-<!-- BAD -->
-<div role="button" onclick="...">x</div>
-<a href="javascript:void(0)">Click</a>
-<img src="..." alt="image" />
-```
-
-## CSS Rules
-
-### Variant model
-
-- Use data attributes for variants, not ad-hoc utility classes.
-
-```css
-/* GOOD */
-.hero-cta[data-align='center'] .hero-content { text-align: center; }
-
-/* BAD */
-.hero-cta.center { text-align: center; }
-```
-
-### Maintainability and performance
-
-- Use block-scoped selectors with a block prefix for all classes (e.g., `.hero-cta-content`, `.hero-cta-actions`). Avoid generic names like `.content` or `.button`.
-- Keep selector specificity low-to-high (stylelint-friendly ordering).
-- Prefer design tokens and custom properties over hardcoded values. Design tokens are defined in `styles/styles.css` (e.g. `--color-*`, `--shape-*`, `--spacing-*`, `--grid-*`); use these instead of hardcoded values.
-- Prefer modern color notation (`rgb(0 0 0 / 55%)`).
-- Avoid `transition: all`; transition only relevant properties.
-- Avoid `!important` unless strictly necessary and documented.
-- Use shorthand properties where possible; use 3-value shorthand when the fourth would repeat.
-
-```css
-/* GOOD -- design tokens */
-.button {
-  background-color: var(--color-brand-500);
-  border-radius: var(--shape-border-radius-2);
-  padding: var(--spacing-3) var(--spacing-4);
-}
-
-/* BAD -- hardcoded values */
-.button {
-  background-color: #007bff;
-  border-radius: 8px;
-  padding: 12px 16px;
-}
-```
-
-### Specificity ordering
-
-Keep selectors ordered from low to high specificity:
-
-```css
-/* Base */
-.hero-content {
-  max-width: 420px;
-}
-
-/* Data-attribute variant (higher specificity) */
-.hero[data-loading] .hero-content {
-  opacity: 0.3;
-}
-
-/* Compound data-attribute variant (highest specificity) */
-.hero[data-align='left'][data-gradient-intensity='light'] .hero-overlay::before {
-  background: linear-gradient(90deg, rgb(0 0 0 / 30%) 0%, rgb(0 0 0 / 0%) 60%);
-}
-```
-
-### Focus visible
-
-Always style `:focus-visible` for keyboard users. Never remove focus outlines without a visible replacement.
-
-```css
-/* GOOD */
-.hero-cta-actions .button:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 2px;
-}
-
-/* BAD */
-.button:focus {
-  outline: none;
-}
-```
-
-### Floating/overlay safety (required)
-
-- For absolute/floating UI layers (whiteboxes, overlays, floating CTAs), clamp to parent bounds.
-- Required guardrails:
-  - `box-sizing: border-box`
-  - `max-width: 100%`
-  - parent-aware width clamps for narrow breakpoints
-- Floating elements must not create horizontal overflow or overlap neighboring cards at supported breakpoints.
-
-## Accessibility
-
-- Keyboard accessible interactions only.
-- Use semantic elements (`a` for navigation, `button` for actions).
-- Visible `:focus-visible` states are required.
-- Respect `prefers-reduced-motion`:
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  .hero-slide {
-    transition: none;
-  }
-}
-```
-
-- Maintain AA contrast for critical text/CTA states.
-- Minimum tap target: `44x44`.
-
-## README Requirements
-
-Each block README must include:
-1. Overview
-2. DA.live integration and authoring structure
-3. Configuration options
-4. Behavior patterns
-5. Accessibility notes
-6. Troubleshooting
-7. Document authoring example(s)
-
-### README tables are required
-
-Include both:
-- **DA.live Model Options**
-- **Section Metadata Reference**
-
-Section Metadata Reference must use a **3-column table**:
-- key/field (the author-facing key, e.g. `herocta-align`)
-- possible values
-- effect (plain-language, outcome-focused, extensive)
-
-Default behavior must still be documented, but include it inside the effect text
-(for example: `Default: medium. Controls ...`), rather than as a separate column.
-
-Also include:
-- Section Metadata placement guidance (immediately above block).
-- Supported aliases (only if intentionally implemented).
-- At least one literal authoring example that shows the exact block table authors should paste/use.
-- When route-specific behavior matters, an additional example that includes both the block table and any required `metadata` or `section-metadata` table.
-
-Section Metadata Reference should be grouped by functional area where relevant:
-- Layout
-- CTA/Button
-- Frame/Image
-- Motion
-- Behavior
-
-### README must mirror precedence contract
-
-For block creation and first-pass docs, README must include a **Metadata Precedence** section using the same tier order implemented in code. When the block has multiple metadata options, mutually exclusive choices, or a non-trivial precedence order, also include:
-- A concise **Override Rules** table (condition, winner, ignored/no-op fields, user-visible effect).
-- A **Conflict/No-op Notes** section for common invalid or non-effective combinations.
-- A **Conflict Matrix** for mutually exclusive options (condition, winner, ignored/no-op, effect).
-- Keep tier names and order identical to the **Metadata precedence contract** section above; do not rename tiers in README.
-- If the block also depends on Adobe native section metadata, document native section keys separately from block-specific metadata keys.
-
-For very simple blocks (one or two metadata keys, no real precedence), a short note that precedence is N/A or a single sentence may suffice.
-
-## DA.live JSON Config
-
-The `ue/models/blocks/block-name.json` file configures how DA.live and Universal Editor present the block to authors.
-It contains three arrays: `definitions`, `models`, and `filters`.
-
-### Definitions
-
-Maps the block to DA.live's content structure:
-
-```json
-{
-  "definitions": [
-    {
-      "title": "Block Title",
-      "id": "block-id",
-      "plugins": {
-        "da": {
-          "name": "block-id",
-          "rows": 1,
-          "columns": 1,
-          "behaviour": "columns"
-        }
-      }
-    }
-  ]
-}
-```
-
-- `rows` and `columns` must match the actual authoring table structure the block expects.
-- `behaviour` controls how DA.live arranges cells (`"columns"` is most common).
-
-### Models
-
-Defines the editing fields shown in the DA.live sidebar:
-
-```json
-{
-  "models": [
-    {
-      "id": "block-id",
-      "fields": [
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "placeholder",
-          "value": "Default value",
-          "label": "Placeholder Text",
-          "description": "Hint for authors",
-          "required": false
-        },
-        {
-          "component": "select",
-          "valueType": "string",
-          "name": "alignment",
-          "value": "center",
-          "label": "Alignment",
-          "options": [
-            { "name": "Left", "value": "left" },
-            { "name": "Center", "value": "center" },
-            { "name": "Right", "value": "right" }
-          ]
-        },
-        {
-          "component": "number",
-          "valueType": "number",
-          "name": "resultCount",
-          "value": 8,
-          "label": "Results Count",
-          "validation": { "numberMin": 2, "numberMax": 20 }
-        }
-      ]
-    }
-  ]
-}
-```
-
-Common `component` types: `text`, `select`, `number`, `richtext`, `boolean`.
-
-### Filters
-
-Controls which child components are allowed inside the block:
-
-```json
-{
-  "filters": [
-    { "id": "block-id", "components": [] }
-  ]
-}
-```
-
-An empty `components` array means no child components are filtered.
-
-### Integration with project-level configs
-
-- `component-models.json` aggregates all block models by id.
-- `component-filters.json` aggregates all block filters.
-- `component-definition.json` aggregates all block definitions.
-- Keep `ue/models/blocks/block-name.json` aligned with actual authoring shape; avoid stale model fields that no longer map to behavior.
-
-### Registering a new block
-
-Definitions are sourced from `ue/models/component-definition.json`, which references block model files in `ue/models/blocks/`. For a new block to appear in the DA.live/Universal Editor authoring UI, add `ue/models/blocks/<block-name>.json` and ensure the generated section filter includes the block id. After changing any JSON file under `ue/models/`, run `npm run build:json` so `component-definition.json`, `component-models.json`, and `component-filters.json` are updated.
-
-## Removal and Breaking Changes
-
-### Block/capability removal protocol (required)
-
-When removing a custom block or capability, remove all implementation surfaces:
-- block folder/files under `blocks/<block>`
-- model/filter registrations (`component-models.json`, `component-filters.json`)
-- metadata readers/normalizers and dead CSS selectors
-- README references for removed behavior
-
-### Breaking-change policy
-
-- If backward compatibility is not requested, remove legacy keys/aliases entirely.
-- If backward compatibility is requested, explicitly document:
-  - legacy keys retained
-  - canonical replacement
-  - sunset/removal plan
-
-## Exceptions Process (required)
-
-- If a required rule cannot be followed, document a short exception note in the PR/commit:
-  - rule being waived
-  - reason
-  - risk
-  - mitigation and follow-up owner
-- Exceptions must be explicit. Silent deviations are not allowed.
-
-## Responsive Geometry Gate
-
-- Validate layout geometry across representative widths before shipping.
-- Minimum sweep: `360, 390, 414, 480, 768, 1024, 1280, 1440, 1920` (or the project's defined viewport list if one exists).
-- Treat hard geometry leak > `2px` as a defect (card/panel/button overflow or clipping).
-- Separate true geometry failures from visual-only effects (e.g., box-shadow overflow).
-- If no automated viewport test exists for a block, record the manual sweep widths and outcomes in PR notes.
-
-## Linting and Quality Gates
-
-All block creation changes must pass:
-- ESLint (JS)
-- Stylelint (CSS)
-
-## Repo Test Execution Conventions
-
-Rules:
-- Root project linting runs from the repo root: `npm run lint`, `npm run lint:js`, `npm run lint:css`.
-- End-to-end commerce tests live in the separate `cypress/` workspace and must be run from that directory.
-- For route-critical commerce changes, prefer running the relevant Cypress coverage from `cypress/` instead of relying only on manual smoke-test notes.
-- When documenting E2E validation, specify whether it was run against the PaaS or SaaS Cypress config.
-
-## Placeholder And Label Conventions
-
-Rules:
-- Author-visible UI labels for commerce or drop-in experiences should come from placeholders where the repo already supports them.
-- Prefer `fetchPlaceholders('placeholders/<feature>.json')` or the existing shared placeholder flow over inline English strings.
-- If a new route-critical experience introduces new author-visible labels, document the placeholder dependency in the block README.
-
-### Risk-based testing expectations
-
-- Content-only or presentational blocks:
-  - lint
-  - responsive geometry sweep
-  - manual authoring verification in preview
-- Metadata-heavy blocks with non-trivial precedence/normalization:
-  - lint
-  - geometry sweep
-  - targeted automated tests for config resolution/normalizers when the project has a suitable test harness
-- Drop-in, auth, cart, checkout, account, or other critical-path commerce blocks:
-  - lint
-  - geometry sweep where applicable
-  - route-level smoke test in preview or automated end-to-end coverage for the primary user flow
-- If automated coverage is not added for a high-risk block, note the manual scenarios exercised in PR/commit notes.
-
-Typical commands:
+3. Commerce correctness and shopper-state integrity
+4. Runtime performance and loading lifecycle
+5. Authoring and configuration contract correctness
+6. Maintainability and documentation
+7. Visual preferences
+
+## Authoritative Sources
+
+Use the source responsible for the layer being changed. Do not treat one documentation site as
+globally authoritative for every layer.
+
+| Source | Authoritative scope |
+|---|---|
+| https://docs.da.live/ | Document Authoring, DA APIs, libraries, content structures, preview/publish workflows, and DA-backed Universal Editor models |
+| https://experienceleague.adobe.com/developer/commerce/storefront/ | Adobe Commerce blocks, drop-ins, endpoints, routes, analytics, upgrades, and shopper flows |
+| https://www.aem.live/docs/ | Edge Delivery Services runtime, block delivery, metadata, performance, and platform behavior |
+| Local code, configuration, and installed package types | APIs, paths, commands, and contracts supported by the current branch |
+| https://github.com/hlxsites/aem-boilerplate-commerce | Optional upstream comparison and migration reference; never an automatic merge target |
+
+When sources differ:
+
+1. Follow security and data-safety requirements first.
+2. Use the authoritative source for the affected layer.
+3. Keep implementation compatible with the installed package API and current repository build.
+4. Document a migration when current Adobe guidance differs from the repository; do not silently
+   combine model generations or APIs.
+5. Verify release-sensitive guidance against current official documentation before acting.
+
+## Repository Baseline
+
+- Read `package.json`, its lifecycle scripts, and the relevant local code before assuming a
+  boilerplate or drop-in version.
+- Do not infer that this repository matches the latest Commerce suite release.
+- Suite releases are comparison snapshots. Package upgrades and selective integration changes are
+  separate decisions.
+- Detect the active authoring model root from `build:json` scripts. This checkout currently uses
+  `ue/models/`; do not migrate it to another model layout as part of unrelated work.
+- Treat PaaS, Adobe Commerce as a Cloud Service, and Adobe Commerce Optimizer differences as
+  explicit configuration concerns.
+- B2B guidance applies only when the corresponding packages and backend capabilities are present.
+
+## Repository Ownership
+
+| Path | Ownership and purpose |
+|---|---|
+| `blocks/` | Content and Commerce block wrappers, behavior, and styles |
+| `scripts/commerce.js` | Shared Commerce configuration, routing, loading, and helpers |
+| `scripts/initializers/` | Drop-in endpoint, dictionary, and initialization setup |
+| `scripts/scripts.js` | Global page orchestration and eager/lazy/delayed loading |
+| `scripts/aem.js` | Core AEM/EDS runtime; keep unchanged unless the task explicitly requires it |
+| `build.mjs` | Drop-in build and query shaping |
+| `scripts/__dropins__/` | Generated vendor output; never hand-edit |
+| `ue/models/` | Source authoring models for this checkout |
+| `component-definition.json`, `component-models.json`, `component-filters.json` | Generated root authoring artifacts |
+| `cypress/` | Separate end-to-end test workspace |
+
+Prefer the narrowest owned extension point:
+
+1. Block options, slots, wrappers, and CSS
+2. Shared helpers and initializers
+3. Build/query configuration
+4. Vendored or core runtime changes only when explicitly required and documented
+
+Do not change package lifecycle scripts such as `postinstall`, `postupdate`, or
+`install:dropins` without an explicit task and a full clean-install verification.
+
+## Change Scope
+
+- New blocks and major architecture rewrites must comply with all applicable nested instructions.
+- Micro-fixes should remain scoped and preserve existing authoring and runtime contracts.
+- Security, privacy, and accessibility defects must satisfy the relevant mandatory rules even when
+  the code change is small.
+- Do not bundle upstream migrations, dependency majors, model-layout migrations, or unrelated
+  cleanup into a feature or bug-fix change.
+- Preserve unrelated working-tree changes. Never stage or commit them without explicit scope.
+
+## Configuration Ownership
+
+Use these boundaries unless a documented project contract requires otherwise:
+
+- **Block table:** authored content and block-specific behavior or settings.
+- **Section metadata:** section/container layout and presentation shared by content in the section.
+- **Page metadata:** SEO, indexing, caching, social fields, and route-level semantics.
+- **Repository configuration:** endpoints, locales, store views, feature flags, and runtime wiring.
+
+Do not force all behavior into section metadata. Do not put page concerns or credentials into block
+content. Keep authored field names, JavaScript readers, Universal Editor models, and documentation
+aligned.
+
+## Commerce Integration Principles
+
+- Prefer Adobe Commerce drop-ins for supported shopper experiences.
+- Use documented public APIs, containers, slots, events, and utilities only.
+- Never import private package internals or generated `chunks/` files.
+- Import the relevant initializer instead of reimplementing drop-in initialization in a block.
+- Reuse helpers from `scripts/commerce.js` and `scripts/aem.js` before adding local variants.
+- Do not hardcode product paths, store codes, GraphQL endpoints, placeholder paths, or locale
+  behavior when a shared helper or configuration exists.
+- Keep catalog/discovery traffic and shopper-state traffic on their configured clients.
+- Preserve authored fallback content until enhanced UI is ready. Failed enhancement must leave a
+  usable result where practical.
+- Treat multi-store, locale, currency, authentication, cart, and wishlist state as connected
+  concerns; test relevant combinations after changing routing or initialization.
+
+## Generated and Vendor Artifacts
+
+- Never hand-edit `scripts/__dropins__/`.
+- Never hand-edit generated root component JSON when the source model can be changed instead.
+- After changing any `ue/models/` source, run `npm run build:json`.
+- After changing drop-in package versions, run a clean install with normal lifecycle scripts and
+  verify the regenerated vendor output.
+- If a generated artifact must be patched directly, document why its source or wrapper layer was
+  insufficient, the risk, and the regeneration strategy.
+
+## Security and Privacy
+
+- Never commit or expose secrets, private API keys, bearer tokens, customer tokens, or credentials.
+- Never log customer PII, addresses, payment details, cart identifiers, auth tokens, or raw
+  shopper-state GraphQL responses.
+- Do not store authentication or payment tokens in `localStorage` or custom cookies. Use the
+  supported drop-in and backend flows.
+- Treat authored content, metadata, URL values, API responses, and analytics payloads as untrusted.
+- Allow only approved URL schemes and safe relative URLs. Block `javascript:`, unsafe `data:`,
+  and equivalent injection vectors.
+- For `target="_blank"`, enforce `rel="noopener noreferrer"`.
+- Do not inject author-controlled strings with `innerHTML`, `DOMParser`, or
+  `createContextualFragment`. Fully static in-repo templates are allowed only when they contain
+  no author- or API-controlled interpolation.
+- Redact sensitive fields from warnings, telemetry, screenshots, and test artifacts.
+- Use least-privilege, non-production test accounts for stateful end-to-end flows.
+
+## Accessibility and Performance
+
+- Preserve semantic controls, keyboard access, visible `:focus-visible` states, and meaningful
+  labels and errors.
+- Respect `prefers-reduced-motion`; avoid motion that is required to understand content.
+- Maintain a minimum `44x44` target for primary touch controls.
+- Manage focus for dialogs, drawers, validation failures, and route transitions.
+- Inspect the current `scripts/scripts.js` lifecycle before changing eager, lazy, or delayed work.
+- Mark only a known LCP asset eager. Do not assume the first image is always the LCP candidate.
+- Keep first-section code lightweight and defer third-party work through the project lifecycle.
+- Avoid document-wide scans, layout thrashing, duplicate global listeners, and unconditional heavy
+  imports.
+
+## Quality Gates
+
+Run checks in proportion to risk.
+
+### Every code change
 
 ```bash
 npm run lint
-npm run lint:js
-npm run lint:css
 ```
 
-Follow project conventions:
-- Respect project ESLint and Stylelint rules (including line length, e.g. 100 characters).
-- Use single quotes in JS.
-- Add trailing commas.
-- Remove trailing spaces.
-- Use `// eslint-disable-next-line` for necessary exceptions (e.g., bitwise operators).
+Also run `git diff --check` before handoff.
 
-## Before Shipping Checklist
+### Authoring model changes
 
-1. Lint passes (`lint:js` and `lint:css`).
-2. Metadata resolution works for both single and double-prefix section keys.
-3. Precedence tiers are implemented in code and documented in README with matching terminology.
-4. Override/no-op combinations are deterministic and warned clearly.
-5. Invalid metadata safely falls back and logs actionable warnings.
-6. Unsafe URLs are blocked; `_blank` links include `noopener noreferrer`.
-7. No-JS fallback: critical content and links are visible/usable before decoration.
-8. Motion respects `prefers-reduced-motion` and timers are lifecycle-safe.
-9. Mobile and desktop layouts are verified, including `44x44` tap targets.
-10. README and `ue/models/blocks/block-name.json` match implemented behavior.
-11. Responsive geometry gate passes across required widths (no hard leak > `2px`).
-12. Floating/absolute UI layers are clamped and do not overflow/clip at small screens.
-13. Drop-in components (if used) are scoped, initialized correctly, and handle render errors gracefully.
-14. Block works correctly in both Eager and Lazy loading phases as appropriate.
-15. If the change affects critical user paths, run or extend project tests (e.g. Cypress) where applicable.
-16. `decorate(block)` is safe to re-run and does not duplicate markup, listeners, or timers.
-17. Route/page metadata requirements are documented for route-specific blocks.
+```bash
+npm run build:json
+```
+
+Confirm the generated root JSON matches source models and contains no unrelated changes.
+
+### Drop-in or dependency changes
+
+- Run `npm ci` with normal lifecycle scripts.
+- Confirm `npm run install:dropins` succeeds.
+- Run `npm outdated` and review release notes.
+- Run `npm audit --omit=dev`; do not apply broad or forced audit fixes without reviewing package
+  ownership and breaking changes.
+- Test the affected Commerce integration points and error paths.
+
+### Route-critical changes
+
+Run relevant tests from the `cypress/` workspace and identify whether PaaS or SaaS configuration
+was used. Cover the affected guest, authenticated, multistore, and error states.
+
+A runner crash, timeout, missing credential, unavailable backend, or sandbox failure is not a test
+pass. Record it separately from an application assertion failure and use a safe fallback probe only
+as supplemental evidence.
+
+## External State and Publishing
+
+- Code changes do not authorize content publication, DA.live writes, orders, account creation,
+  external messages, or production deployment unless the task explicitly includes them.
+- Use preview or isolated test environments for stateful verification.
+- Before destructive or externally consequential actions, resolve the exact target and confirm the
+  action is within scope.
+- Pushing or merging is allowed only when explicitly requested.
+
+## Exceptions
+
+If a mandatory rule cannot be followed, document:
+
+- the rule being waived;
+- the reason;
+- the risk;
+- the mitigation;
+- the follow-up owner or condition.
+
+Silent exceptions are not allowed.
+
+## Before Handoff
+
+1. Confirm applicable root and nested instructions were followed.
+2. Confirm source, generated, and vendor ownership boundaries were respected.
+3. Confirm authoring models, code readers, and documentation agree.
+4. Confirm sensitive data is absent from code, logs, fixtures, and artifacts.
+5. Run the relevant lint, build, geometry, and route checks.
+6. Report commands run, failures or environmental blockers, and untested states.
+7. List any intentionally preserved unrelated working-tree changes.
