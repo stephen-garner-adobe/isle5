@@ -75,11 +75,13 @@ jobs:
 
           comment += `\n### 📋 README Requirements\n\n`;
           comment += `Please ensure the README.md for each changed block includes:\n\n`;
-          comment += `- **Overview**: Clear description of the block's purpose and functionality\n`;
-          comment += `- **Configuration**: All configuration options, their types, defaults, and side effects\n`;
-          comment += `- **Integration**: URL parameters, localStorage usage, and event handling\n`;
-          comment += `- **Behavior Patterns**: User interaction flows and page context detection\n`;
-          comment += `- **Error Handling**: How the block handles errors and fallback scenarios\n\n`;
+          comment += `- **Overview and context**: Purpose, intended pages, and shopper/author outcome\n`;
+          comment += `- **Authoring structure**: Exact table shape, required/optional inputs, and a literal example\n`;
+          comment += `- **Configuration ownership**: Separate block settings, section metadata, and page metadata\n`;
+          comment += `- **Model alignment**: UE fields, defaults, values, and runtime readers agree\n`;
+          comment += `- **Behavior and fallbacks**: Loading, empty, error, and unavailable-service outcomes\n`;
+          comment += `- **Accessibility and performance**: Relevant interaction, focus, media, and loading notes\n`;
+          comment += `- **Troubleshooting and validation**: Actionable fixes plus routes/viewports tested\n\n`;
 
           if (hasMissingReadmes) {
             comment += `### ⚠️ Action Required\n\n`;
@@ -125,6 +127,12 @@ jobs:
               body: comment
             });
           }
+
+    - name: Fail when a changed block has no README
+      if: steps.check-blocks.outputs.missing_readmes != ''
+      run: |
+        echo "Missing block README files: ${{ steps.check-blocks.outputs.missing_readmes }}"
+        exit 1
 
     - name: Remove comment if no block changes
       if: steps.check-blocks.outputs.has_block_changes == 'false'

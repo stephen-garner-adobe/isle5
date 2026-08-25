@@ -25,7 +25,8 @@ A new custom block normally includes:
 Use lowercase hyphenated names and keep the block folder, JS, CSS, class, model ID, and README
 terminology aligned.
 
-Block modules MUST expose one default decorator. It may be synchronous or asynchronous:
+Each block entry module at `blocks/<block-name>/<block-name>.js` MUST expose one default decorator.
+Helper modules may use named exports. The entry decorator may be synchronous or asynchronous:
 
 ```js
 export default async function decorate(block) {

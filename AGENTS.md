@@ -73,11 +73,16 @@ When sources differ:
 | `scripts/commerce.js` | Shared Commerce configuration, routing, loading, and helpers |
 | `scripts/initializers/` | Drop-in endpoint, dictionary, and initialization setup |
 | `scripts/scripts.js` | Global page orchestration and eager/lazy/delayed loading |
-| `scripts/aem.js` | Core AEM/EDS runtime; keep unchanged unless the task explicitly requires it |
+| `scripts/aem.js` | Protected AEM/EDS runtime; keep byte-aligned with the upstream file enforced by CI |
 | `build.mjs` | Drop-in build and query shaping |
 | `scripts/__dropins__/` | Generated vendor output; never hand-edit |
 | `ue/models/` | Source authoring models for this checkout |
 | `component-definition.json`, `component-models.json`, `component-filters.json` | Generated root authoring artifacts |
+| `config.json`, `demo-config*.json`, `default-site.json` | Public storefront configuration, backend-mode examples, and Configuration Service template |
+| `head.html` | CSP, import map, module preloads, and storefront entry points |
+| `fstab.yaml` | DA.live content mount and folder mappings |
+| `default-query.yaml`, `default-sitemap.yaml`, `sitemap-index.xml` | Index and sitemap source configuration |
+| `.github/workflows/` | Repository-owned validation, protection, and deployment automation |
 | `cypress/` | Separate end-to-end test workspace |
 
 Prefer the narrowest owned extension point:
@@ -112,6 +117,26 @@ Use these boundaries unless a documented project contract requires otherwise:
 Do not force all behavior into section metadata. Do not put page concerns or credentials into block
 content. Keep authored field names, JavaScript readers, Universal Editor models, and documentation
 aligned.
+
+### Storefront and delivery configuration
+
+- Determine whether an environment uses repository `config.json` or the AEM Configuration Service
+  before changing storefront settings. A repository config takes precedence when both are present.
+- If production uses Configuration Service, do not add or retain `config.json` on `main` without an
+  explicit deployment decision. Do not remove the existing file from this demo repository merely to
+  follow that production recommendation.
+- Treat every value under public storefront configuration as browser-delivered. Catalog API keys may
+  be public integration identifiers, but admin, integration, bearer, customer, and payment
+  credentials are never allowed.
+- Keep PaaS, Adobe Commerce as a Cloud Service, and Adobe Commerce Optimizer endpoint/header shapes
+  explicit. Update the matching demo/template configuration when a supported schema changes.
+- Keep `head.html` import-map and module-preload entries aligned with installed and imported drop-ins.
+  Preserve the CSP unless a security-reviewed requirement justifies a change. Marketing and other
+  third-party scripts do not belong in `head.html`.
+- Treat `fstab.yaml` organization, site, mountpoint, and folder mappings as deployment contracts.
+  Repository edits do not authorize DA.live content moves or writes.
+- When changing query or sitemap configuration, preserve a `robots` field in the index used by the
+  sitemap and verify that `noindex` pages are excluded as intended.
 
 ## Commerce Integration Principles
 
@@ -205,6 +230,15 @@ was used. Cover the affected guest, authenticated, multistore, and error states.
 A runner crash, timeout, missing credential, unavailable backend, or sandbox failure is not a test
 pass. Record it separately from an application assertion failure and use a safe fallback probe only
 as supplemental evidence.
+
+### Storefront or delivery configuration changes
+
+- Parse every changed JSON or YAML file and validate the intended backend mode.
+- Verify public config resolution, endpoint/header selection, and multistore overrides in a browser.
+- For `head.html`, verify CSP delivery, import-map resolution, module preloads, and startup without
+  console errors.
+- For route, metadata, query, sitemap, or `fstab.yaml` changes, verify HTTP status, initial HTML,
+  canonical/robots metadata, and sitemap inclusion or exclusion on the affected environment.
 
 ## External State and Publishing
 

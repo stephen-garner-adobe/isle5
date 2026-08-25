@@ -11,11 +11,13 @@ Block wrappers are governed by `blocks/AGENTS.md`.
 | `scripts/initializers/` | One initializer per drop-in; endpoints, dictionaries, and initialization |
 | `scripts/scripts.js` | Global page orchestration and loading lifecycle |
 | `scripts/delayed.js` | Delayed third-party integrations |
-| `scripts/aem.js` | Core AEM/EDS runtime; avoid local changes |
+| `scripts/aem.js` | Protected AEM/EDS runtime; keep byte-aligned with the upstream file enforced by CI |
 | `scripts/__dropins__/` | Generated vendor artifacts; never hand-edit |
 
-Prefer changes in wrappers, slots, initializer options, and shared Commerce helpers. Changes to
-`scripts/aem.js`, generated drop-ins, or package lifecycle behavior require explicit task scope and
+Prefer changes in wrappers, slots, initializer options, and shared Commerce helpers. Do not modify
+`scripts/aem.js` for project behavior: this repository's CI requires it to match the protected
+upstream file exactly. An `aem.js` task must be an explicit upstream-sync operation whose result
+passes that guard. Generated drop-ins or package lifecycle changes require explicit task scope and
 documented justification.
 
 ## Generated Drop-ins

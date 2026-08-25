@@ -1,52 +1,86 @@
-<!-- This file is used to generate the README.md file for a block -->
-<!-- If a section is not applicable, add a comment block around the section to hide it. This way future developers can see the section and know if they need to uncomment and fill in the section. -->
+<!-- This template is for a new block or a major block-authoring rewrite. -->
+<!-- Remove sections that genuinely do not apply; do not leave fictional options or empty tables. -->
+
 # <Block Name> Block
 
 ## Overview
 
-<!-- Brief summary of the block's functionality and purpose -->
+<!-- Explain the shopper/author outcome, intended page context, and whether this is a content block, Commerce wrapper, or configuration block. -->
 
-## Integration
+## Authoring Structure
 
-### Block Configuration
+<!-- Describe the exact DA.live table shape and repeatable rows/children. -->
 
-<!-- Configuration keys read via `readBlockConfig()` -->
+| Row | Authored content | Required | Fallback or constraint |
+|---|---|---|---|
+| 1 | Example content | Yes | Explain the safe fallback |
 
-| Configuration Key | Type | Default | Description | Required | Side Effects |
-|-------------------|------|---------|-------------|----------|--------------|
-| `key-name` | string | `'default'` | Description of what this config does | No | How it affects block behavior |
+### Literal authoring example
 
-### URL Parameters
-<!-- Any URL query parameters that affect block behavior -->
-- `param-name` - Description of parameter usage
+| <block-name> |
+|---|
+| Example authored value |
 
-### Local Storage
-<!-- Any localStorage keys used -->
-- `storage-key` - Description of stored data
+## Inputs and Model Options
 
-### Events
+<!-- Keep field names, defaults, required state, and allowed values aligned with ue/models and runtime readers. -->
 
-<!-- Event listeners and emitters -->
+| Field | Component/type | Required | Default | Author outcome |
+|---|---|---|---|---|
+| `fieldName` | `text` | No | Empty | Explain what the author controls |
 
-#### Event Listeners
-- `events.on('event-name', callback)` - Description of what triggers this and what it does
-- `events.on('another-event', callback)` - Description
+## Block Configuration
 
-#### Event Emitters
-- `events.emit('event-name', data)` - When this is emitted and what data is sent
+<!-- Include only settings stored in this block's table/model. For a thin wrapper with no settings, state that explicitly. -->
 
-## Behavior Patterns
+| Key | Possible values | Effect |
+|---|---|---|
+| `setting` | `value-a`, `value-b` | Default: `value-a`. Explain the observable behavior. |
 
-### Page Context Detection
-<!-- How the block behaves in different contexts -->
-- **Context A**: When [condition], the block [behavior]
-- **Context B**: When [condition], the block [behavior]
+## Section Metadata
 
-### User Interaction Flows
-<!-- Key user interaction patterns -->
-1. **Flow Name**: [Step-by-step description of user interaction]
+<!-- Section metadata controls the surrounding section, not block-specific behavior. State “None” if unused. -->
 
-### Error Handling
-<!-- How errors are handled -->
-- **Error Type**: How it's caught and handled
-- **Fallback Behavior**: What happens when errors occur
+| Key | Possible values | Effect |
+|---|---|---|
+| `width` | Project-supported values | Explain the section/container outcome. |
+
+Place the Section Metadata table in the same section as the block it controls.
+
+## Page Metadata and Route Assumptions
+
+<!-- Document required route/template/backend, robots, cache, title, and social behavior when applicable. State “None” for a route-neutral block. -->
+
+## Behavior and Fallbacks
+
+<!-- Describe loading, empty, error, unavailable-service, and progressive-enhancement behavior. -->
+
+## Configuration Precedence and Conflicts
+
+<!-- List the canonical source for each setting, compatibility fallbacks, conflicts, and intentional no-ops. Simple blocks may state that precedence is not applicable. -->
+
+| Condition | Winner | Ignored/no-op input | Shopper/author effect |
+|---|---|---|---|
+| Example conflict | Canonical setting | Legacy setting | Explain the visible result |
+
+## Commerce and Integration Contracts
+
+<!-- Document drop-ins, public APIs/slots/events, GraphQL client, dictionaries, analytics, storage, and consent implications. Omit when not applicable. -->
+
+## Accessibility
+
+<!-- Cover semantics, labels, keyboard behavior, focus, announcements, contrast, reduced motion, and touch targets as applicable. -->
+
+## Performance
+
+<!-- Cover eager/lazy placement, LCP media, conditional imports, third-party work, and relevant budgets. -->
+
+## Troubleshooting
+
+| Symptom | Likely cause | Resolution |
+|---|---|---|
+| Example symptom | Invalid or missing authoring input | Provide an actionable author-facing correction |
+
+## Validation
+
+<!-- Record representative test content, routes/backends, viewport coverage, and automated/manual gates. -->
