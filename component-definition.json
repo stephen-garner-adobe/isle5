@@ -676,7 +676,7 @@
           "id": "hero-cta",
           "plugins": {
             "da": {
-              "unsafeHTML": "<div class=\"hero-cta\"><div><div><picture><source type=\"image/webp\" srcset=\"\"><source type=\"image/jpeg\" srcset=\"\"><img loading=\"lazy\"></picture></div><div><h1></h1><p></p></div></div></div>"
+              "unsafeHTML": "<div class=\"hero-cta\"><div><div>slide</div><div><picture><img src=\"\" alt=\"\" loading=\"lazy\"></picture></div><div><p>Explore collection</p></div><div><a href=\"/\">Explore collection</a></div></div></div>"
             }
           }
         },

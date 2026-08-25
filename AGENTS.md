@@ -4,6 +4,20 @@ These instructions govern the whole repository. More specific `AGENTS.md` files 
 their directories and may add or tighten rules. When instructions conflict, use the closest
 path-scoped file unless it conflicts with security, data safety, or an explicit user request.
 
+## Project Profile
+
+This is an Adobe Commerce storefront on AEM Edge Delivery Services (EDS). It is a browser-delivered,
+content-driven site: authors supply semantic HTML, sections, metadata, and block tables; block
+decorators progressively enhance that source at runtime.
+
+- Use the repository's vanilla ES-module JavaScript, semantic HTML, and modern CSS. Do not add a UI
+  framework, transpilation step, CSS framework, or new build system without an explicit architecture
+  decision.
+- Treat a block's authored table shape as a public authoring contract. Inspect delivered plain HTML
+  before changing a decorator and tolerate omitted optional cells, extra rich-text wrappers, and
+  safe authored variation.
+- Before changing a path, read the root rules and the nearest applicable nested `AGENTS.md`.
+
 ## Instruction Scope
 
 | Path | Guidance |
@@ -39,9 +53,11 @@ globally authoritative for every layer.
 |---|---|
 | https://docs.da.live/ | Document Authoring, DA APIs, libraries, content structures, preview/publish workflows, and DA-backed Universal Editor models |
 | https://experienceleague.adobe.com/developer/commerce/storefront/ | Adobe Commerce blocks, drop-ins, endpoints, routes, analytics, upgrades, and shopper flows |
+| https://developer.adobe.com/commerce/ | Adobe Commerce APIs, GraphQL schema, App Builder, API Mesh, and extensibility |
 | https://www.aem.live/docs/ | Edge Delivery Services runtime, block delivery, metadata, performance, and platform behavior |
 | Local code, configuration, and installed package types | APIs, paths, commands, and contracts supported by the current branch |
 | https://github.com/hlxsites/aem-boilerplate-commerce | Optional upstream comparison and migration reference; never an automatic merge target |
+| https://raw.githubusercontent.com/adobe-commerce/wayfinder/main/skills/AGENTS.md | Documentation-routing aid only; use it to select the official source, not as a replacement for local compatibility checks |
 
 When sources differ:
 
@@ -51,6 +67,10 @@ When sources differ:
 4. Document a migration when current Adobe guidance differs from the repository; do not silently
    combine model generations or APIs.
 5. Verify release-sensitive guidance against current official documentation before acting.
+
+When an answer or implementation depends on a specific container, slot, configuration key, endpoint,
+GraphQL field, or authoring behavior, verify that name in local code or the responsible official source
+first. Do not infer names from adjacent products, older boilerplates, or memory.
 
 ## Repository Baseline
 
@@ -95,6 +115,23 @@ Prefer the narrowest owned extension point:
 Do not change package lifecycle scripts such as `postinstall`, `postupdate`, or
 `install:dropins` without an explicit task and a full clean-install verification.
 
+## EDS Block and Loading Contract
+
+- Preserve meaningful authored fallback content until enhancement is ready. A failed or unsupported
+  enhancement must leave a useful non-empty result whenever practical.
+- Keep block JS and CSS self-contained, scoped to the block, responsive, keyboard-accessible, and
+  named `blocks/{block}/{block}.js` and `blocks/{block}/{block}.css`.
+- Use DOM APIs and existing project helpers to transform content. Do not add author-controlled HTML
+  through string interpolation, and do not require a rigid wrapper shape that DA.live or rich text
+  may legitimately vary.
+- Treat `scripts/aem.js` as protected upstream runtime code: never hand-edit it. Any exceptional
+  update must be an explicit, documented upstream-alignment task that preserves its CI contract.
+- Keep first-section work limited to LCP-critical content. Load ordinary below-the-fold behavior in
+  the existing lazy lifecycle and defer non-essential or third-party work through the delayed path.
+  Inspect the current lifecycle before moving work between phases.
+- Do not introduce document-wide scans, duplicate global listeners, or unconditional heavy imports
+  when a block-scoped query, delegated event, or lazy import will suffice.
+
 ## Change Scope
 
 - New blocks and major architecture rewrites must comply with all applicable nested instructions.
@@ -135,6 +172,8 @@ aligned.
   third-party scripts do not belong in `head.html`.
 - Treat `fstab.yaml` organization, site, mountpoint, and folder mappings as deployment contracts.
   Repository edits do not authorize DA.live content moves or writes.
+- Review `.hlxignore` when adding local utilities, fixtures, diagnostics, or other files that must
+  never be delivered publicly. Do not add broad ignore rules that could hide required content.
 - When changing query or sitemap configuration, preserve a `robots` field in the index used by the
   sitemap and verify that `noindex` pages are excluded as intended.
 
@@ -205,6 +244,21 @@ npm run lint
 
 Also run `git diff --check` before handoff.
 
+### Local development and browser verification
+
+- Start the local EDS proxy with `npm start` unless the task needs documented AEM CLI options. Its
+  default address is `http://localhost:3000`.
+- If that port is already in use, never stop an unrelated user process. Use an alternate port, state
+  the exact local URL, and do not mistake that preview for a deployed AEM environment.
+- Use a short-lived `drafts/` HTML or `.plain.html` fixture only when existing authored content does
+  not cover the change. Serve it with the matching `--html-folder` configuration, validate it in a
+  browser, and remove only fixture files you created when they are no longer needed.
+- For a changed visual or interactive block, perform real-browser validation at the affected mobile
+  and desktop widths. Confirm semantic controls, keyboard/focus behavior, responsive geometry, and
+  absence of unhandled console errors. Keep screenshots and reports out of commits unless requested.
+- A static check, HTTP probe, or runner startup is supplemental evidence; it does not replace a
+  completed browser assertion.
+
 ### Authoring model changes
 
 ```bash
@@ -248,6 +302,11 @@ as supplemental evidence.
 - Before destructive or externally consequential actions, resolve the exact target and confirm the
   action is within scope.
 - Pushing or merging is allowed only when explicitly requested.
+
+When a user explicitly requests a pull request, include the relevant feature-preview URL and the
+authored path used for validation. Report the actual validation environment and any local-only test
+content; do not present a branch preview as production or publish content solely to manufacture a
+test URL.
 
 ## Exceptions
 

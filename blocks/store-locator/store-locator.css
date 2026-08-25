@@ -3832,6 +3832,186 @@ a.btn-primary:visited,
 }
 /* stylelint-enable no-descending-specificity, no-duplicate-selectors */
 
+/* Local store guide — zero third-party map, tile, and geocoding requests. */
+main .store-locator[data-location-mode='local'] {
+  --sl-primary: #355044;
+  --sl-primary-hover: #233a30;
+  --sl-open: #28623f;
+  --sl-open-bg: #e6f2e8;
+  --sl-closed: #9d3f32;
+  --sl-closed-bg: #fae9e3;
+  --sl-surface-primary: #fffdf8;
+  --sl-surface-secondary: #f4efe4;
+  --sl-surface-tertiary: #ebe2d1;
+  --sl-text-primary: #242b26;
+  --sl-text-secondary: #526057;
+  --sl-text-tertiary: #6b716a;
+  --sl-border-light: #ded3bf;
+  --sl-border-medium: #b9aa92;
+  --sl-card-radius: 2px;
+  --sl-card-component-radius: 2px;
+  --sl-card-meta-radius: 999px;
+  --sl-search-radius: 2px;
+  --sl-search-panel-radius: 2px;
+  --sl-action-bg: #355044;
+  --sl-action-bg-hover: #233a30;
+  --sl-action-border: #233a30;
+  --sl-action-shadow: none;
+  --sl-ui-panel-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .store-locator-container {
+  gap: var(--spacing-big);
+}
+
+main .store-locator[data-location-mode='local'] .store-locator-search {
+  padding: clamp(20px, 4vw, 40px);
+  border: 1px solid var(--sl-border-medium);
+  background:
+    linear-gradient(90deg, transparent 0 18px, rgb(53 80 68 / 10%) 18px 19px, transparent 19px),
+    var(--sl-surface-secondary);
+  box-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .store-locator-title {
+  margin-bottom: var(--spacing-xsmall);
+  color: var(--sl-text-primary);
+  font: var(--type-headline-2-strong-font);
+  letter-spacing: 0.02em;
+}
+
+main .store-locator[data-location-mode='local'] .store-locator-subtitle {
+  max-width: 44rem;
+  color: var(--sl-text-secondary);
+}
+
+main .store-locator[data-location-mode='local'] .search-input,
+main .store-locator[data-location-mode='local'] .btn-location,
+main .store-locator[data-location-mode='local'] .sort-controls,
+main .store-locator[data-location-mode='local'] .filter-drawer-toggle {
+  border-color: var(--sl-border-medium);
+  background: var(--sl-surface-primary);
+  box-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .search-input:focus,
+main .store-locator[data-location-mode='local'] .btn-location:focus-visible,
+main .store-locator[data-location-mode='local'] .filter-drawer-toggle:focus-visible,
+main .store-locator[data-location-mode='local'] .info-link:focus-visible {
+  outline: 3px solid rgb(53 80 68 / 35%);
+  outline-offset: 2px;
+}
+
+main .store-locator[data-location-mode='local'] .btn-search,
+main .store-locator[data-location-mode='local'] .card-actions .info-link-primary {
+  border-radius: 2px;
+  background: var(--sl-action-bg);
+  box-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .btn-search:hover,
+main .store-locator[data-location-mode='local'] .card-actions .info-link-primary:hover {
+  background: var(--sl-action-bg-hover);
+  box-shadow: none;
+  transform: none;
+}
+
+main .store-locator[data-location-mode='local'] .controls-row {
+  padding-top: var(--spacing-small);
+  border-top: 1px solid var(--sl-border-light);
+}
+
+main .store-locator[data-location-mode='local'] .store-results-summary {
+  padding: var(--spacing-xsmall) 0 0;
+  color: var(--sl-text-secondary);
+  font: var(--type-details-caption-1-font);
+  letter-spacing: var(--type-details-caption-1-letter-spacing);
+  text-transform: uppercase;
+}
+
+main .store-locator[data-location-mode='local'] .summary-chip,
+main .store-locator[data-location-mode='local'] .card-service-tag {
+  border: 1px solid var(--sl-border-light);
+  background: transparent;
+  color: var(--sl-text-secondary);
+}
+
+main .store-locator[data-location-mode='local'] .store-list {
+  max-height: none;
+  overflow: visible;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-small);
+}
+
+main .store-locator[data-location-mode='local'] .store-card {
+  min-height: 100%;
+  padding: var(--spacing-medium);
+  border: 1px solid var(--sl-border-light);
+  border-left: 4px solid var(--sl-primary);
+  border-radius: var(--sl-card-radius);
+  background: var(--sl-surface-primary);
+  box-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .store-card[data-featured='true'] {
+  border-left-color: #b36a39;
+  background: #fff9ef;
+}
+
+main .store-locator[data-location-mode='local'] .store-card:hover {
+  border-color: var(--sl-border-medium);
+  box-shadow: 4px 4px 0 rgb(53 80 68 / 12%);
+  transform: none;
+}
+
+main .store-locator[data-location-mode='local'] .store-name,
+main .store-locator[data-location-mode='local'] .card-name-link {
+  color: var(--sl-text-primary);
+  font: var(--type-body-1-strong-font);
+}
+
+main .store-locator[data-location-mode='local'] .card-name-link:hover {
+  color: var(--sl-primary);
+}
+
+main .store-locator[data-location-mode='local'] .card-status-badge,
+main .store-locator[data-location-mode='local'] .card-distance-badge {
+  border: 0;
+  box-shadow: none;
+}
+
+main .store-locator[data-location-mode='local'] .card-address,
+main .store-locator[data-location-mode='local'] .card-phone,
+main .store-locator[data-location-mode='local'] .card-hours {
+  color: var(--sl-text-secondary);
+}
+
+main .store-locator[data-location-mode='local'] .card-actions .info-link:not(.info-link-primary) {
+  border-color: var(--sl-primary);
+  border-radius: 2px;
+  color: var(--sl-primary);
+}
+
+@media (min-width: 680px) {
+  main .store-locator[data-location-mode='local'] .store-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  main .store-locator[data-location-mode='local'] .store-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main .store-locator[data-location-mode='local'] *,
+  main .store-locator[data-location-mode='local'] *::before,
+  main .store-locator[data-location-mode='local'] *::after {
+    transition-duration: 0.01ms;
+  }
+}
+
 /* stylelint-disable no-descending-specificity, no-duplicate-selectors */
 
 /* ============================================

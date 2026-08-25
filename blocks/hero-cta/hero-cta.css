@@ -166,7 +166,7 @@
   margin: 24px 0 0;
 }
 
-/* Button groups removed - Column 3 now for color variants */
+/* CTA labels come from Column 3; their matching URLs come from Column 4. */
 
 .hero-cta-content .hero-cta-actions p {
   margin: 0;
@@ -277,6 +277,7 @@
 }
 
 .hero-cta[data-button-style='link'] .hero-cta-actions .button {
+  background-color: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;

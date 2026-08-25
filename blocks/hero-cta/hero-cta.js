@@ -354,6 +354,7 @@ function parseTypedRows(rows) {
   const slideRows = [];
   const navEntries = [];
   let interval = DEFAULT_INTERVAL;
+  let hasInterval = false;
 
   rows.forEach((row, index) => {
     const cells = [...row.children];
@@ -371,6 +372,12 @@ function parseTypedRows(rows) {
     }
 
     if (type === 'interval') {
+      if (hasInterval) {
+        console.warn(`hero-cta: row ${rowNum} interval is ignored. Only the first interval row is used.`);
+        return;
+      }
+
+      hasInterval = true;
       const raw = cells[1]?.textContent?.trim() || '';
       const ms = Number.parseInt(raw, 10);
       if (!Number.isNaN(ms) && ms > 0) {
@@ -382,14 +389,19 @@ function parseTypedRows(rows) {
     }
 
     if (type === 'nav') {
-      const mode = (cells[1]?.textContent || '').trim().toLowerCase() || 'item';
+      const rawMode = (cells[1]?.textContent || '').trim().toLowerCase();
+      const mode = ['item', 'header'].includes(rawMode) ? rawMode : 'item';
       const labelCell = cells[2];
       const hrefCell = cells[3];
       const labelLink = readCellLink(labelCell);
       const hrefLink = readCellLink(hrefCell);
       const label = labelLink.label || labelCell?.textContent?.trim() || '';
-      const href = labelLink.href || hrefLink.href || sanitizeUrl(hrefCell?.textContent?.trim() || '');
-      const target = labelLink.target || hrefLink.target || '';
+      const href = hrefLink.href || sanitizeUrl(hrefCell?.textContent?.trim() || '');
+      const { target } = hrefLink;
+
+      if (rawMode && rawMode !== mode) {
+        console.warn(`hero-cta: row ${rowNum} nav mode "${rawMode}" is unsupported. Using "item".`);
+      }
 
       if (!label) {
         console.warn(`hero-cta: row ${rowNum} nav entry has no label.`);
@@ -403,6 +415,10 @@ function parseTypedRows(rows) {
           labelCell: labelCell?.cloneNode(true) || null,
         });
         return;
+      }
+
+      if (!href) {
+        console.warn(`hero-cta: row ${rowNum} nav item has no safe URL in Column 4 and will be disabled.`);
       }
 
       navEntries.push({
@@ -510,6 +526,54 @@ function extractImageSource(cell) {
   return null;
 }
 
+function getCellTextEntries(cell) {
+  if (!cell) return [];
+
+  const entries = [];
+  let current = '';
+  const flush = () => {
+    const value = current.trim();
+    if (value) entries.push(value);
+    current = '';
+  };
+  const visit = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      current += node.textContent || '';
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    if (node.tagName === 'BR') {
+      flush();
+      return;
+    }
+
+    const isEntry = ['P', 'LI'].includes(node.tagName);
+    if (isEntry) flush();
+    [...node.childNodes].forEach(visit);
+    if (isEntry) flush();
+  };
+
+  [...cell.childNodes].forEach(visit);
+  flush();
+  return entries;
+}
+
+function getCtaLabels(cell) {
+  const linkedLabels = [...(cell?.querySelectorAll('a') || [])]
+    .map((link) => link.textContent.trim())
+    .filter(Boolean);
+  return linkedLabels.length ? linkedLabels : getCellTextEntries(cell);
+}
+
+function getCtaLinks(cell) {
+  const linkedHrefs = [...(cell?.querySelectorAll('a[href]') || [])]
+    .map((link) => sanitizeUrl(link.getAttribute('href') || ''));
+  if (linkedHrefs.length) return linkedHrefs;
+
+  return getCellTextEntries(cell).map((text) => sanitizeUrl(text));
+}
+
 function buildSlide(row, isFirstSlide = false, config = {}) {
   const cells = [...row.children];
   const ctaTextCell = cells[2];
@@ -546,55 +610,20 @@ function buildSlide(row, isFirstSlide = false, config = {}) {
   const content = document.createElement('div');
   content.className = 'hero-cta-content';
 
-  const ctaLabels = [];
-  const ctaLinks = [];
-
-  if (ctaTextCell) {
-    const linkedLabels = [...ctaTextCell.querySelectorAll('a')].map((link) => link.textContent.trim()).filter(Boolean);
-    if (linkedLabels.length) {
-      ctaLabels.push(...linkedLabels);
-    } else {
-      const blockLabels = [...ctaTextCell.querySelectorAll('p, li')].map((el) => el.textContent.trim()).filter(Boolean);
-      if (blockLabels.length) {
-        ctaLabels.push(...blockLabels);
-      } else {
-        const fallbackLabels = ctaTextCell.textContent
-          .split('\n')
-          .map((text) => text.trim())
-          .filter(Boolean);
-        ctaLabels.push(...fallbackLabels);
-      }
-    }
+  const ctaLabels = getCtaLabels(ctaTextCell);
+  const ctaLinks = getCtaLinks(ctaLinkCell);
+  if (ctaLabels.length !== ctaLinks.length) {
+    console.warn(
+      `hero-cta: CTA label and URL counts differ (${ctaLabels.length} labels, ${ctaLinks.length} URLs). Missing or unsafe URLs render disabled.`,
+    );
   }
 
-  if (ctaLinkCell) {
-    const linkedHrefs = [...ctaLinkCell.querySelectorAll('a[href]')]
-      .map((link) => sanitizeUrl(link.getAttribute('href') || ''))
-      .filter(Boolean);
-    if (linkedHrefs.length) {
-      ctaLinks.push(...linkedHrefs);
-    } else {
-      const blockHrefs = [...ctaLinkCell.querySelectorAll('p, li')]
-        .map((el) => sanitizeUrl(el.textContent.trim()))
-        .filter(Boolean);
-      if (blockHrefs.length) {
-        ctaLinks.push(...blockHrefs);
-      } else {
-        const fallbackHrefs = ctaLinkCell.textContent
-          .split('\n')
-          .map((text) => sanitizeUrl(text.trim()))
-          .filter(Boolean);
-        ctaLinks.push(...fallbackHrefs);
-      }
-    }
-  }
-
-  // Build CTA buttons from Column 2 text, map URLs from Column 3 by index.
+  // Build CTA buttons from Column 3 labels and map Column 4 URLs by index.
   const buttonGroups = [];
   ctaLabels.forEach((label, index) => {
     const buttonWrapper = document.createElement('p');
     const button = document.createElement('a');
-    const href = ctaLinks[index] || ctaLinks[0] || '#';
+    const href = ctaLinks[index] || '#';
 
     button.href = href;
     button.textContent = label;
@@ -852,6 +881,12 @@ export default function decorate(block) {
     navEntries,
   } = parseTypedRows(rows);
 
+  if (!slideRows.length) {
+    delete block.dataset.loading;
+    console.warn('hero-cta: no "slide" rows found; leaving authored fallback content in place.');
+    return;
+  }
+
   const wrapper = document.createElement('div');
   wrapper.className = 'hero-cta-slides';
 
@@ -928,6 +963,7 @@ export default function decorate(block) {
   warnOnInvalidConfig('herocta-position', config.position, layoutConfig.position, 'bottom-right');
   warnOnInvalidConfig('herocta-size', config.size, layoutConfig.size, 'tall');
   warnOnInvalidConfig('herocta-btnstyle', config.buttonStyle, styleConfig.buttonStyle, 'elevated');
+  warnOnInvalidConfig('herocta-btncorner', config.buttonCorner, styleConfig.buttonCorner || 'default', 'default');
   warnOnInvalidConfig('herocta-btnwidth', config.buttonWidth, structureConfig.buttonWidthRaw, 'medium');
   warnOnInvalidConfig('herocta-btncolor', config.buttonBorderColor, colorConfig.buttonBorderColor, 'white');
   warnOnInvalidConfig('herocta-btnfill', config.buttonFillColor, colorConfig.buttonFillColor, 'transparent');

@@ -1,6 +1,7 @@
 # Store Locator Block
 
-A Google Places (New) powered store finder for Adobe Commerce Storefront pages, with:
+A configurable store finder for Adobe Commerce Storefront pages. It supports a Google Places
+experience where needed, plus a local, no-API store guide, with:
 - Search + geolocation
 - Service and "Open now" filtering
 - Radius filtering (`0` = all distances)
@@ -14,6 +15,7 @@ A Google Places (New) powered store finder for Adobe Commerce Storefront pages, 
 
 ### Core UX
 - Address search with autocomplete
+- Local text search across authored store, city, postcode, and service fields (Local mode)
 - "Use My Location" geolocation search
 - Sort: `distance`, `name`, `recent`
 - Filters: open-now + dynamic service chips from actual store data
@@ -80,10 +82,11 @@ credential.
 
 | Key | Aliases | Type | Allowed values / format | Default |
 |---|---|---|---|---|
+| Location Mode | - | enum | `api`, `local` | `api` |
 | Google Maps API Key | - | string | valid key | empty |
 | Default View | - | enum | `split`, `list`, `map` | `split` |
-| Autocomplete Provider | - | enum | `google` | `google` |
-| Map Provider | - | enum | `google` | `google` |
+| Autocomplete Provider | - | enum | `google`, `local` | `google` |
+| Map Provider | - | enum | `google`, `none` | `google` |
 | Data Source | - | enum | `block-content`, `json-file`, `api` | `block-content` |
 | Search Radius | Search Radius Miles | number | `0+` (`0` = all) | `0` |
 | Max Results | Maximum Results | number | positive integer | `10` |
@@ -116,6 +119,31 @@ credential.
   - means no radius cap ("All")
 - `Radius Presets`
   - controls radius dropdown options
+- `Location Mode = local`
+  - forces local autocomplete, no interactive map, list view, and no automatic location lookup
+  - takes precedence over `Autocomplete Provider`, `Map Provider`, `Default View`, and
+    `Auto Detect Location`
+
+## Local no-API store guide
+
+For a cost-free, privacy-conscious finder, add this to the top of the authored table. No Google
+key or external location service is used.
+
+```text
+Location Mode | local
+Enable Photos | false
+Auto Detect Location | false
+Primary CTA Label | Directions
+```
+
+Local search filters the authored store records in the browser; shopper query text is never sent
+to Google, Nominatim, or a map-tile service. **Use My Location** remains an explicit browser
+permission and calculates distance against the coordinates already authored in the table. The
+Directions button is an external link opened only after the shopper selects it; it is not a Maps
+API call.
+
+Use the full store-record schema below in this mode. Place-ID rows require Google enrichment and
+are deliberately not resolved in local mode.
 
 ## DA.live Preferred Minimal Options
 
@@ -190,13 +218,14 @@ Places ID | Featured | Custom Services | Display Order | Override Name
 - `Display Order`: numeric ordering hint
 - `Override Name`: replaces Google display name
 
-### Legacy schema (supported)
+### Authored store-record schema
 
 ```text
 Name | Address | Coordinates | Phone | Hours | Services | Photo | Details
 ```
 
-Used when Place IDs are not provided. Enrichment is limited in this mode.
+Use this for Local mode and when you want cards to render without Google enrichment. Include
+coordinates for distance sorting and the explicit **Use My Location** control.
 
 ## Section Metadata
 
@@ -226,6 +255,8 @@ Notes:
 3. Add local domain for development (`http://localhost:3000/*`).
 4. Place key in DA.live `Google Maps API Key` row.
 
+Do not add a Google Maps key when using `Location Mode | local`.
+
 ## Performance and API Best Practices
 
 - Prefer `Experience Mode = fast` as default.
@@ -253,6 +284,11 @@ Notes:
 - Clear persisted prefs if needed:
   - `localStorage.removeItem('storeLocatorPrefs'); location.reload();`
 
+### Local mode returns no stores for a known search
+- Use the authored store-record schema rather than Place ID rows.
+- Search terms match authored name, address, city, postcode, phone, services, and details.
+- Confirm the location-mode row reads exactly `Location Mode | local`.
+
 ### Section width metadata appears ignored
 - Confirm `section-metadata` row exists in the same section.
 - Confirm rendered section `data-width` is set.
@@ -266,6 +302,9 @@ Notes:
 - Desktop split sticky behavior + scroll interaction
 - Mobile list/map usability
 - Photos/reviews behavior in `fast` vs `rich`
+- Local mode: no `.store-map`, no map view controls, and no Google/Nominatim/tile requests
+- Local mode: text search, service filters, and explicit browser geolocation all work with
+  authored store records
 - Lint status:
   - `npx eslint blocks/store-locator/store-locator.js`
   - `npx stylelint blocks/store-locator/store-locator.css`

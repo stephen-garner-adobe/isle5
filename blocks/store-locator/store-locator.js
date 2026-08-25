@@ -318,6 +318,7 @@ function clearPlaceDetailsCache() {
 function parseBlockConfig(block) {
   const config = {
     googleMapsApiKey: '',
+    locationMode: 'api',
     autocompleteProvider: 'google',
     defaultView: 'split',
     mapProvider: 'google',
@@ -360,6 +361,9 @@ function parseBlockConfig(block) {
         case 'googlemapsapikey':
           config.googleMapsApiKey = value;
           debugLog('📍 Google Maps API Key found:', `${value.substring(0, 20)}...`);
+          break;
+        case 'locationmode':
+          config.locationMode = value.toLowerCase() === 'local' ? 'local' : 'api';
           break;
         case 'autocompleteprovider':
           config.autocompleteProvider = value.toLowerCase();
@@ -477,6 +481,14 @@ function parseBlockConfig(block) {
     config.radiusPresets = [0, ...config.radiusPresets];
   }
   config.radiusPresets = [...new Set(config.radiusPresets)].sort((a, b) => a - b);
+
+  if (config.locationMode === 'local') {
+    config.autocompleteProvider = 'local';
+    config.mapProvider = 'none';
+    config.defaultView = 'list';
+    config.autoDetect = false;
+    config.defaultLocation = '';
+  }
 
   return config;
 }
@@ -755,7 +767,7 @@ function parseStoresFromBlock(block) {
   // Row 0 = column headers
   // (Name | Address | Coordinates | Phone | Hours | Services | Photo | Details)
   // Row 1+ = actual store data
-  rows.slice(1).forEach((row, index) => {
+  rows.slice(dataStartIndex + 1).forEach((row, index) => {
     const cells = [...row.children];
 
     // Need at least 6 columns (original): Name, Address, Coordinates,
@@ -976,6 +988,35 @@ function filterStores(stores, selectedServices, openNow = false) {
 }
 
 /**
+ * Filter authored stores without sending a shopper query to a third party.
+ * @param {Array} stores - Store records
+ * @param {string} query - Shopper-entered store, place, or service text
+ * @returns {Array} Matching stores
+ */
+function filterStoresByText(stores, query = '') {
+  const normalizedQuery = String(query).trim().toLowerCase();
+  if (!normalizedQuery) return stores;
+
+  return stores.filter((store) => {
+    const searchableText = [
+      store.name,
+      getDisplayAddress(store),
+      store.address?.city,
+      store.address?.state,
+      store.address?.zip,
+      store.address?.country,
+      store.contact?.phone,
+      ...(store.services || []),
+      ...(store.details || []),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return searchableText.includes(normalizedQuery);
+  });
+}
+
+/**
  * Sort stores by criteria
  * @param {Array} stores - Array of store objects
  * @param {string} sortBy - Sort criteria (distance, name, recent)
@@ -1157,6 +1198,8 @@ function getTodayHours(store) {
 function renderStoreCard(store, uiConfig = {}) {
   const showDistance = uiConfig.showDistance !== false;
   const showPhotos = uiConfig.enablePhotos !== false;
+  const showPhotoPlaceholder = uiConfig.showPhotoPlaceholder !== false;
+  const showRatingPlaceholder = uiConfig.showRatingPlaceholder !== false;
   const units = uiConfig.units || 'miles';
   const ctaLabel = uiConfig.primaryCtaLabel || 'Get Directions';
   const maxVisibleServiceTags = 3;
@@ -1217,7 +1260,7 @@ function renderStoreCard(store, uiConfig = {}) {
 
       photoWrap.appendChild(photo);
       card.appendChild(photoWrap);
-    } else {
+    } else if (showPhotoPlaceholder) {
       const photoFallback = document.createElement('div');
       photoFallback.classList.add('card-photo-wrap', 'card-photo-fallback');
       const fallbackSvg = createSvg('0 0 24 24', 28, 28, 'M19 5h-3.2l-1.8-2H10L8.2 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-7 11a4 4 0 110-8 4 4 0 010 8z');
@@ -1237,7 +1280,7 @@ function renderStoreCard(store, uiConfig = {}) {
   if (store.placeId) {
     nameLink.href = sanitizeUrl(`https://www.google.com/maps/place/?q=place_id:${store.placeId}`);
   } else {
-    nameLink.href = sanitizeUrl(`https://maps.google.com/?q=${store.address.coordinates.lat},${store.address.coordinates.lng}`);
+    nameLink.href = sanitizeUrl(`https://www.google.com/maps/search/?api=1&query=${store.address.coordinates.lat},${store.address.coordinates.lng}`);
   }
   nameLink.target = '_blank';
   nameLink.rel = 'noopener noreferrer';
@@ -1255,7 +1298,7 @@ function renderStoreCard(store, uiConfig = {}) {
     ratingRow.append(' ');
     ratingRow.appendChild(createEl('span', { className: 'rating-count' }, `(${store.userRatingsTotal})`));
     card.appendChild(ratingRow);
-  } else {
+  } else if (showRatingPlaceholder) {
     const ratingRow = document.createElement('div');
     ratingRow.classList.add('card-rating', 'card-slot-empty');
     ratingRow.textContent = 'Ratings unavailable';
@@ -1379,7 +1422,7 @@ function renderStoreCard(store, uiConfig = {}) {
   if (store.placeId) {
     directionsBtn.href = sanitizeUrl(`https://www.google.com/maps/place/?q=place_id:${store.placeId}`);
   } else {
-    directionsBtn.href = sanitizeUrl(`https://maps.google.com/?q=${store.address.coordinates.lat},${store.address.coordinates.lng}`);
+    directionsBtn.href = sanitizeUrl(`https://www.google.com/maps/dir/?api=1&destination=${store.address.coordinates.lat},${store.address.coordinates.lng}`);
   }
   directionsBtn.target = '_blank';
   directionsBtn.rel = 'noopener noreferrer';
@@ -1476,6 +1519,7 @@ function createSearchSection(
 ) {
   const section = document.createElement('div');
   section.classList.add('store-locator-search');
+  const isLocalMode = config.locationMode === 'local';
 
   // Load saved preferences
   const prefs = loadPreferences();
@@ -1483,12 +1527,14 @@ function createSearchSection(
   // Title
   const title = document.createElement('h2');
   title.classList.add('store-locator-title');
-  title.textContent = 'Find Your Nearest Store';
+  title.textContent = isLocalMode ? 'Find a Store' : 'Find Your Nearest Store';
   section.appendChild(title);
 
   const subtitle = document.createElement('p');
   subtitle.classList.add('store-locator-subtitle');
-  subtitle.textContent = 'Search by ZIP, city, or full address and refine by distance or services.';
+  subtitle.textContent = isLocalMode
+    ? 'Search our store guide by name, city, postcode, or service.'
+    : 'Search by ZIP, city, or full address and refine by distance or services.';
   section.appendChild(subtitle);
 
   // Search form
@@ -1506,8 +1552,12 @@ function createSearchSection(
   const input = document.createElement('input');
   input.type = 'text';
   input.classList.add('search-input');
-  input.placeholder = 'Enter ZIP code, city, or address';
-  input.setAttribute('aria-label', 'Enter location to search for stores');
+  input.placeholder = isLocalMode
+    ? 'Search by store, city, postcode, or service'
+    : 'Enter ZIP code, city, or address';
+  input.setAttribute('aria-label', isLocalMode
+    ? 'Search stores by name, city, postcode, or service'
+    : 'Enter location to search for stores');
   input.setAttribute('autocomplete', 'off');
 
   // Restore last search
@@ -1549,12 +1599,16 @@ function createSearchSection(
   const viewToggle = document.createElement('div');
   viewToggle.classList.add('view-toggle');
   const mobileDefaultView = window.matchMedia('(max-width: 767px)').matches ? 'list' : null;
-  const preferredView = prefs.preferredView || mobileDefaultView || config.defaultView || 'split';
-  const viewOptions = [
-    { value: 'list', label: 'List' },
-    { value: 'map', label: 'Map' },
-    { value: 'split', label: 'Split' },
-  ];
+  const preferredView = isLocalMode
+    ? 'list'
+    : (prefs.preferredView || mobileDefaultView || config.defaultView || 'split');
+  const viewOptions = isLocalMode
+    ? []
+    : [
+      { value: 'list', label: 'List' },
+      { value: 'map', label: 'Map' },
+      { value: 'split', label: 'Split' },
+    ];
   viewOptions.forEach((view) => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -1577,7 +1631,9 @@ function createSearchSection(
   // Sort and filter controls row
   const controlsRow = document.createElement('div');
   controlsRow.classList.add('controls-row');
-  controlsRow.appendChild(viewToggle);
+  if (viewOptions.length > 0) {
+    controlsRow.appendChild(viewToggle);
+  }
 
   // Sort controls
   const sortSection = document.createElement('div');
@@ -1847,6 +1903,12 @@ function createSearchSection(
   }
 
   input.addEventListener('input', (e) => {
+    if (isLocalMode) {
+      clearTimeout(autocompleteTimeout);
+      autocompleteList.replaceChildren();
+      autocompleteList.classList.remove('visible');
+      return;
+    }
     const query = e.target.value.trim();
 
     clearTimeout(autocompleteTimeout);
@@ -1970,7 +2032,7 @@ function createSearchSection(
       autocompleteList.classList.remove('visible');
       trackStoreLocatorEvent('search_submit', { query: searchValue });
       onSearch({
-        type: 'address',
+        type: isLocalMode ? 'local-search' : 'address',
         value: searchValue,
         services: selectedServices,
         openNow,
@@ -2871,10 +2933,11 @@ export default async function decorate(block) {
   const eventsController = new AbortController();
   const { signal } = eventsController;
 
-  if (config.mapProvider !== 'google') {
+  if (!['google', 'none'].includes(config.mapProvider)) {
     console.warn(`Unsupported map provider "${config.mapProvider}". Falling back to "google".`);
     config.mapProvider = 'google';
   }
+  const hasInteractiveMap = config.mapProvider === 'google';
 
   const googleMapsReadyPromise = (config.googleMapsApiKey && config.mapProvider === 'google')
     ? loadGoogleMaps(config.googleMapsApiKey).catch((error) => {
@@ -2899,6 +2962,9 @@ export default async function decorate(block) {
   let userLocation = null;
   let mapInstance = null;
   let loadingSpinner; // Declared here, assigned later
+  if (config.locationMode === 'local' && allStores.some((store) => store.requiresEnrichment)) {
+    console.warn('store-locator: local Location Mode requires full store records, not Place ID rows.');
+  }
   if (!config.googleMapsApiKey && allStores.some((store) => store.requiresEnrichment)) {
     clearPlaceDetailsCache();
   }
@@ -2914,12 +2980,14 @@ export default async function decorate(block) {
   const container = document.createElement('div');
   container.classList.add('store-locator-container');
   container.dataset.cardDensity = config.cardDensity;
+  container.dataset.locationMode = config.locationMode;
+  block.dataset.locationMode = config.locationMode;
 
   const listContainer = document.createElement('div');
   listContainer.classList.add('store-list');
 
-  const mapContainer = document.createElement('div');
-  mapContainer.classList.add('store-map');
+  const mapContainer = hasInteractiveMap ? document.createElement('div') : null;
+  mapContainer?.classList.add('store-map');
 
   const resultsSummary = document.createElement('p');
   resultsSummary.classList.add('store-results-summary');
@@ -2931,7 +2999,9 @@ export default async function decorate(block) {
 
   function setView(view) {
     if (!contentArea) return;
-    const normalizedView = ['list', 'map', 'split'].includes(view) ? view : 'split';
+    const normalizedView = hasInteractiveMap && ['list', 'map', 'split'].includes(view)
+      ? view
+      : 'list';
     contentArea.setAttribute('data-view', normalizedView);
     if (searchSectionEl) {
       searchSectionEl.setAttribute('data-view', normalizedView);
@@ -3014,6 +3084,8 @@ export default async function decorate(block) {
         const card = renderStoreCard(store, {
           showDistance: config.showDistance,
           enablePhotos: config.enablePhotos,
+          showPhotoPlaceholder: config.locationMode !== 'local',
+          showRatingPlaceholder: config.locationMode !== 'local',
           units: config.units,
           primaryCtaLabel: config.primaryCtaLabel,
         });
@@ -3035,6 +3107,13 @@ export default async function decorate(block) {
   // Get saved preferences
   const prefs = loadPreferences();
   let currentSort = prefs.sortBy || 'distance';
+  let localSearchQuery = '';
+
+  function getLocalSearchScope() {
+    return config.locationMode === 'local'
+      ? filterStoresByText(allStores, localSearchQuery)
+      : allStores;
+  }
 
   /**
    * Apply filters and sorting to stores
@@ -3089,7 +3168,7 @@ export default async function decorate(block) {
       container.querySelector('#radius-select')?.value ?? `${config.searchRadius}`,
       10,
     ) || 0;
-    filteredStores = applyFiltersAndSort(allStores, services, openNow, radius);
+    filteredStores = applyFiltersAndSort(getLocalSearchScope(), services, openNow, radius);
     renderStores(filteredStores);
     updateFilterMeta(filteredStores);
     trackStoreLocatorEvent('sort_change', { sortBy });
@@ -3128,7 +3207,7 @@ export default async function decorate(block) {
         const services = searchData.services || [];
         const openNow = searchData.openNow || false;
         const radius = Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius;
-        filteredStores = applyFiltersAndSort(allStores, services, openNow, radius);
+        filteredStores = applyFiltersAndSort(getLocalSearchScope(), services, openNow, radius);
         renderStores(filteredStores);
         updateFilterMeta(filteredStores);
 
@@ -3216,9 +3295,19 @@ export default async function decorate(block) {
       } finally {
         hideLoading(loadingSpinner);
       }
+    } else if (searchData.type === 'local-search') {
+      localSearchQuery = searchData.value;
+      filteredStores = applyFiltersAndSort(
+        getLocalSearchScope(),
+        searchData.services || [],
+        searchData.openNow || false,
+        Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius,
+      );
+      renderStores(filteredStores);
+      updateFilterMeta(filteredStores);
     } else if (searchData.type === 'filter') {
       filteredStores = applyFiltersAndSort(
-        allStores,
+        getLocalSearchScope(),
         searchData.services || [],
         searchData.openNow || false,
         Number.isFinite(searchData.radius) ? searchData.radius : config.searchRadius,
@@ -3263,14 +3352,16 @@ export default async function decorate(block) {
   // Main content area
   contentArea = document.createElement('div');
   contentArea.classList.add('store-locator-content');
-  contentArea.setAttribute('data-view', config.defaultView);
+  contentArea.setAttribute('data-view', hasInteractiveMap ? config.defaultView : 'list');
 
   contentArea.appendChild(listContainer);
-  contentArea.appendChild(mapContainer);
+  if (mapContainer) contentArea.appendChild(mapContainer);
   container.appendChild(contentArea);
 
   const mobileDefaultView = window.matchMedia('(max-width: 767px)').matches ? 'list' : null;
-  const preferredView = prefs.preferredView || mobileDefaultView || config.defaultView || 'split';
+  const preferredView = hasInteractiveMap
+    ? (prefs.preferredView || mobileDefaultView || config.defaultView || 'split')
+    : 'list';
   setView(preferredView);
 
   // Replace block content
@@ -3334,7 +3425,7 @@ export default async function decorate(block) {
     hideLoading(loadingSpinner);
 
     // Load Google Maps dynamically if API key is provided
-    if (config.googleMapsApiKey && config.mapProvider === 'google') {
+    if (config.googleMapsApiKey && hasInteractiveMap) {
       try {
         const mapsLoaded = await googleMapsReadyPromise;
         if (!mapsLoaded) {
@@ -3372,7 +3463,7 @@ export default async function decorate(block) {
         const errorMsg = 'Unable to load map. Please check your API key and try again.';
         mapContainer.replaceChildren(createEl('p', { className: 'map-placeholder' }, errorMsg));
       }
-    } else {
+    } else if (hasInteractiveMap) {
       // No API key provided - show helpful message
       const fallback = { lat: 45.5231, lng: -122.6765 };
       const mapCenter = userLocation || filteredStores[0]?.address.coordinates || fallback;
