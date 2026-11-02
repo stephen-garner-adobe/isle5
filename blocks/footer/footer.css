@@ -71,3 +71,24 @@ footer .footer p {
         padding: 40px 32px 24px;
     }
 }
+
+body.isle5 footer {
+  background: var(--isle5-ink);
+  border-top: 1px solid var(--isle5-line);
+}
+
+body.isle5 footer .footer > div {
+  max-width: 1600px;
+  padding: 5.6rem var(--isle5-gutter) 3.2rem;
+}
+
+body.isle5 footer .footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--isle5-stone);
+}
+
+body.isle5 footer .footer a:hover {
+  color: var(--isle5-chalk);
+}

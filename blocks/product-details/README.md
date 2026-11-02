@@ -58,3 +58,7 @@ No events are emitted by this block. -->
 - **Image Rendering Errors**: If product images fail to load, the image slots handle fallback behavior
 - **JSON-LD Errors**: If structured data generation fails, falls back to basic meta tags
 - **Fallback Behavior**: Always falls back to appropriate mode based on URL parameters and cart state
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

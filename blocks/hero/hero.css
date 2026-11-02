@@ -35,3 +35,80 @@
     padding: 40px 32px;
   }
 }
+
+/* The opt-in theme leaves ordinary hero presentation unchanged. */
+body.isle5 .hero-container .hero-wrapper {
+  padding: 0;
+}
+
+body.isle5 .hero {
+  isolation: isolate;
+  box-sizing: border-box;
+  min-height: min(76rem, 85svh);
+  padding: clamp(6rem, 8vw, 12rem) var(--isle5-gutter);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+body.isle5 .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(16 17 16 / 96%), rgb(16 17 16 / 72%) 35%, rgb(16 17 16 / 10%) 80%);
+  z-index: -1;
+}
+
+body.isle5 .hero > div {
+  max-width: 68rem;
+}
+
+body.isle5 .hero h1 {
+  color: var(--isle5-chalk);
+  max-width: 9ch;
+  margin: 0 0 2.4rem;
+  font-size: clamp(6.4rem, 8vw, 12rem);
+}
+
+body.isle5 .hero p {
+  max-width: 42ch;
+  color: var(--isle5-stone);
+}
+
+body.isle5 .hero .button-container {
+  display: inline-block;
+  margin: 1.6rem 1.2rem 0 0;
+}
+
+body.isle5 .hero a.button {
+  color: var(--isle5-ink);
+  background: var(--isle5-chalk);
+  border: 1px solid var(--isle5-chalk);
+  border-radius: 0;
+  white-space: normal;
+}
+
+body.isle5 .hero picture {
+  z-index: -2;
+}
+
+body.isle5 .hero img {
+  object-position: 65% center;
+}
+
+@media (max-width: 767px) {
+  body.isle5 .hero {
+    min-height: 68rem;
+    justify-content: flex-end;
+    padding-block: 30rem 5.6rem;
+  }
+
+  body.isle5 .hero::before {
+    background: linear-gradient(0deg, var(--isle5-ink), rgb(16 17 16 / 92%) 25%, rgb(16 17 16 / 15%) 75%);
+  }
+
+  body.isle5 .hero img {
+    object-position: 65% top;
+  }
+}

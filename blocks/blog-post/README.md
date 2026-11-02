@@ -153,3 +153,7 @@ The block resolves and applies metadata in this order:
 | Heading jump sits under nav | Cached CSS/JS or non-standard nav offset | Hard refresh and verify `scroll-margin-top` application on body headings. |
 | Metadata value not taking effect | Invalid token spelling | Use allowed values exactly; check console for `blog-post:` warnings. |
 | Unexpected layout | Section metadata placed on wrong section | Move `section-metadata` directly above the block section. |
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

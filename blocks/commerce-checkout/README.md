@@ -108,3 +108,7 @@ No localStorage keys are used by this block. -->
 - If the block redirects immediately, verify the cart is not empty and the route is the intended checkout route.
 - If payment methods do not appear, verify checkout and payment-service initializers are loading correctly.
 - If the page is indexed in search results, review page-level `Robots` metadata for the checkout template.
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

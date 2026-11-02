@@ -15,6 +15,23 @@
         "label": "Description"
       },
       {
+        "component": "select",
+        "valueType": "string",
+        "name": "theme",
+        "label": "Theme",
+        "description": "Optional storefront presentation. Default preserves the current page appearance.",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Isle5",
+            "value": "isle5"
+          }
+        ]
+      },
+      {
         "component": "reference",
         "valueType": "string",
         "name": "image",
@@ -67,6 +84,10 @@
           {
             "name": "Highlight",
             "value": "highlight"
+          },
+          {
+            "name": "Chalk editorial surface (Isle5)",
+            "value": "chalk"
           }
         ]
       },
@@ -665,6 +686,32 @@
         "value": "",
         "label": "Text",
         "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "body",
+        "label": "Supporting content and links",
+        "description": "Optional copy and action links below the heading. Existing one-row heroes remain supported.",
+        "valueType": "string",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "name": "loading",
+        "label": "Image loading",
+        "description": "Use eager only after confirming this image is the page LCP asset.",
+        "valueType": "string",
+        "value": "lazy",
+        "options": [
+          {
+            "name": "Lazy (default)",
+            "value": "lazy"
+          },
+          {
+            "name": "Eager (verified LCP only)",
+            "value": "eager"
+          }
+        ]
       }
     ]
   },
@@ -758,6 +805,47 @@
         "label": "Page Size",
         "value": 9,
         "description": "Number of products per page (default: 9)"
+      }
+    ]
+  },
+  {
+    "id": "product-rail",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "required": true
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "urlpath",
+        "label": "Catalogue category path",
+        "description": "Optional real catalogue category. Omit to browse the active catalogue."
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "pageSize",
+        "label": "Product count",
+        "value": 4,
+        "description": "1–12 products; invalid values use 4."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "collectionLink",
+        "label": "Collection link",
+        "required": true
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "collectionLabel",
+        "label": "Collection link label",
+        "required": true
       }
     ]
   },

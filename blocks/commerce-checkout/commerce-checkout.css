@@ -268,3 +268,22 @@
         margin-top: 0;
     }
 }
+
+body.isle5 .commerce-checkout .checkout__main,
+body.isle5 .commerce-checkout .checkout__aside {
+  min-width: 0;
+}
+
+body.isle5 .commerce-checkout .checkout__aside {
+  background: var(--isle5-panel);
+  padding: 2.4rem;
+  align-self: start;
+}
+
+@media (min-width: 1024px) {
+  body.isle5 .commerce-checkout .checkout__content {
+    grid-template-columns: minmax(0, 1.5fr) minmax(30rem, 1fr);
+    column-gap: 6.4rem;
+    align-items: start;
+  }
+}

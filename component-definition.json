@@ -124,6 +124,18 @@
           }
         },
         {
+          "title": "Campaign Cards",
+          "id": "cards-campaign",
+          "model": "cards",
+          "filter": "cards",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div class=\"cards campaign\"><div><div><picture><img loading=\"lazy\" alt=\"\"></picture></div><div><h2></h2><p></p></div></div></div>",
+              "name": "cards"
+            }
+          }
+        },
+        {
           "title": "Card",
           "id": "card",
           "model": "card",
@@ -652,7 +664,7 @@
           "model": "hero",
           "plugins": {
             "da": {
-              "rows": 1,
+              "rows": 2,
               "columns": 1,
               "fields": [
                 {
@@ -666,6 +678,14 @@
                 {
                   "name": "text",
                   "selector": "div>div>h1"
+                },
+                {
+                  "name": "body",
+                  "selector": "div:nth-child(2)>div"
+                },
+                {
+                  "name": "loading",
+                  "selector": "div:first-child>div>picture>img[loading]"
                 }
               ]
             }
@@ -810,6 +830,16 @@
           "plugins": {
             "da": {
               "unsafeHTML": "<div class=\"top-banner\"><div><div><p>Message</p></div><div><p></p></div><div><p></p></div><div><p></p></div></div></div>"
+            }
+          }
+        },
+        {
+          "title": "Product Rail",
+          "id": "product-rail",
+          "model": "product-rail",
+          "plugins": {
+            "da": {
+              "type": "key-value-block"
             }
           }
         }

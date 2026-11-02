@@ -31,3 +31,26 @@
     order: unset;
   }
 }
+
+body.isle5 .columns > div {
+  gap: clamp(2.4rem, 5vw, 8rem);
+}
+
+body.isle5 .columns > div > div {
+  min-width: 0;
+}
+
+body.isle5 .columns .columns-img-col img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+body.isle5 .columns :is(p, h2, h3) {
+  max-width: 48ch;
+}
+
+body.isle5 .columns a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,0 +1,155 @@
+/* Opt-in storefront theme. Page content and commerce state remain DA/backend owned. */
+body.isle5,
+body.isle5 .dropin-design {
+  --isle5-ink: #101110;
+  --isle5-panel: #1c1d1b;
+  --isle5-chalk: #f3f2ed;
+  --isle5-stone: #b9bab4;
+  --isle5-moss: #d5e89b;
+  --isle5-line: #454641;
+  --isle5-gutter: clamp(2.2rem, 4.2vw, 7.6rem);
+  --isle5-display: roboto-condensed, impact, sans-serif;
+  --background-color: var(--isle5-ink);
+  --color-brand-300: var(--isle5-moss);
+  --color-brand-500: var(--isle5-chalk);
+  --color-brand-600: var(--isle5-moss);
+  --color-brand-700: #c3d98a;
+  --color-neutral-50: var(--isle5-ink);
+  --color-neutral-100: var(--isle5-panel);
+  --color-neutral-200: #252722;
+  --color-neutral-300: var(--isle5-line);
+  --color-neutral-400: #62665b;
+  --color-neutral-500: #959a8d;
+  --color-neutral-600: var(--isle5-stone);
+  --color-neutral-700: #d0d3ca;
+  --color-neutral-800: #e5e7df;
+  --color-neutral-900: var(--isle5-chalk);
+  --color-positive-200: #24301e;
+  --color-positive-500: #a6cf8b;
+  --color-positive-800: #b8e59c;
+  --color-informational-200: #202b38;
+  --color-informational-500: #a2c9ff;
+  --color-informational-800: #c2dcff;
+  --color-warning-200: #33291c;
+  --color-warning-500: #efc582;
+  --color-warning-800: #ffdda5;
+  --color-alert-200: #36211e;
+  --color-alert-500: #f89582;
+  --color-alert-800: #ffb5a3;
+  --color-button-focus: var(--isle5-moss);
+  --color-action-button-active: var(--isle5-panel);
+  --color-action-button-hover: #30352b;
+  --shape-border-radius-1: 0;
+  --shape-border-radius-2: 0;
+  --shape-border-radius-3: 0;
+  --type-base-font-family: roboto, roboto-fallback, system-ui, sans-serif;
+  --type-body-1-default-font: normal normal 400 1.6rem/2.5rem var(--type-base-font-family);
+  --type-body-1-default-letter-spacing: 0;
+  --type-body-2-default-font: normal normal 400 1.4rem/2.2rem var(--type-base-font-family);
+  --type-body-2-default-letter-spacing: 0;
+  --type-display-1-font: normal normal 700 6.4rem/1 var(--isle5-display);
+  --type-display-1-letter-spacing: -0.025em;
+  --type-display-2-font: normal normal 700 4.8rem/1.05 var(--isle5-display);
+  --type-display-2-letter-spacing: -0.025em;
+  --type-display-3-font: normal normal 700 3.6rem/1.1 var(--isle5-display);
+  --type-display-3-letter-spacing: -0.02em;
+  --type-headline-1-font: normal normal 700 3.2rem/1.1 var(--isle5-display);
+  --type-headline-1-letter-spacing: -0.02em;
+  --nav-height: 8rem;
+}
+
+body.isle5 {
+  color-scheme: dark;
+  color: var(--isle5-chalk);
+  background: var(--isle5-ink);
+}
+
+body.isle5 h1,
+body.isle5 h2,
+body.isle5 h3 {
+  font-family: var(--isle5-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+body.isle5 h1 {
+  font-size: clamp(4.8rem, 6.5vw, 10rem);
+  line-height: 1;
+}
+
+body.isle5 h2 {
+  font-size: clamp(3.2rem, 4vw, 5.8rem);
+  line-height: 1.05;
+}
+
+body.isle5 a {
+  text-underline-offset: 0.22em;
+}
+
+body.isle5 :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--isle5-moss);
+  outline-offset: 4px;
+}
+
+body.isle5 :is(button, .button, input, select, summary) {
+  min-height: 44px;
+}
+
+body.isle5 a.button,
+body.isle5 button {
+  border-radius: 0;
+}
+
+body.isle5 main > .section > div {
+  max-width: 1600px;
+  padding-inline: var(--isle5-gutter);
+}
+
+body.isle5 main > .section {
+  margin-block: 5.6rem;
+}
+
+body.isle5 main > .section:first-child {
+  margin-block-start: 0;
+}
+
+body.isle5 main .section.light,
+body.isle5 main .section.highlight {
+  background: var(--isle5-panel);
+}
+
+body.isle5 main .section.chalk {
+  color: var(--isle5-ink);
+  background: var(--isle5-chalk);
+}
+
+body.isle5 main .section.chalk a {
+  color: inherit;
+}
+
+body.isle5 main .section.chalk :is(a, button):focus-visible {
+  outline-color: var(--isle5-ink);
+}
+
+@media (min-width: 900px) {
+  body.isle5 {
+    --nav-height: 9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.isle5 *,
+  body.isle5 *::before,
+  body.isle5 *::after {
+    scroll-behavior: auto;
+    transition: none;
+    animation: none;
+  }
+}
+
+body.isle5 main .section.chalk a.button {
+  color: var(--isle5-chalk);
+  background: var(--isle5-ink);
+  border-color: var(--isle5-ink);
+}

@@ -1,0 +1,58 @@
+{
+  "definitions": [
+    {
+      "title": "Product Rail",
+      "id": "product-rail",
+      "model": "product-rail",
+      "plugins": {
+        "da": {
+          "type": "key-value-block"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "product-rail",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "title",
+          "label": "Title",
+          "required": true
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "urlpath",
+          "label": "Catalogue category path",
+          "description": "Optional real catalogue category. Omit to browse the active catalogue."
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "pageSize",
+          "label": "Product count",
+          "value": 4,
+          "description": "1\u201312 products; invalid values use 4."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "collectionLink",
+          "label": "Collection link",
+          "required": true
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "collectionLabel",
+          "label": "Collection link label",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

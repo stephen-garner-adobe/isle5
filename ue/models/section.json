@@ -25,6 +25,10 @@
             {
               "name": "Highlight",
               "value": "highlight"
+            },
+            {
+              "name": "Chalk editorial surface (Isle5)",
+              "value": "chalk"
             }
           ]
         },
@@ -135,6 +139,7 @@
         "blog-post",
         "blog-tiles",
         "cards",
+        "cards-campaign",
         "cards-list",
         "carousel",
         "circle-carousel",
@@ -176,6 +181,7 @@
         "newsletter",
         "product-details",
         "product-list-page",
+        "product-rail",
         "product-recommendations",
         "promotional-hero",
         "search-bar",

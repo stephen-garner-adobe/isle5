@@ -45,3 +45,7 @@ Not applicable. The block has no block-specific metadata tiers today.
 
 - If layout classes are wrong, confirm the first row reflects the intended column count.
 - If image-column styling does not apply, confirm the image wrapper contains only the picture.
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

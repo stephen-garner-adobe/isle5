@@ -2,47 +2,46 @@
 
 ## Overview
 
-The `hero` block is a simple image-and-heading hero definition with no custom JavaScript behavior.
+`hero` enhances an authored picture and heading. On pages with `Theme: isle5`, it becomes a static image-led campaign with optional supporting rich text and actions. Other pages retain the existing presentation.
 
-## DA.live integration and authoring structure
+## Authored table
 
-The block is authored with a single row containing an image, alt text, and heading text.
-
-| DA.live Model Options | Value | Effect |
-| --- | --- | --- |
-| `image` | reference | Required. Hero image source. |
-| `alt` | text | Optional alt text for the hero image. |
-| `text` | text | Required. Hero heading text. |
-
-Document authoring example:
+The first row/cell contains the image and H1. An optional second row/cell contains supporting rich text and links. Existing one-row documents remain valid. Extra rich-text wrappers are tolerated; the decorator finds the picture without requiring a fixed wrapper depth.
 
 | Hero |
 | --- |
-| image + heading content |
+| Image with alt text, followed by the page H1 |
+| Optional supporting paragraph and action links |
 
-## Section Metadata Reference
+## Model options
 
-This block does not currently use block-specific section metadata.
-
-| key/field | possible values | effect |
+| Field | Required | Effect |
 | --- | --- | --- |
-| N/A | N/A | Default: no section metadata is read by this block. |
+| `image` | Yes for image enhancement | Existing image source |
+| `alt` | No | Meaningful alt text; empty only for decorative imagery |
+| `text` | Yes for campaign heading | Existing H1 field |
+| `body` | No | Rich text and labelled action links in the second row |
+| `loading` | No | `lazy` by default; `eager` only for an image verified as the page LCP candidate |
 
-## Metadata Precedence
+## Configuration and metadata
 
-Not applicable. The block has no metadata contract today.
+There is no key-value configuration table or custom section metadata. Page `Theme: isle5` selects campaign presentation. Existing section layout controls remain available. Source-model fields live in `ue/models/blocks/hero.json`; precedence is not applicable.
 
-## Behavior patterns
+The isle5 theme only requests eager image loading when the authored image explicitly uses `loading="eager"`. Unthemed pages preserve their existing first-section loading behavior. Do not mark an image eager merely because it appears first.
 
-- Rendering is driven by authored markup, block CSS, and a small `decorate(block)` enhancement.
-- `hero.js` replaces the authored picture with an optimized responsive picture and marks the first-section image eager for LCP.
+## Behavior and fallback
 
-## Accessibility notes
+The decorator optimizes a safe HTTP(S) picture, retains the remaining rich content and runs only once per block. Missing/unsafe media is omitted while heading, copy and links remain. Relative image URLs are resolved against the current document. Unsupported action schemes are disabled; new-window links enforce `noopener noreferrer`.
 
-- Provide meaningful image alt text unless the image is purely decorative.
-- Keep hero heading text aligned with the page heading hierarchy.
+## Accessibility
+
+Use one logical H1 per page. Keep supporting headings in order and provide meaningful link text. Campaign text has a contrast overlay and responsive sizing. Focus remains visible, primary links have at least a 44px target and reduced-motion preferences are respected.
 
 ## Troubleshooting
 
-- If styling appears missing, verify the block is authored as the `hero` definition and the CSS is loading.
-- If content structure is unexpected, confirm the authored row matches [hero.json](/Users/sgarner/Documents/Demo%20Environments/isle5/ue/models/blocks/hero.json) field selectors.
+- No image: check that the first authored region contains a picture with a safe image URL.
+- Supporting copy absent: the second row is optional; author it through the rich-text field or normal table content.
+- Default appearance: check page `Theme: isle5` and stylesheet delivery.
+- Cropping obscures the subject: approve a suitable mobile/desktop crop before authoring; the generic campaign aligns media toward the right.
+
+A new DA example and delivered-preview validation remain required before authoring rollout; repository/model changes do not create that example.

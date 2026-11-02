@@ -632,3 +632,15 @@
 .blog-post[data-blogpost-heroratio='square'] .blog-post-hero {
   aspect-ratio: 1 / 1;
 }
+
+body.isle5 .blog-post {
+  color: var(--isle5-chalk);
+}
+
+body.isle5 .blog-post :is(h1, h2, h3) {
+  font-family: var(--isle5-display);
+}
+
+body.isle5 .blog-post p {
+  line-height: 1.7;
+}

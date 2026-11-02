@@ -64,3 +64,18 @@ This block does not emit or listen to any custom events. -->
 - **Missing Images**: If a card row has no image, only body content is displayed
 - **Empty Cards**: Empty rows are still rendered as cards with appropriate spacing
 - **Fallback Behavior**: Block gracefully handles missing or malformed content
+
+## Isle5 campaign variant
+
+The `Campaign Cards` insertion definition creates `cards campaign` markup using the existing `cards` runtime, `card` rich-text model and parent filter. Its definition ID is `cards-campaign`; it is a presentation variant, not a new runtime block. Ordinary cards keep their appearance.
+
+On a page with `Theme: isle5`, campaign cards show image overlays with semantic headings and links. Use one image/body pair per row. The `card` fields remain `image`, `imageAlt` and rich-text `text`. There are no added key-value settings or custom section metadata, and no precedence layers.
+
+| Cards (campaign) | |
+| --- | --- |
+| Image with descriptive alt text | H2 category heading, supporting copy and a labelled destination link |
+| Another image | Another category heading and link |
+
+Images are optional for fallback: without one, the text still appears on a solid surface. Unsupported media is omitted, unsupported link schemes are disabled and new-window links enforce `noopener noreferrer`. Re-decoration does not duplicate the list. Desktop uses three columns; mobile uses two with an odd final card spanning the row. Keep primary links at least 44px and test long headings, translated text and missing media.
+
+If the variant is unavailable, regenerate source models with `npm run build:json` and verify the `cards-campaign` section-filter entry. Creating the model does not register a remote DA library example or publish content.

@@ -59,3 +59,13 @@
     border-top: 1px solid #dadada;
     background-color: var(--background-color);
 }
+
+body.isle5 .accordion details {
+  border-color: var(--isle5-line);
+  background: var(--isle5-ink);
+}
+
+body.isle5 .accordion summary {
+  padding-block: 1.6rem;
+  min-height: 44px;
+}

@@ -105,6 +105,12 @@ async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
 
+  if (doc.body.classList.contains('isle5')) {
+    await loadCSS(`${window.hlx.codeBasePath}/styles/isle5.css`).catch(() => {
+      console.warn('isle5: theme stylesheet unavailable; continuing page enhancement.');
+    });
+  }
+
   const main = doc.querySelector('main');
   if (main) {
     try {

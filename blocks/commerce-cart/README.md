@@ -65,3 +65,7 @@ No localStorage keys are used by this block. -->
 - **Configuration Errors**: If `readBlockConfig()` fails, uses default configuration values
 - **Render Errors**: If container rendering fails, the affected section remains empty
 - **Fallback Behavior**: Always falls back to default configuration values for missing or invalid settings
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

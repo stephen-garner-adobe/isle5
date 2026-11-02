@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { getSafeURL, sanitizeLinks } from '../../scripts/dom-safety.js';
 
 function isLcpCandidate(block) {
   const section = block.closest('.section');
@@ -7,19 +8,21 @@ function isLcpCandidate(block) {
 
 export default function decorate(block) {
   if (block.dataset.heroDecorated === 'true') return;
-  block.dataset.heroDecorated = 'true';
 
   const picture = block.querySelector('picture');
   const img = picture?.querySelector('img');
-  if (!img?.src) {
+  sanitizeLinks(block);
+  const src = getSafeURL(img?.getAttribute('src'), document.baseURI);
+  if (!src) {
+    if (picture) picture.remove();
     console.warn('hero: No valid image found in authored content.');
     return;
   }
 
   const optimizedPicture = createOptimizedPicture(
-    img.src,
+    src,
     img.alt || '',
-    isLcpCandidate(block),
+    document.body.classList.contains('isle5') ? img.loading === 'eager' : isLcpCandidate(block),
     [
       { media: '(min-width: 900px)', width: '2000' },
       { width: '750' },
@@ -27,4 +30,5 @@ export default function decorate(block) {
   );
 
   picture.replaceWith(optimizedPicture);
+  block.dataset.heroDecorated = 'true';
 }

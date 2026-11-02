@@ -16,6 +16,23 @@
           "label": "Description"
         },
         {
+          "component": "select",
+          "valueType": "string",
+          "name": "theme",
+          "label": "Theme",
+          "description": "Optional storefront presentation. Default preserves the current page appearance.",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Isle5",
+              "value": "isle5"
+            }
+          ]
+        },
+        {
           "component": "reference",
           "valueType": "string",
           "name": "image",

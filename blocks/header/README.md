@@ -144,3 +144,7 @@ The header creates three main sections from the nav fragment:
 - `header.css` - Styles for navigation, panels, and responsive layouts
 - `renderAuthCombine.js` - Authentication modal for mobile with sign in/sign up/reset password forms
 - `renderAuthDropdown.js` - Authentication dropdown for desktop with sign in form and user menu
+
+## Isle5 theme
+
+Page metadata `Theme: isle5` opts into the redesigned presentation. Existing authored content, block settings and Commerce behavior retain their ownership; no custom section keys or backend settings are added by the theme. Other pages keep their existing appearance. Validate long content, narrow viewports, focus and service error states before authoring rollout.

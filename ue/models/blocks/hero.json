@@ -6,7 +6,7 @@
       "model": "hero",
       "plugins": {
         "da": {
-          "rows": 1,
+          "rows": 2,
           "columns": 1,
           "fields": [
             {
@@ -20,6 +20,14 @@
             {
               "name": "text",
               "selector": "div>div>h1"
+            },
+            {
+              "name": "body",
+              "selector": "div:nth-child(2)>div"
+            },
+            {
+              "name": "loading",
+              "selector": "div:first-child>div>picture>img[loading]"
             }
           ]
         }
@@ -50,6 +58,32 @@
           "value": "",
           "label": "Text",
           "valueType": "string"
+        },
+        {
+          "component": "richtext",
+          "name": "body",
+          "label": "Supporting content and links",
+          "description": "Optional copy and action links below the heading. Existing one-row heroes remain supported.",
+          "valueType": "string",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "loading",
+          "label": "Image loading",
+          "description": "Use eager only after confirming this image is the page LCP asset.",
+          "valueType": "string",
+          "value": "lazy",
+          "options": [
+            {
+              "name": "Lazy (default)",
+              "value": "lazy"
+            },
+            {
+              "name": "Eager (verified LCP only)",
+              "value": "eager"
+            }
+          ]
         }
       ]
     }

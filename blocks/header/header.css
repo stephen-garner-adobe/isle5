@@ -457,6 +457,56 @@ header nav .nav-tools button.nav-wishlist-button {
   position: relative;
 }
 
+
+body.isle5 header .nav-wrapper {
+  background: var(--isle5-ink);
+  border-color: var(--isle5-line);
+}
+
+body.isle5 header nav {
+  max-width: 1600px;
+  padding-inline: var(--isle5-gutter);
+}
+
+body.isle5 header nav .nav-brand,
+body.isle5 header nav .nav-brand a {
+  min-width: 7.2rem;
+}
+
+body.isle5 header nav .nav-brand a {
+  background: var(--isle5-chalk);
+  padding: 0.8rem 1.2rem;
+}
+
+body.isle5 header nav .nav-brand img {
+  width: 9rem;
+  max-height: 5rem;
+  object-fit: contain;
+}
+
+body.isle5 header nav .nav-sections a {
+  color: var(--isle5-chalk);
+  font-size: 1.3rem;
+  letter-spacing: 0;
+}
+
+body.isle5 header nav .nav-tools button,
+body.isle5 header nav .nav-hamburger button {
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+}
+
+body.isle5 header nav .nav-sections a:hover {
+  color: var(--isle5-moss);
+}
+
+@media (min-width: 900px) {
+  body.isle5 header nav {
+    column-gap: clamp(2rem, 3vw, 4.8rem);
+  }
+}
+
 header nav .nav-tools button.nav-search-button {
   font-size: 0;
   background-image: url('../../icons/search.svg');
@@ -504,6 +554,35 @@ header .nav-search-panel .search-bar-result .dropin-product-item-card__content .
 
 header .nav-search-panel .search-bar-result .product-discovery-product-list__footer button {
   width: 100%;
+}
+
+body.isle5 header nav .nav-tools button:is(.nav-cart-button, .nav-wishlist-button, .nav-search-button) {
+  background-image: none;
+}
+
+body.isle5 header nav .nav-tools button.nav-cart-button {
+  --isle5-tool-icon: url('../../icons/cart.svg');
+}
+
+body.isle5 header nav .nav-tools button.nav-wishlist-button {
+  --isle5-tool-icon: url('../../icons/heart.svg');
+}
+
+body.isle5 header nav .nav-tools button.nav-search-button {
+  --isle5-tool-icon: url('../../icons/search.svg');
+}
+
+body.isle5 header nav .nav-tools button:is(.nav-cart-button, .nav-wishlist-button, .nav-search-button)::before {
+  content: '';
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  background: var(--isle5-chalk);
+  mask: var(--isle5-tool-icon) center / contain no-repeat;
+}
+
+body.isle5 header nav .nav-dropdown-button svg g {
+  stroke: var(--isle5-chalk);
 }
 
 /* Mini Cart  */

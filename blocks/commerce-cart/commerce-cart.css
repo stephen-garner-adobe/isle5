@@ -79,3 +79,27 @@
     flex-basis: auto;
   }
 }
+
+body.isle5 .commerce-cart {
+  padding-block: 3.2rem;
+}
+
+body.isle5 .commerce-cart .cart__left-column,
+body.isle5 .commerce-cart .cart__right-column {
+  min-width: 0;
+}
+
+body.isle5 .commerce-cart .cart__right-column {
+  background: var(--isle5-panel);
+  padding: 2.4rem;
+  box-sizing: border-box;
+  align-self: flex-start;
+}
+
+@media (min-width: 1024px) {
+  body.isle5 .commerce-cart .cart__wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(28rem, 1fr);
+    gap: 6.4rem;
+  }
+}

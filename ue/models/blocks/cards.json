@@ -13,6 +13,18 @@
       }
     },
     {
+      "title": "Campaign Cards",
+      "id": "cards-campaign",
+      "model": "cards",
+      "filter": "cards",
+      "plugins": {
+        "da": {
+          "unsafeHTML": "<div class=\"cards campaign\"><div><div><picture><img loading=\"lazy\" alt=\"\"></picture></div><div><h2></h2><p></p></div></div></div>",
+          "name": "cards"
+        }
+      }
+    },
+    {
       "title": "Card",
       "id": "card",
       "model": "card",
